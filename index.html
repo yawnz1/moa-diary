@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>♡MOA Diary♡</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1><span class="heart">♡</span> MOA Diary <span class="heart">♡</span></h1>
+  </header>
+
+  <main>
+        <section id="page-home" class="page active">
+      <h2>⏳ 倒数日</h2>
+
+      <div class="count-box">
+        <p>距离 <span id="event-name-text">演唱会</span> 还有</p>
+        <p class="big-number"><span id="countdown-days">?</span> 天</p>
+      </div>
+
+      <label>活动名称
+        <input type="text" id="event-name" placeholder="例如：TXT 台北演唱会">
+      </label>
+      <label>活动日期
+        <input type="date" id="event-date">
+      </label>
+
+      <hr>
+
+      <div class="count-box">
+        <p>我已经当 MOA</p>
+        <p class="big-number"><span id="fan-days">?</span> 天</p>
+      </div>
+
+      <label>开始追星的日子
+        <input type="date" id="fan-start">
+      </label>
+
+      <hr>
+
+      <div class="count-box">
+        <p><strong>💾 资料备份</strong></p>
+        <p class="rate-info">换手机、换电脑，或怕资料不见时使用</p>
+        <div class="row">
+          <button type="button" class="btn-small" id="btn-export">导出备份</button>
+          <button type="button" class="btn-small btn-light" id="btn-import">导入备份</button>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display: none;">
+      </div>
+    </section>
+
+    <section id="page-money" class="page">
+      <h2>💰 记账</h2>
+            <div class="count-box">
+        <p><strong>📊 统计</strong></p>
+        <div class="row">
+          <label>从
+            <input type="date" id="stats-from">
+          </label>
+          <label>到
+            <input type="date" id="stats-to">
+          </label>
+        </div>
+        <button type="button" class="btn-small btn-light" id="stats-this-month">这个月</button>
+
+        <p>共 <span id="stats-count">0</span> 笔</p>
+        <p class="big-number">NT$ <span id="stats-total">0</span></p>
+        <p class="rate-info">商品 NT$ <span id="stats-amount">0</span> ＋ 二补 NT$ <span id="stats-extra">0</span></p>
+      </div>
+            <details class="calc">
+        <summary>🧮 计算小工具</summary>
+
+        <input type="text" id="calc-name" placeholder="名称（选填）">
+        <div class="row">
+          <input type="number" id="calc-amount" placeholder="金额">
+          <select id="calc-currency">
+            <option value="TWD">台币</option>
+            <option value="KRW">韩币</option>
+            <option value="JPY">日币</option>
+            <option value="USD">美金</option>
+          </select>
+        </div>
+        <button type="button" class="btn-small" id="calc-add">＋ 加入</button>
+
+        <div id="calc-list"></div>
+
+        <p class="calc-total">合计 NT$ <span id="calc-total">0</span></p>
+        <p class="rate-info" id="rate-info"></p>
+
+        <div class="row">
+          <button type="button" class="btn-small" id="calc-fill">填入金额</button>
+          <button type="button" class="btn-small btn-light" id="calc-clear">清空</button>
+        </div>
+      </details>
+
+      <form id="money-form">
+        <label>日期
+          <input type="date" id="m-date" required>
+        </label>
+        <label>商品名称
+          <input type="text" id="m-item" placeholder="例如：TXT 专辑" required>
+        </label>
+        <label>成员
+          <input type="text" id="m-member" placeholder="例如：然竣">
+        </label>
+
+                <label>金额（台币）
+          <input type="number" id="m-amount" placeholder="0" required>
+        </label>
+
+        <label>代购
+          <input type="text" id="m-agent" placeholder="例如：小明代购">
+        </label>
+        <label>购买平台
+          <input type="text" id="m-platform" placeholder="例如：Weverse Shop">
+        </label>
+
+        <div class="row">
+          <label>运输方式
+            <select id="m-shipping">
+              <option value="">无</option>
+              <option value="空运">✈️ 空运</option>
+              <option value="海运">🚢 海运</option>
+            </select>
+          </label>
+          <label>二补（台币）
+            <input type="number" id="m-extra" placeholder="0">
+          </label>
+        </div>
+
+        <label>状态
+          <select id="m-status">
+            <option value="已付款">已付款</option>
+            <option value="待二补">待二补</option>
+            <option value="已发货">已发货</option>
+            <option value="已到货">已到货</option>
+          </select>
+        </label>
+        <label>备注
+          <textarea id="m-note" rows="2"></textarea>
+        </label>
+
+        <button type="submit" class="btn-main">记一笔 ♡</button>
+      </form>
+
+      <div id="money-list"></div>
+    </section>
+
+           <section id="page-pending" class="page">
+      <h2>📦 待到货</h2>
+
+      <div class="count-box">
+        <p>待二补合计</p>
+        <p class="big-number">NT$ <span id="pending-extra">0</span></p>
+        <p>📦 还有 <span id="pending-count">0</span> 笔还没到货</p>
+      </div>
+
+      <div id="pending-list"></div>
+    </section>
+
+        <section id="page-diary" class="page">
+      <h2>📸 记录</h2>
+      <div class="sub-tabs">
+        <button type="button" class="sub-tab active" data-type="concert">🎤 演唱会</button>
+        <button type="button" class="sub-tab" data-type="mood">💭 心情</button>
+      </div>
+      <form id="diary-form">
+                <label>日期
+          <input type="date" id="d-date" required>
+        </label>
+
+        <div id="concert-fields">
+          <label>演唱会名称
+            <input type="text" id="d-title" placeholder="例如：TXT 台北演唱会 Day 1">
+          </label>
+          <div class="row">
+            <label>地点
+              <input type="text" id="d-place" placeholder="例如：台北小巨蛋">
+            </label>
+            <label>座位
+              <input type="text" id="d-seat" placeholder="例如：A 区 12 排">
+            </label>
+          </div>
+        </div>
+
+        <label>写点什么
+          <textarea id="d-text" rows="4" placeholder="今天的心情…"></textarea>
+        </label>
+        <label>照片（最多 9 张）
+          <input type="file" id="d-photos" accept="image/*" multiple>
+        </label>
+        <div id="photo-preview" class="photo-grid"></div>
+        <button type="submit" class="btn-main">记下来 ♡</button>
+      </form>
+
+      <div id="diary-list"></div>
+    </section>
+  </main>
+
+  <nav class="tab-bar">
+    <button class="active" data-page="page-home">🏠<br>首页</button>
+    <button data-page="page-money">💰<br>记账</button>
+        <button data-page="page-pending">📦<br>待到货</button>
+    <button data-page="page-diary">📸<br>记录</button>
+  </nav>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

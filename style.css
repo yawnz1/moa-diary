@@ -1,0 +1,372 @@
+body {
+  font-family: "Quicksand", "PingFang TC", sans-serif;
+  background-color: #f3f0ff;
+  color: #4a4a68;
+  text-align: center;
+    padding: 40px 16px 100px;
+}
+
+h1 {
+  color: #6c63ff;
+  font-size: 32px;
+}
+
+.heart {
+  color: #ff8fb1;
+}
+/* 每一页：白色圆角卡片 */
+.page {
+  display: none;
+  background-color: white;
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 480px;
+  margin: 0 auto;
+  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.1);
+}
+
+/* 只有 active 的那页才显示 */
+.page.active {
+  display: block;
+}
+
+/* 底部选单 */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background-color: white;
+  border-top: 1px solid #e6e1ff;
+  padding: 8px 0 20px;
+}
+
+.tab-bar button {
+  flex: 1;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: #a09cc0;
+  cursor: pointer;
+}
+
+.tab-bar button.active {
+  color: #6c63ff;
+  font-weight: 700;
+}
+/* 倒数日的数字框 */
+.count-box {
+  background-color: #f3f0ff;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.big-number {
+  font-size: 40px;
+  font-weight: 700;
+  color: #6c63ff;
+  margin: 4px 0;
+}
+
+/* 输入框 */
+label {
+  display: block;
+  text-align: left;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+input, select, textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #e6e1ff;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+hr {
+  border: none;
+  border-top: 1px dashed #e6e1ff;
+  margin: 24px 0;
+}
+
+/* 两个栏位并排 */
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 主要按钮 */
+.btn-main {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  background-color: #6c63ff;
+  color: white;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 记账卡片 */
+.money-card {
+  background-color: #f3f0ff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  text-align: left;
+}
+
+.money-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  font-size: 12px;
+  background-color: white;
+  color: #6c63ff;
+  padding: 4px 10px;
+  border-radius: 999px;
+    cursor: pointer;
+}
+
+.money-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: #6c63ff;
+  margin: 6px 0;
+}
+
+
+/* 资料小标签 */
+.info-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.info-tag {
+  font-size: 12px;
+  background-color: white;
+  color: #7a7896;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.money-note {
+  font-size: 13px;
+  color: #7a7896;
+  margin: 10px 0 0;
+}
+
+
+/* 删除按钮 */
+.btn-delete {
+  display: block;
+  margin: 10px 0 0 auto;
+  background: none;
+  border: none;
+  color: #c0bcd6;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+
+/* 汇率说明小字 */
+.rate-info {
+  font-size: 13px;
+  color: #7a7896;
+}
+
+
+/* 🧮 计算小工具 */
+.calc {
+  background-color: #f3f0ff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.calc summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #6c63ff;
+}
+
+.calc .row > * {
+  flex: 1;
+}
+
+.btn-small {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 999px;
+  background-color: #6c63ff;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-light {
+  background-color: white;
+  color: #6c63ff;
+}
+
+/* 购物车的每一样 */
+.calc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.calc-item span:first-child {
+  flex: 1;
+}
+
+.calc-remove {
+  background: none;
+  border: none;
+  color: #c0bcd6;
+  cursor: pointer;
+}
+
+.calc-total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #6c63ff;
+  text-align: right;
+  margin: 12px 0 4px;
+}
+
+
+/* 没有资料时的提示 */
+.empty {
+  color: #a09cc0;
+  margin-top: 16px;
+}
+
+/* 日期框：左右留白小一点，手机上才放得下两个并排 */
+input[type="date"] {
+  min-width: 0;
+  padding: 10px 8px;
+}
+
+
+/* 记录的内文：保留换行 */
+.diary-text {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 10px 0 0;
+}
+
+
+/* 照片格子：一排 3 张 */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.photo-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 预览照片右上角的 ✕ */
+.preview-item {
+  position: relative;
+}
+
+.preview-item button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* 看大图：黑色半透明背景盖满整个画面 */
+.viewer {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.viewer img {
+  max-width: 95%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+
+/* 记录页的小分页 */
+.sub-tabs {
+  display: flex;
+  gap: 4px;
+  background-color: #f3f0ff;
+  padding: 4px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.sub-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: #a09cc0;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sub-tab.active {
+  background-color: white;
+  color: #6c63ff;
+  box-shadow: 0 2px 8px rgba(108, 99, 255, 0.15);
+}
