@@ -273,10 +273,27 @@ hr {
   margin-top: 16px;
 }
 
-/* 日期框：左右留白小一点，手机上才放得下两个并排 */
+/* 日期框：左右留白小一点；iPhone 上拿掉灰底 */
 input[type="date"] {
   min-width: 0;
+  min-height: 44px;
   padding: 10px 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: white;
+}
+
+/* iPhone 的日期文字靠左 */
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* 手机上：统计的「从」「到」改成上下排 */
+@media (max-width: 480px) {
+  .stats-dates {
+    flex-direction: column;
+    gap: 0;
+  }
 }
 
 
