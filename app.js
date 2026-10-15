@@ -1,3 +1,9 @@
+// iPhone 状态栏的颜色：自动用页面背景色（之后换背景色也会跟着变）
+const themeColor = document.createElement("meta");
+themeColor.name = "theme-color";
+themeColor.content = getComputedStyle(document.body).backgroundColor;
+document.head.appendChild(themeColor);
+
 // 找到底部选单的所有按钮
 const tabButtons = document.querySelectorAll(".tab-bar button[data-page]");
 
@@ -258,6 +264,17 @@ document.getElementById("btn-home-edit").addEventListener("click", function () {
 });
 document.getElementById("event-sheet-close").addEventListener("click", closeEventSheet);
 document.getElementById("event-sheet-backdrop").addEventListener("click", closeEventSheet);
+
+// ⚙️ 设定：打开 / 关闭
+const settingsSheet = document.getElementById("settings-sheet");
+function closeSettings() {
+    settingsSheet.classList.remove("open");
+}
+document.getElementById("btn-settings").addEventListener("click", function () {
+    settingsSheet.classList.add("open");
+});
+document.getElementById("settings-close").addEventListener("click", closeSettings);
+document.getElementById("settings-backdrop").addEventListener("click", closeSettings);
 
 // ===== 记账 =====
 
@@ -1202,3 +1219,72 @@ async function loadRates() {
 // 打开网页时：先用旧的汇率显示，再去抓新的
 selectCurrency("TWD");
 loadRates();
+
+
+// ===== 🐥 黄春 =====
+// （整块独立：要拿掉的话，删掉这一段到最后）
+
+const petRoom = document.getElementById("pet-room");
+const pet = document.getElementById("pet");
+const petHop = document.getElementById("pet-hop");
+const petBody = document.getElementById("pet-body");
+let petX = 0;  // 黄春现在离房间左边几 px
+
+// 产生 min ~ max 之间的随机数
+function randomBetween(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+// 跳一下
+function petJump() {
+    petHop.classList.remove("jump");
+    void petHop.offsetWidth;          // 让动画可以重新播放
+    petHop.classList.add("jump");
+}
+
+// 决定下一步要做什么：走、停、跳
+function petNextMove() {
+    const roomWidth = petRoom.clientWidth;
+    if (roomWidth === 0) {
+        // 不在黄春的页面（看不到房间）：先休息，等一下再看
+        setTimeout(petNextMove, 1000);
+        return;
+    }
+
+    const maxX = roomWidth - pet.offsetWidth;
+    const dice = Math.random();
+
+    if (dice < 0.55) {
+        // 🚶 走到随机的位置
+        const targetX = randomBetween(0, maxX);
+        const seconds = Math.abs(targetX - petX) / 40;   // 每秒走 40px
+        // 往右走就转向右边（emoji 本来面向左边）
+        petBody.classList.toggle("face-right", targetX > petX);
+        pet.style.transition = `transform ${seconds}s linear`;
+        pet.style.transform = `translateX(${targetX}px)`;
+        petX = targetX;
+        setTimeout(petNextMove, seconds * 1000 + randomBetween(300, 800));
+    } else if (dice < 0.85) {
+        // 💤 停下来发呆
+        setTimeout(petNextMove, randomBetween(1500, 3500));
+    } else {
+        // ✨ 跳一下
+        petJump();
+        setTimeout(petNextMove, 900);
+    }
+}
+
+// 点黄春：冒出 💜，也跳一下
+pet.addEventListener("click", function () {
+    const heart = document.createElement("span");
+    heart.className = "pet-heart";
+    heart.textContent = "💜";
+    heart.style.left = petX + pet.offsetWidth / 2 + randomBetween(-10, 10) + "px";
+    petRoom.appendChild(heart);
+    setTimeout(function () {
+        heart.remove();   // 飘完就拿掉
+    }, 1200);
+    petJump();
+});
+
+petNextMove();

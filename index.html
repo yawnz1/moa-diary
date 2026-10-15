@@ -11,6 +11,7 @@
 <body>
   <header>
     <h1><span class="heart">♡</span> MOA Diary <span class="heart">♡</span></h1>
+    <button type="button" class="btn-settings" id="btn-settings">⚙️</button>
   </header>
 
   <main>
@@ -112,19 +113,27 @@
       <div id="diary-list"></div>
     </section>
 
-    <section id="page-me" class="page">
-      <h2>👤 我的</h2>
+    <!-- 🐥 黄春：整块独立（要拿掉的话：删掉这个 section、底部选单那格、style.css 和 app.js 里标「🐥 黄春」的那段） -->
+    <section id="page-pet" class="page">
+      <h2>🐥 黄春的房间</h2>
 
+      <div class="pet-room" id="pet-room">
+        <div class="pet-wall"></div>
+        <div class="pet-floor"></div>
+        <span class="pet-deco" style="left: 14%; top: 18%;">🖼️</span>
+        <span class="pet-deco" style="right: 14%; top: 14%;">🪟</span>
+        <span class="pet-deco" style="left: 4%; bottom: 26%;">🪴</span>
+        <span class="pet-deco" style="right: 4%; bottom: 24%;">🛋️</span>
 
-      <div class="count-box">
-        <p><strong>💾 资料备份</strong></p>
-        <p class="rate-info">换手机、换电脑，或怕资料不见时使用</p>
-        <div class="row">
-          <button type="button" class="btn-small" id="btn-export">导出备份</button>
-          <button type="button" class="btn-small btn-light" id="btn-import">导入备份</button>
+        <!-- 黄春：外层负责左右走，中间负责跳，里面负责转向 -->
+        <div class="pet" id="pet">
+          <div class="pet-hop" id="pet-hop">
+            <span class="pet-body" id="pet-body">🐥</span>
+          </div>
         </div>
-        <input type="file" id="import-file" accept=".json" style="display: none;">
       </div>
+
+      <p class="rate-info">点点看黄春 💜</p>
     </section>
   </main>
 
@@ -227,12 +236,35 @@
     </div>
   </div>
 
+  <!-- ⚙️ 设定：从下面滑出来的画面 -->
+  <div id="settings-sheet" class="sheet">
+    <div class="sheet-backdrop" id="settings-backdrop"></div>
+    <div class="sheet-panel">
+      <div class="sheet-scroll">
+        <div class="sheet-header">
+          <strong>⚙️ 设定</strong>
+          <button type="button" class="sheet-close" id="settings-close">✕</button>
+        </div>
+
+        <div class="count-box">
+          <p><strong>💾 资料备份</strong></p>
+          <p class="rate-info">换手机、换电脑，或怕资料不见时使用</p>
+          <div class="row">
+            <button type="button" class="btn-small" id="btn-export">导出备份</button>
+            <button type="button" class="btn-small btn-light" id="btn-import">导入备份</button>
+          </div>
+          <input type="file" id="import-file" accept=".json" style="display: none;">
+        </div>
+      </div>
+    </div>
+  </div>
+
     <nav class="tab-bar">
     <button class="active" data-page="page-home">🏠<br>首页</button>
     <button data-page="page-money">💰<br>记账</button>
     <button class="tab-add" id="btn-add">＋</button>
     <button data-page="page-diary">📸<br>记录</button>
-    <button data-page="page-me">👤<br>我的</button>
+    <button data-page="page-pet">🐥<br>黄春</button>
   </nav>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="app.js"></script>

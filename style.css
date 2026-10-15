@@ -395,6 +395,8 @@ input[type="date"]::-webkit-date-and-time-value {
   inset: 0;
   z-index: 50;
   pointer-events: none;
+  visibility: hidden;                  /* 关着时整个藏起来，iPhone 状态栏才不会一直是灰的 */
+  transition: visibility 0s 0.3s;      /* 等滑下去的动画跑完（0.3 秒）再藏 */
 }
 
 .sheet-backdrop {
@@ -424,6 +426,8 @@ input[type="date"]::-webkit-date-and-time-value {
 /* 打开的时候 */
 .sheet.open {
   pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s;           /* 打开时马上出现 */
 }
 
 .sheet.open .sheet-backdrop {
@@ -835,4 +839,90 @@ input[type="number"] {
 
 .type-chip {
   flex: 1;
+}
+
+/* ⚙️ 标题右边的设定按钮 */
+header {
+  position: relative;
+  padding-top: 1px;   /* 让标题的上边距留在 header 里面，⚙️ 才放得到标题上方 */
+}
+
+.btn-settings {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+/* ===== 🐥 黄春 =====（整块独立，要拿掉的话删掉这一段到最后） */
+.pet-room {
+  position: relative;
+  height: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.pet-wall {
+  position: absolute;
+  inset: 0 0 35% 0;
+  background-color: #f3f0ff;
+}
+
+.pet-floor {
+  position: absolute;
+  inset: 65% 0 0 0;
+  background-color: #e6e1ff;
+}
+
+.pet-deco {
+  position: absolute;
+  font-size: 34px;
+}
+
+.pet {
+  position: absolute;
+  left: 0;
+  bottom: 14%;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pet-body {
+  display: inline-block;
+  font-size: 56px;
+  transition: transform 0.2s;
+}
+
+/* 往右走：左右翻过来 */
+.pet-body.face-right {
+  transform: scaleX(-1);
+}
+
+.pet-hop.jump {
+  animation: pet-jump 0.6s ease-out;
+}
+
+@keyframes pet-jump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-40px); }
+}
+
+/* 点黄春冒出来的爱心 */
+.pet-heart {
+  position: absolute;
+  bottom: 40%;
+  font-size: 24px;
+  pointer-events: none;
+  animation: heart-float 1.2s ease-out forwards;
+}
+
+@keyframes heart-float {
+  0% { transform: translateY(0) scale(0.6); opacity: 1; }
+  100% { transform: translateY(-90px) scale(1.2); opacity: 0; }
 }
