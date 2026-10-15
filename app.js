@@ -1230,6 +1230,73 @@ const petHop = document.getElementById("pet-hop");
 const petBody = document.getElementById("pet-body");
 let petX = 0;  // 黄春现在离房间左边几 px
 
+// 黄春的资料：花掉的金币、饱足度（和那时候的时间）、买过的衣服、正在穿的
+let petData = JSON.parse(localStorage.getItem("petData")) || {
+    spent: 0,
+    full: 80,
+    fullTime: Date.now(),
+    owned: [],
+    wearing: { hat: "", eyes: "", neck: "" },
+};
+
+function savePet() {
+    localStorage.setItem("petData", JSON.stringify(petData));
+}
+
+// 🍽️ 食物：价钱、加多少饱足度
+const petFoods = [
+    { icon: "🍙", name: "饭团", price: 100, full: 10 },
+    { icon: "🍓", name: "草莓", price: 200, full: 20 },
+    { icon: "🍰", name: "蛋糕", price: 300, full: 30 },
+    { icon: "🍗", name: "炸鸡", price: 500, full: 50 },
+];
+
+// 👗 衣服：分三个部位
+const petSlots = { hat: "帽子", eyes: "眼镜", neck: "脖子" };
+const petClothes = [
+    { id: "bow", slot: "hat", icon: "🎀", name: "蝴蝶结", price: 300 },
+    { id: "cap", slot: "hat", icon: "🧢", name: "棒球帽", price: 500 },
+    { id: "crown", slot: "hat", icon: "👑", name: "皇冠", price: 1500 },
+    { id: "glasses", slot: "eyes", icon: "👓", name: "眼镜", price: 400 },
+    { id: "sunglasses", slot: "eyes", icon: "🕶️", name: "墨镜", price: 600 },
+    { id: "scarf", slot: "neck", icon: "🧣", name: "围巾", price: 400 },
+    { id: "necklace", slot: "neck", icon: "📿", name: "项链", price: 800 },
+];
+
+// 🪙 金币＝记账总额（商品＋二补）－ 在商店花掉的
+function petCoins() {
+    let total = 0;
+    records.forEach(function (r) {
+        total += r.amount + (r.extra || 0);
+    });
+    return Math.max(0, total - petData.spent);
+}
+
+// 🍙 饱足度：每 24 小时掉 50（一天掉一半）
+function petFull() {
+    const hours = (Date.now() - petData.fullTime) / (1000 * 60 * 60);
+    return Math.max(0, Math.round(petData.full - hours * 50 / 24));
+}
+
+// 更新上面的金币、饱足度，还有肚子饿的泡泡
+function updatePetStatus() {
+    const full = petFull();
+    document.getElementById("pet-coins").textContent = petCoins().toLocaleString();
+    document.getElementById("pet-full-num").textContent = full;
+    document.getElementById("pet-full-fill").style.width = full + "%";
+    document.getElementById("pet-thought").hidden = full >= 30;
+}
+
+// 把正在穿的衣服放到某一只黄春身上（房间的、衣柜预览的）
+function showWearing(body, wearing) {
+    Object.keys(petSlots).forEach(function (slot) {
+        const item = petClothes.find(function (c) {
+            return c.id === wearing[slot];
+        });
+        body.querySelector(".wear-" + slot).textContent = item ? item.icon : "";
+    });
+}
+
 // 产生 min ~ max 之间的随机数
 function randomBetween(min, max) {
     return min + Math.random() * (max - min);
@@ -1240,6 +1307,18 @@ function petJump() {
     petHop.classList.remove("jump");
     void petHop.offsetWidth;          // 让动画可以重新播放
     petHop.classList.add("jump");
+}
+
+// 在黄春上方冒出 💜
+function petHeart() {
+    const heart = document.createElement("span");
+    heart.className = "pet-heart";
+    heart.textContent = "💜";
+    heart.style.left = petX + pet.offsetWidth / 2 + randomBetween(-16, 16) + "px";
+    petRoom.appendChild(heart);
+    setTimeout(function () {
+        heart.remove();   // 飘完就拿掉
+    }, 1200);
 }
 
 // 决定下一步要做什么：走、停、跳
@@ -1276,15 +1355,185 @@ function petNextMove() {
 
 // 点黄春：冒出 💜，也跳一下
 pet.addEventListener("click", function () {
-    const heart = document.createElement("span");
-    heart.className = "pet-heart";
-    heart.textContent = "💜";
-    heart.style.left = petX + pet.offsetWidth / 2 + randomBetween(-10, 10) + "px";
-    petRoom.appendChild(heart);
-    setTimeout(function () {
-        heart.remove();   // 飘完就拿掉
-    }, 1200);
+    petHeart();
     petJump();
 });
 
+
+// ----- 🍽️ 喂食 -----
+
+const foodSheet = document.getElementById("food-sheet");
+
+function showFoodList() {
+    document.getElementById("food-coins").textContent = petCoins().toLocaleString();
+    document.getElementById("food-full").textContent = petFull();
+
+    const list = document.getElementById("food-list");
+    list.innerHTML = "";
+    petFoods.forEach(function (food) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "shop-row";
+        btn.innerHTML = `
+            <span class="shop-icon">${food.icon}</span>
+            <span class="shop-name">${food.name}<small>饱足度 +${food.full}</small></span>
+            <span class="shop-price">🪙 ${food.price}</span>
+        `;
+        btn.addEventListener("click", function () {
+            feedPet(food);
+        });
+        list.appendChild(btn);
+    });
+}
+
+function feedPet(food) {
+    const full = petFull();
+    if (full >= 100) {
+        alert("黄春已经吃饱了 🐥💤");
+        return;
+    }
+    if (petCoins() < food.price) {
+        alert("金币不够喔 🪙");
+        return;
+    }
+
+    // 扣金币、加饱足度（最多 100）
+    petData.spent += food.price;
+    petData.full = Math.min(100, full + food.full);
+    petData.fullTime = Date.now();
+    savePet();
+    updatePetStatus();
+    foodSheet.classList.remove("open");
+
+    // 🍽️ 吃东西：食物出现在黄春旁边，然后大肚子、打嗝、冒爱心
+    const bite = document.createElement("span");
+    bite.className = "pet-food";
+    bite.textContent = food.icon;
+    bite.style.left = petX + pet.offsetWidth / 2 + "px";
+    petRoom.appendChild(bite);
+    setTimeout(function () {
+        bite.remove();
+    }, 800);
+
+    const emoji = document.getElementById("pet-emoji");
+    setTimeout(function () {
+        emoji.classList.add("big-belly");
+    }, 700);
+    setTimeout(function () {
+        document.getElementById("pet-say").hidden = false;   // 嗝～
+        petJump();
+        petHeart();
+        setTimeout(petHeart, 200);
+        setTimeout(petHeart, 400);
+    }, 1500);
+    setTimeout(function () {
+        document.getElementById("pet-say").hidden = true;
+        emoji.classList.remove("big-belly");
+    }, 4000);
+}
+
+document.getElementById("btn-food").addEventListener("click", function () {
+    showFoodList();
+    foodSheet.classList.add("open");
+});
+function closeFood() {
+    foodSheet.classList.remove("open");
+}
+document.getElementById("food-close").addEventListener("click", closeFood);
+document.getElementById("food-backdrop").addEventListener("click", closeFood);
+
+
+// ----- 👗 衣柜 -----
+
+const wardrobeSheet = document.getElementById("wardrobe-sheet");
+let wardrobeSlot = "hat";   // 现在看哪个部位
+let tryOn = {};             // 试穿中（还没按保存）
+
+function showWardrobe() {
+    document.getElementById("wardrobe-coins").textContent = petCoins().toLocaleString();
+    showWearing(document.getElementById("preview-body"), tryOn);
+
+    // 部位的小分页
+    const tabs = document.getElementById("wardrobe-tabs");
+    tabs.innerHTML = "";
+    Object.keys(petSlots).forEach(function (slot) {
+        const tab = document.createElement("button");
+        tab.type = "button";
+        tab.className = "sub-tab" + (slot === wardrobeSlot ? " active" : "");
+        tab.textContent = petSlots[slot];
+        tab.addEventListener("click", function () {
+            wardrobeSlot = slot;
+            showWardrobe();
+        });
+        tabs.appendChild(tab);
+    });
+
+    // 这个部位的衣服
+    const list = document.getElementById("wardrobe-items");
+    list.innerHTML = "";
+    petClothes.forEach(function (item) {
+        if (item.slot !== wardrobeSlot) return;
+        const owned = petData.owned.includes(item.id);
+        const wearing = tryOn[item.slot] === item.id;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "wardrobe-item" + (wearing ? " wearing" : "");
+        btn.innerHTML = `
+            <span class="shop-icon">${item.icon}</span>
+            <span>${item.name}</span>
+            <small>${wearing ? "穿着中" : owned ? "已拥有" : "🪙 " + item.price}</small>
+        `;
+        btn.addEventListener("click", function () {
+            if (!owned) {
+                // 还没买：问要不要买
+                if (petCoins() < item.price) {
+                    alert("金币不够喔 🪙");
+                    return;
+                }
+                if (!confirm(`要花 🪙${item.price} 买 ${item.icon} ${item.name} 吗？`)) return;
+                petData.spent += item.price;
+                petData.owned.push(item.id);
+                savePet();
+                updatePetStatus();
+                tryOn[item.slot] = item.id;   // 买了就先穿上看看
+            } else {
+                // 买过了：穿上 / 脱掉
+                tryOn[item.slot] = wearing ? "" : item.id;
+            }
+            showWardrobe();
+        });
+        list.appendChild(btn);
+    });
+}
+
+document.getElementById("btn-wardrobe").addEventListener("click", function () {
+    tryOn = Object.assign({}, petData.wearing);   // 从现在穿的开始试
+    showWardrobe();
+    wardrobeSheet.classList.add("open");
+});
+
+// 保存：试穿的变成真的穿上
+document.getElementById("wardrobe-save").addEventListener("click", function () {
+    petData.wearing = Object.assign({}, tryOn);
+    savePet();
+    showWearing(petBody, petData.wearing);
+    wardrobeSheet.classList.remove("open");
+    petHeart();
+});
+
+// 没按保存就关掉：试穿的不算
+function closeWardrobe() {
+    wardrobeSheet.classList.remove("open");
+}
+document.getElementById("wardrobe-close").addEventListener("click", closeWardrobe);
+document.getElementById("wardrobe-backdrop").addEventListener("click", closeWardrobe);
+
+
+// 打开黄春的页面时，更新金币和饱足度；之后每分钟也更新一次
+document.querySelector('[data-page="page-pet"]').addEventListener("click", updatePetStatus);
+setInterval(updatePetStatus, 60 * 1000);
+
+updatePetStatus();
+showWearing(petBody, petData.wearing);
 petNextMove();

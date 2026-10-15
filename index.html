@@ -117,18 +117,35 @@
     <section id="page-pet" class="page">
       <h2>🐥 黄春的房间</h2>
 
+      <!-- 金币和饱足度 -->
+      <div class="pet-status">
+        <span class="pet-coins">🪙 <span id="pet-coins">0</span></span>
+        <span class="pet-full-label">🍙</span>
+        <div class="full-bar"><div class="full-fill" id="pet-full-fill"></div></div>
+        <span class="pet-full-num" id="pet-full-num">0</span>
+      </div>
+
       <div class="pet-room" id="pet-room">
         <div class="pet-wall"></div>
         <div class="pet-floor"></div>
         <span class="pet-deco" style="left: 14%; top: 18%;">🖼️</span>
         <span class="pet-deco" style="right: 14%; top: 14%;">🪟</span>
-        <span class="pet-deco" style="left: 4%; bottom: 26%;">🪴</span>
-        <span class="pet-deco" style="right: 4%; bottom: 24%;">🛋️</span>
+
+        <!-- 可以点的：衣柜、餐桌 -->
+        <button type="button" class="pet-spot" id="btn-wardrobe" style="left: 3%; bottom: 36%;">🚪<small>衣柜</small></button>
+        <button type="button" class="pet-spot" id="btn-food" style="right: 3%; bottom: 36%;">🍽️<small>喂食</small></button>
 
         <!-- 黄春：外层负责左右走，中间负责跳，里面负责转向 -->
         <div class="pet" id="pet">
+          <span class="pet-thought" id="pet-thought" hidden>💭🍙</span>
+          <span class="pet-say" id="pet-say" hidden>嗝～</span>
           <div class="pet-hop" id="pet-hop">
-            <span class="pet-body" id="pet-body">🐥</span>
+            <span class="pet-body" id="pet-body">
+              <span class="pet-emoji" id="pet-emoji">🐥</span>
+              <span class="wear wear-hat"></span>
+              <span class="wear wear-eyes"></span>
+              <span class="wear wear-neck"></span>
+            </span>
           </div>
         </div>
       </div>
@@ -255,6 +272,51 @@
           </div>
           <input type="file" id="import-file" accept=".json" style="display: none;">
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🐥 黄春：🍽️ 喂食 -->
+  <div id="food-sheet" class="sheet">
+    <div class="sheet-backdrop" id="food-backdrop"></div>
+    <div class="sheet-panel">
+      <div class="sheet-scroll">
+        <div class="sheet-header">
+          <strong>🍽️ 喂黄春</strong>
+          <button type="button" class="sheet-close" id="food-close">✕</button>
+        </div>
+        <p class="rate-info">🪙 <span id="food-coins">0</span>・饱足度 <span id="food-full">0</span>/100</p>
+        <div id="food-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🐥 黄春：👗 衣柜 -->
+  <div id="wardrobe-sheet" class="sheet">
+    <div class="sheet-backdrop" id="wardrobe-backdrop"></div>
+    <div class="sheet-panel">
+      <div class="sheet-scroll">
+        <div class="sheet-header">
+          <strong>👗 衣柜</strong>
+          <button type="button" class="sheet-close" id="wardrobe-close">✕</button>
+        </div>
+        <p class="rate-info">🪙 <span id="wardrobe-coins">0</span></p>
+
+        <!-- 放大的黄春，先看穿起来的样子 -->
+        <div class="wardrobe-preview">
+          <span class="pet-body" id="preview-body">
+            <span class="pet-emoji">🐥</span>
+            <span class="wear wear-hat"></span>
+            <span class="wear wear-eyes"></span>
+            <span class="wear wear-neck"></span>
+          </span>
+        </div>
+
+        <div class="sub-tabs" id="wardrobe-tabs"></div>
+        <div class="wardrobe-items" id="wardrobe-items"></div>
+      </div>
+      <div class="sheet-bottom">
+        <button type="button" class="btn-small" id="wardrobe-save">保存</button>
       </div>
     </div>
   </div>
