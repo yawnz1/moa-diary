@@ -36,51 +36,228 @@ function getToday() {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
-// 找到三个输入框
-const eventNameInput = document.getElementById("event-name");
-const eventDateInput = document.getElementById("event-date");
-const fanStartInput = document.getElementById("fan-start");
+// ===== ⏳ 倒数 / 📅 已经过了 =====
 
-// 重新计算并显示天数
-function updateCountdown() {
-    // 活动名称：没填就显示「演唱会」
-    document.getElementById("event-name-text").textContent = eventNameInput.value || "演唱会";
+// 清单：每一张卡片 { id, type, name, date }
+//   type "countdown"：倒数到某一天
+//   type "since"：从某一天开始，已经过了几天
+// 顺序就是首页显示的顺序
+let events = JSON.parse(localStorage.getItem("events"));
 
-    // 有填活动日期，才计算倒数
-    if (eventDateInput.value) {
-        const eventDate = new Date(eventDateInput.value + "T00:00");
-        document.getElementById("countdown-days").textContent = daysBetween(getToday(), eventDate);
+// 第一次用新版：把以前那一个活动搬进来
+if (events === null) {
+    events = [];
+    const oldDate = localStorage.getItem("eventDate");
+    if (oldDate) {
+        events.push({ id: Date.now(), name: localStorage.getItem("eventName") || "", date: oldDate });
     }
-
-    // 有填开始追星的日子，才计算天数
-    if (fanStartInput.value) {
-        const startDate = new Date(fanStartInput.value + "T00:00");
-        document.getElementById("fan-days").textContent = daysBetween(startDate, getToday());
-    }
-
-    // 每次有变动，就存起来
-    saveCountdown();
 }
 
-// 输入框一有变动，就重新计算
-eventNameInput.addEventListener("input", updateCountdown);
-eventDateInput.addEventListener("input", updateCountdown);
-fanStartInput.addEventListener("input", updateCountdown);
+// 以前的「我已经当 MOA」：变成一张普通的「已经过了」卡片（位置不变）
+const oldFanStart = localStorage.getItem("fanStart");
+let movedMoa = false;
+events.forEach(function (ev) {
+    if (ev.type === "moa") {
+        ev.type = "since";
+        ev.id = Date.now();
+        ev.name = "我已经当 MOA";
+        ev.date = oldFanStart || "";
+        movedMoa = true;
+    }
+});
+if (oldFanStart && !movedMoa) {
+    events.push({ id: Date.now() + 1, type: "since", name: "我已经当 MOA", date: oldFanStart });
+}
+localStorage.removeItem("fanStart");  // 搬完了，以后都存在清单里
 
-// 把三个输入框的内容存进置物柜
-function saveCountdown() {
-    localStorage.setItem("eventName", eventNameInput.value);
-    localStorage.setItem("eventDate", eventDateInput.value);
-    localStorage.setItem("fanStart", fanStartInput.value);
+// 以前的活动没有 type，都是倒数
+events.forEach(function (ev) {
+    if (!ev.type) ev.type = "countdown";
+});
+saveEvents();
+
+// 管理画面里，现在打开 ✏️ 的是哪一个
+let editingEventId = null;
+
+function saveEvents() {
+    localStorage.setItem("events", JSON.stringify(events));
 }
 
-// 打开网页时：从置物柜拿出来，放回输入框
-eventNameInput.value = localStorage.getItem("eventName") || "";
-eventDateInput.value = localStorage.getItem("eventDate") || "";
-fanStartInput.value = localStorage.getItem("fanStart") || "";
+// 首页：照顺序显示所有卡片（只显示，不能改）
+function showEvents() {
+    const list = document.getElementById("event-list");
+    list.innerHTML = "";
 
-// 拿回来之后，马上算一次天数
-updateCountdown();
+    if (events.length === 0) {
+        list.innerHTML = `<p class="rate-info">还没有卡片，按右上角「编辑」新增 ✨</p>`;
+    }
+
+    events.forEach(function (ev) {
+        // 离今天还有几天（过了是负数）；没填日期就是 null
+        const days = ev.date ? daysBetween(getToday(), new Date(ev.date + "T00:00")) : null;
+
+        let topText = "";
+        let bigText = "";
+
+        if (ev.type === "since") {
+            // 📅 已经过了：上面放名称，下面放天数
+            topText = `<span class="ev-name"></span>`;
+            if (days === null) bigText = "? 天";
+            else if (days > 0) bigText = "还没到";
+            else bigText = `${-days} 天`;
+        } else {
+            // ⏳ 倒数：还没到 / 今天 / 过期
+            topText = `距离 <span class="ev-name"></span> 还有`;
+            bigText = `${days === null ? "?" : days} 天`;
+            if (days === 0) {
+                topText = `<span class="ev-name"></span>`;
+                bigText = "就是今天！🎉";
+            } else if (days < 0) {
+                topText = `<span class="ev-name"></span> 已经过了`;
+                bigText = `${-days} 天`;
+            }
+        }
+
+        const card = document.createElement("div");
+        // 只有「倒数」的活动过期了才变灰
+        card.className = "count-box" + (ev.type === "countdown" && days !== null && days < 0 ? " past" : "");
+        card.innerHTML = `
+            <p>${topText}</p>
+            <p class="big-number">${bigText}</p>
+        `;
+        // 名称用 textContent 放，避免奇怪的符号把画面弄乱
+        card.querySelector(".ev-name").textContent = ev.name || (ev.type === "since" ? "纪念日" : "活动");
+        list.appendChild(card);
+    });
+
+    showEventManager();  // 管理画面也一起更新
+}
+
+// 类型的文字
+const eventTypeNames = { countdown: "⏳ 倒数", since: "📅 已经过了" };
+
+// ⏳ 倒数管理画面：每一行有 ↑ ↓ ✏️ 🗑️
+function showEventManager() {
+    const list = document.getElementById("event-manager");
+    list.innerHTML = "";
+
+    events.forEach(function (ev, index) {
+        const row = document.createElement("div");
+        row.className = "ev-row";
+        row.innerHTML = `
+            <div class="ev-row-top">
+                <div class="ev-row-info">
+                    <div class="ev-row-name"></div>
+                    <div class="ev-row-date">${eventTypeNames[ev.type]}・${ev.date ? ev.date.replaceAll("-", "/") : "未设定"}</div>
+                </div>
+                <button type="button" class="ev-btn ev-up" ${index === 0 ? "disabled" : ""}>↑</button>
+                <button type="button" class="ev-btn ev-down" ${index === events.length - 1 ? "disabled" : ""}>↓</button>
+                <button type="button" class="ev-btn ev-edit">✏️</button>
+                <button type="button" class="ev-btn ev-delete">🗑️</button>
+            </div>
+            <div class="edit-fields" ${editingEventId === ev.id ? "" : "hidden"}>
+                <div class="ev-types">
+                    <button type="button" class="type-chip" data-type="countdown">${eventTypeNames.countdown}</button>
+                    <button type="button" class="type-chip" data-type="since">${eventTypeNames.since}</button>
+                </div>
+                <label>名称
+                    <input type="text" class="ev-input-name">
+                </label>
+                <label>日期
+                    <input type="date" class="ev-input-date">
+                </label>
+                <button type="button" class="btn-small ev-done">完成</button>
+            </div>
+        `;
+        row.querySelector(".ev-row-name").textContent = ev.name || "（未命名）";
+        row.querySelector(".ev-input-name").value = ev.name;
+        row.querySelector(".ev-input-date").value = ev.date;
+
+        // 类型按钮：选一个，名称的提示也跟着换
+        let chosenType = ev.type;
+        function chooseType(type) {
+            chosenType = type;
+            row.querySelectorAll(".type-chip").forEach(function (chip) {
+                chip.classList.toggle("active", chip.dataset.type === type);
+            });
+            row.querySelector(".ev-input-name").placeholder = type === "since" ? "例如：我已经当 MOA" : "例如：TXT 台北演唱会";
+        }
+        row.querySelectorAll(".type-chip").forEach(function (chip) {
+            chip.addEventListener("click", function () {
+                chooseType(chip.dataset.type);
+            });
+        });
+        chooseType(ev.type);
+
+        // ↑ ↓：跟上一个 / 下一个交换位置
+        row.querySelector(".ev-up").addEventListener("click", function () {
+            moveEvent(index, index - 1);
+        });
+        row.querySelector(".ev-down").addEventListener("click", function () {
+            moveEvent(index, index + 1);
+        });
+
+        // ✏️：打开 / 收起
+        row.querySelector(".ev-edit").addEventListener("click", function () {
+            editingEventId = editingEventId === ev.id ? null : ev.id;
+            showEventManager();
+        });
+
+        // 完成：存起来、收起
+        row.querySelector(".ev-done").addEventListener("click", function () {
+            ev.type = chosenType;
+            ev.name = row.querySelector(".ev-input-name").value;
+            ev.date = row.querySelector(".ev-input-date").value;
+            editingEventId = null;
+            saveEvents();
+            showEvents();
+        });
+
+        // 🗑️ 删除
+        row.querySelector(".ev-delete").addEventListener("click", function () {
+            if (!confirm(`确定要删除「${ev.name || "未命名"}」吗？`)) return;
+            events.splice(index, 1);
+            saveEvents();
+            showEvents();
+        });
+
+        list.appendChild(row);
+    });
+}
+
+// 把第 from 个移到第 to 个的位置
+function moveEvent(from, to) {
+    const ev = events.splice(from, 1)[0];   // 先拿出来
+    events.splice(to, 0, ev);               // 再插进新位置
+    saveEvents();
+    showEvents();
+}
+
+// ＋ 新增倒数：加在最下面，直接打开 ✏️
+document.getElementById("btn-add-event").addEventListener("click", function () {
+    const ev = { id: Date.now(), type: "countdown", name: "", date: "" };
+    events.push(ev);
+    editingEventId = ev.id;
+    saveEvents();
+    showEvents();
+});
+
+showEvents();
+
+// 首页「编辑」：打开 / 关闭倒数管理画面
+const eventSheet = document.getElementById("event-sheet");
+
+function closeEventSheet() {
+    eventSheet.classList.remove("open");
+    editingEventId = null;   // 没按完成的输入框也收起来
+    showEventManager();
+}
+
+document.getElementById("btn-home-edit").addEventListener("click", function () {
+    eventSheet.classList.add("open");
+});
+document.getElementById("event-sheet-close").addEventListener("click", closeEventSheet);
+document.getElementById("event-sheet-backdrop").addEventListener("click", closeEventSheet);
 
 // ===== 记账 =====
 
@@ -711,9 +888,7 @@ document.getElementById("btn-export").addEventListener("click", function () {
     const backup = {
         app: "MOA Diary",
         exportedAt: formatDate(getToday()),
-        eventName: localStorage.getItem("eventName") || "",
-        eventDate: localStorage.getItem("eventDate") || "",
-        fanStart: localStorage.getItem("fanStart") || "",
+        events: events,
         moneyRecords: records,
         diaryEntries: diaryEntries,
     };
@@ -754,9 +929,15 @@ document.getElementById("import-file").addEventListener("change", async function
         }
 
         // 放回各自的置物柜
-        localStorage.setItem("eventName", backup.eventName);
-        localStorage.setItem("eventDate", backup.eventDate);
-        localStorage.setItem("fanStart", backup.fanStart);
+        // 旧的备份只有一个活动：变成清单
+        let backupEvents = backup.events;
+        if (!backupEvents) {
+            backupEvents = backup.eventDate ? [{ id: Date.now(), name: backup.eventName || "", date: backup.eventDate }] : [];
+        }
+        localStorage.setItem("events", JSON.stringify(backupEvents));
+        // 旧的备份有 fanStart：打开时会自动变成「我已经当 MOA」卡片
+        if (backup.fanStart) localStorage.setItem("fanStart", backup.fanStart);
+        else localStorage.removeItem("fanStart");
         localStorage.setItem("moneyRecords", JSON.stringify(backup.moneyRecords));
         await localforage.setItem("diaryEntries", backup.diaryEntries);
 

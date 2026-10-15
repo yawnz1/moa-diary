@@ -400,9 +400,8 @@ input[type="date"]::-webkit-date-and-time-value {
 .sheet-backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgba(74, 74, 104, 0.4);
-  opacity: 0;
-  transition: opacity 0.3s;
+  background-color: transparent;  /* 关着时完全透明，iPhone 状态栏才不会被染黑 */
+  transition: background-color 0.3s;
 }
 
 .sheet-panel {
@@ -428,7 +427,7 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 .sheet.open .sheet-backdrop {
-  opacity: 1;
+  background-color: rgba(74, 74, 104, 0.4);
 }
 
 .sheet.open .sheet-panel {
@@ -585,7 +584,8 @@ input[type="number"] {
 }
 
 .cat-chip,
-.cur-chip {
+.cur-chip,
+.type-chip {
   padding: 6px 12px;
   border: 1px solid #e6e1ff;
   border-radius: 999px;
@@ -597,7 +597,8 @@ input[type="number"] {
 }
 
 .cat-chip.active,
-.cur-chip.active {
+.cur-chip.active,
+.type-chip.active {
   border-color: #6c63ff;
   background-color: #6c63ff;
   color: white;
@@ -729,4 +730,109 @@ input[type="number"] {
   text-align: right;
   color: #a09cc0;
   font-size: 12px;
+}
+
+.edit-fields .btn-small {
+  margin-top: 8px;
+}
+
+/* 过期的倒数：变灰、淡一点 */
+.count-box.past {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.home-title {
+  position: relative;
+}
+
+.btn-mode {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 14px;
+  border: 1px solid #e6e1ff;
+  border-radius: 999px;
+  background-color: white;
+  color: #6c63ff;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ⏳ 倒数管理画面的每一行 */
+.ev-row {
+  background-color: #f3f0ff;
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  text-align: left;
+}
+
+.ev-row-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.ev-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ev-row-date {
+  font-size: 12px;
+  color: #a09cc0;
+}
+
+.ev-btn-space {
+  width: 30px;
+  flex-shrink: 0;
+}
+
+#btn-add-event {
+  border: 1px dashed #c0bcd6;
+}
+
+.ev-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background-color: white;
+  color: #6c63ff;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.ev-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* 倒数管理画面：最下面留点空间，不要贴边 */
+#event-sheet .sheet-scroll {
+  padding-bottom: 32px;
+}
+
+/* 倒数管理：选类型的两颗按钮 */
+.ev-types {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.type-chip {
+  flex: 1;
 }

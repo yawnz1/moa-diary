@@ -15,30 +15,13 @@
 
   <main>
         <section id="page-home" class="page active">
-      <h2>⏳ 倒数日</h2>
-
-      <div class="count-box">
-        <p>距离 <span id="event-name-text">演唱会</span> 还有</p>
-        <p class="big-number"><span id="countdown-days">?</span> 天</p>
+      <div class="home-title">
+        <h2>⏳ 倒数日</h2>
+        <button type="button" class="btn-mode" id="btn-home-edit">编辑</button>
       </div>
 
-      <label>活动名称
-        <input type="text" id="event-name" placeholder="例如：TXT 台北演唱会">
-      </label>
-      <label>活动日期
-        <input type="date" id="event-date">
-      </label>
-
-      <hr>
-
-      <div class="count-box">
-        <p>我已经当 MOA</p>
-        <p class="big-number"><span id="fan-days">?</span> 天</p>
-      </div>
-
-      <label>开始追星的日子
-        <input type="date" id="fan-start">
-      </label>
+      <!-- 所有卡片（由 app.js 做出来，顺序在「编辑」里调） -->
+      <div id="event-list"></div>
     </section>
 
        <section id="page-money" class="page">
@@ -131,6 +114,7 @@
 
     <section id="page-me" class="page">
       <h2>👤 我的</h2>
+
 
       <div class="count-box">
         <p><strong>💾 资料备份</strong></p>
@@ -227,6 +211,22 @@
 
     </div>
   </div>
+  <!-- ⏳ 倒数管理：从下面滑出来的画面 -->
+  <div id="event-sheet" class="sheet">
+    <div class="sheet-backdrop" id="event-sheet-backdrop"></div>
+    <div class="sheet-panel">
+      <div class="sheet-scroll">
+        <div class="sheet-header">
+          <strong>⏳ 倒数管理</strong>
+          <button type="button" class="sheet-close" id="event-sheet-close">✕</button>
+        </div>
+        <p class="rate-info">↑ ↓ 调整首页的顺序</p>
+        <div id="event-manager"></div>
+        <button type="button" class="btn-small btn-light" id="btn-add-event">＋ 新增倒数</button>
+      </div>
+    </div>
+  </div>
+
     <nav class="tab-bar">
     <button class="active" data-page="page-home">🏠<br>首页</button>
     <button data-page="page-money">💰<br>记账</button>
