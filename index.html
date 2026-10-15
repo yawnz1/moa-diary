@@ -63,9 +63,16 @@
           </div>
           <button type="button" class="btn-small btn-light" id="stats-this-month">这个月</button>
 
-          <p>共 <span id="stats-count">0</span> 笔</p>
-          <p class="big-number">NT$ <span id="stats-total">0</span></p>
-          <p class="rate-info">商品 NT$ <span id="stats-amount">0</span> ＋ 二补 NT$ <span id="stats-extra">0</span></p>
+          <!-- 🍩 甜甜圈图：每一块是一个分类 -->
+          <div class="donut" id="stats-donut">
+            <div class="donut-hole">
+              <p class="donut-label">花费</p>
+              <p class="donut-total">NT$ <span id="stats-total">0</span></p>
+              <p class="donut-sub">共 <span id="stats-count">0</span> 笔</p>
+              <p class="donut-sub" id="stats-extra-line">含二补 NT$ <span id="stats-extra">0</span></p>
+            </div>
+          </div>
+          <div class="cat-legend" id="stats-cats"></div>
         </div>
 
 
@@ -141,84 +148,83 @@
   <div id="add-sheet" class="sheet">
     <div class="sheet-backdrop" id="sheet-backdrop"></div>
     <div class="sheet-panel">
-      <div class="sheet-header">
-        <strong>记一笔 ♡</strong>
-        <button type="button" class="sheet-close" id="sheet-close">✕</button>
-      </div>
 
-      <details class="calc">
-        <summary>🧮 计算小工具</summary>
-
-        <input type="text" id="calc-name" placeholder="名称（选填）">
-        <div class="row">
-          <input type="number" id="calc-amount" placeholder="金额">
-          <select id="calc-currency">
-            <option value="TWD">台币</option>
-            <option value="KRW">韩币</option>
-            <option value="JPY">日币</option>
-            <option value="USD">美金</option>
-          </select>
+      <!-- 上面：可以上下滑 -->
+      <div class="sheet-scroll">
+        <div class="sheet-header">
+          <strong>记一笔 ♡</strong>
+          <button type="button" class="sheet-close" id="sheet-close">✕</button>
         </div>
-        <button type="button" class="btn-small" id="calc-add">＋ 加入</button>
 
-        <div id="calc-list"></div>
 
-        <p class="calc-total">合计 NT$ <span id="calc-total">0</span></p>
-        <p class="rate-info" id="rate-info"></p>
+        <form id="money-form">
+          <p class="field-title">这一样的分类</p>
+          <div class="cat-chips" id="cat-chips"></div>
+          <input type="hidden" id="m-category" value="其他">
 
-        <div class="row">
-          <button type="button" class="btn-small" id="calc-fill">填入金额</button>
-          <button type="button" class="btn-small btn-light" id="calc-clear">清空</button>
-        </div>
-      </details>
+          <label>日期
+            <input type="date" id="m-date" required>
+          </label>
+          <label>代购
+            <input type="text" id="m-agent" placeholder="例如：小明代购">
+          </label>
+          <label>购买平台
+            <input type="text" id="m-platform" placeholder="例如：Weverse Shop">
+          </label>
 
-      <form id="money-form">
-        <label>日期
-          <input type="date" id="m-date" required>
-        </label>
-        <label>商品名称
-          <input type="text" id="m-item" placeholder="例如：TXT 专辑" required>
-        </label>
-        <label>成员
-          <input type="text" id="m-member" placeholder="例如：然竣">
-        </label>
-        <label>金额（台币）
-          <input type="number" id="m-amount" placeholder="0" required>
-        </label>
-        <label>代购
-          <input type="text" id="m-agent" placeholder="例如：小明代购">
-        </label>
-        <label>购买平台
-          <input type="text" id="m-platform" placeholder="例如：Weverse Shop">
-        </label>
-
-        <div class="row">
-          <label>运输方式
+        
+                      <label>运输方式
             <select id="m-shipping">
               <option value="">无</option>
               <option value="空运">✈️ 空运</option>
               <option value="海运">🚢 海运</option>
             </select>
           </label>
-          <label>二补（台币）
-            <input type="number" id="m-extra" placeholder="0">
+
+          <label>状态
+            <select id="m-status">
+                            <option value="货到付款">💰 货到付款</option>
+              <option value="已付款" selected>💳 已付款</option>
+              <option value="已发货">🚚 已发货</option>
+              <option value="完成">✅ 完成（已经拿到了）</option>
+            </select>
           </label>
+          <label>备注
+            <textarea id="m-note" rows="2"></textarea>
+          </label>
+        </form>
+      </div>
+
+      <!-- 下面：固定不动 -->
+      <div class="sheet-bottom">
+        <div class="cur-chips" id="cur-chips"></div>
+        <div class="cart-list" id="calc-list"></div>
+        <div class="amount-box">
+          <p class="amount-expr" id="amount-expr"></p>
+          <p class="amount-display"><span id="amount-label"></span>NT$ <span id="amount-text">0</span></p>
         </div>
+        <input type="text" id="calc-name" class="calc-name" placeholder="这一样的名称（选填，例如：yj 小卡）">
+        <input type="hidden" id="m-amount">
 
-        <label>状态
-          <select id="m-status">
-            <option value="已付款">已付款</option>
-            <option value="待二补">待二补</option>
-            <option value="已发货">已发货</option>
-            <option value="已到货">已到货</option>
-          </select>
-        </label>
-        <label>备注
-          <textarea id="m-note" rows="2"></textarea>
-        </label>
+        <div class="keypad">
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <button type="button" data-key="back" class="key-fn">⌫</button>
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="add" class="key-fn key-add">＋加入</button>
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="clear" class="key-fn">C</button>
+          <button type="button" data-key="0">0</button>
+          <button type="button" data-key="00">00</button>
+          <button type="submit" form="money-form" class="key-submit">✓ 记一笔</button>
+        </div>
+      </div>
 
-        <button type="submit" class="btn-main">记一笔 ♡</button>
-      </form>
     </div>
   </div>
     <nav class="tab-bar">

@@ -93,6 +93,52 @@ const currencySymbols = { TWD: "NT$", KRW: "₩", JPY: "¥", USD: "US$" };
 // 从置物柜拿出所有记账（还没有的话，就是一叠空的）
 let records = JSON.parse(localStorage.getItem("moneyRecords")) || [];
 
+// 旧的状态名称，换成新的
+records.forEach(function (r) {
+    if (r.status === "待二补") r.status = "待付二补";
+    if (r.status === "已到货") r.status = "完成";
+});
+
+// 状态前面的小图示
+const statusIcons = { "货到付款": "💰 货到付款", "已付款": "💳 已付款", "已发货": "🚚 已发货", "待付二补": "💸 待付二补", "完成": "✅ 完成" };
+
+// ===== 🏷️ 分类 =====
+
+// 分类和它的小图示
+const categoryIcons = { "专辑": "💿", "小卡": "🃏", "周边": "🎀", "门票": "🎫", "交通": "🚄", "住宿": "🏨", "其他": "📦" };
+
+// 分类在甜甜圈图上的颜色
+const categoryColors = { "专辑": "#8b7cf6", "小卡": "#f49ac2", "周边": "#fbbf77", "门票": "#6cc5b0", "交通": "#7cb8f0", "住宿": "#f6d36b", "其他": "#c0bcd6" };
+
+// 以前记的账没有分类，就当成「其他」
+records.forEach(function (r) {
+    if (!r.category) r.category = "其他";
+});
+
+// 记一笔面板里的分类按钮：一颗一颗做出来
+const catChips = document.getElementById("cat-chips");
+Object.keys(categoryIcons).forEach(function (name) {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "cat-chip";
+    chip.dataset.cat = name;
+    chip.textContent = categoryIcons[name] + " " + name;
+    chip.addEventListener("click", function () {
+        selectCategory(name);
+    });
+    catChips.appendChild(chip);
+});
+
+// 选一个分类：亮起来，并记在看不到的栏位
+function selectCategory(name) {
+    document.getElementById("m-category").value = name;
+    document.querySelectorAll(".cat-chip").forEach(function (chip) {
+        chip.classList.toggle("active", chip.dataset.cat === name);
+    });
+}
+
+selectCategory("其他");
+
 // 把所有记账存回置物柜
 function saveRecords() {
     localStorage.setItem("moneyRecords", JSON.stringify(records));
@@ -103,17 +149,38 @@ moneyForm.addEventListener("submit", function (event) {
     // 阻止页面重新加载
     event.preventDefault();
 
+    // 这一笔买的每一样：购物车里的 + 还没按加入的那一个
+    const items = cartWithPending();
+
+    // 没输入金额就提醒
+    if (items.length === 0) {
+        alert("还没输入金额喔 💸");
+        return;
+    }
+
+    // 合计、用到的分类、名称
+    let amount = 0;
+    const cats = [];
+    const names = [];
+    items.forEach(function (it) {
+        amount += it.twd;
+        if (!cats.includes(it.category)) cats.push(it.category);
+        const name = it.name || it.category;  // 没填名称就用分类名称
+        if (!names.includes(name)) names.push(name);
+    });
+
     // 把表单的内容做成一张资料卡
     const record = {
         id: Date.now(),
         date: document.getElementById("m-date").value,
-        item: document.getElementById("m-item").value,
-        member: document.getElementById("m-member").value,
-        amount: Number(document.getElementById("m-amount").value),
+        item: names.join("、"),
+        category: cats[0],   // 旧格式留着：第一个分类
+        items: items,        // 每一样东西（有自己的分类和金额）
+        amount: amount,
         agent: document.getElementById("m-agent").value,
         platform: document.getElementById("m-platform").value,
         shipping: document.getElementById("m-shipping").value,
-        extra: Number(document.getElementById("m-extra").value),
+                extra: 0,  // 二补等到货了再填
         status: document.getElementById("m-status").value,
         note: document.getElementById("m-note").value,
     };
@@ -122,23 +189,30 @@ moneyForm.addEventListener("submit", function (event) {
     saveRecords();            // 存进置物柜
     showRecords();            // 重新显示列表
     moneyForm.reset();        // 清空表单
-
-    // 计算小工具也清空、收起来
-    calcItems = [];
-    showCalc();
-    document.querySelector(".calc").open = false;
+    selectCategory("其他");   // 分类回到「其他」
+    resetCart();              // 购物车计算机也清空
         // 收起滑出来的画面，跳到记账页看刚记的那笔
     closeSheet();
     document.querySelector('[data-page="page-money"]').click();
 });
 
 
+// 这一笔用到的所有分类图示，例如「🃏🎀」
+function cardIcons(r) {
+    if (!r.items) return categoryIcons[r.category] || "📦";  // 旧资料只有一个分类
+    let icons = "";
+    r.items.forEach(function (it) {
+        const icon = categoryIcons[it.category] || "📦";
+        if (!icons.includes(icon)) icons += icon;
+    });
+    return icons;
+}
+
 // 做出一张记账卡片（记账页、待到货页都会用到）
 function makeCard(r) {
     // 准备一个空篮子，有填的资料才放进去
     const tags = [];
     tags.push("📅 " + r.date);
-    if (r.member) tags.push("💜 " + r.member);
     if (r.platform) tags.push("🛍️ " + r.platform);
     if (r.agent) tags.push("🙋 " + r.agent);
     if (r.shipping) tags.push("📦 " + r.shipping);
@@ -156,22 +230,35 @@ function makeCard(r) {
         noteHtml = `<p class="money-note">📝 ${r.note}</p>`;
     }
 
+    // 依照状态，显示下一步的按钮
+    let stepsHtml = "";
+    if (r.status === "已付款" || r.status === "货到付款") {
+        stepsHtml = `<button class="btn-step" data-act="ship">🚚 已发货</button><button class="btn-step" data-act="arrive">📦 到货了</button>`;
+    } else if (r.status === "已发货") {
+        stepsHtml = `<button class="btn-step" data-act="arrive">📦 到货了</button>`;
+    } else if (r.status === "待付二补") {
+        stepsHtml = `<button class="btn-step" data-act="paid">✓ 已付二补</button>`;
+    }
+
     const card = document.createElement("div");
     card.className = "money-card";
     card.innerHTML = `
         <div class="money-top">
-            <strong>${r.item}</strong>
-            <span class="status">${r.status}</span>
+            <strong>${cardIcons(r)} ${r.item}</strong>
+            <span class="status">${statusIcons[r.status] || r.status}</span>
         </div>
         <p class="money-amount">NT$ ${r.amount.toLocaleString()}</p>
         <div class="info-tags">${tagsHtml}</div>
         ${noteHtml}
+                <div class="steps">${stepsHtml}</div>
         <button class="btn-delete">🗑️ 删除</button>
     `;
 
-    // 点状态标签：换到下一个状态
-    card.querySelector(".status").addEventListener("click", function () {
-        changeStatus(r.id);
+       // 点下一步的按钮
+    card.querySelectorAll(".btn-step").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            nextStep(r.id, btn.dataset.act);
+        });
     });
 
     // 点删除按钮：删掉这一笔
@@ -204,13 +291,13 @@ function showPending() {
 
     // 挑出「状态不是已到货」的
     const pending = records.filter(function (r) {
-        return r.status !== "已到货";
+        return r.status !== "完成";
     });
 
     // 一张一张显示，顺便把「待二补」的二补金额加起来
     let extraTotal = 0;
     pending.forEach(function (r) {
-        if (r.status === "待二补") extraTotal += r.extra;
+        if (r.status === "待付二补") extraTotal += r.extra;
         pendingList.appendChild(makeCard(r));
     });
 
@@ -227,22 +314,27 @@ function showPending() {
 showRecords();
 
 
-// 状态的顺序
-const statusList = ["已付款", "待二补", "已发货", "已到货"];
-
-// 换到下一个状态
-function changeStatus(id) {
-    // 用编号找到那一笔
+// 按卡片上的下一步按钮
+function nextStep(id, act) {
     const record = records.find(function (r) {
         return r.id === id;
     });
 
-    // 看现在是第几个状态，换成下一个
-    let next = statusList.indexOf(record.status) + 1;
-    if (next >= statusList.length) {
-        next = 0;  // 已经是最后一个，就回到第一个
+    if (act === "ship") {
+        record.status = "已发货";
+    } else if (act === "arrive") {
+        const answer = prompt("📦 到货了！有二补吗？\n有的话输入金额，没有就直接按「确定」");
+        if (answer === null) return;  // 按了取消，什么都不改
+        const extra = Number(answer);
+        if (extra > 0) {
+            record.extra = extra;
+            record.status = "待付二补";
+        } else {
+            record.status = "完成";
+        }
+    } else if (act === "paid") {
+        record.status = "完成";
     }
-    record.status = statusList[next];
 
     saveRecords();
     showRecords();
@@ -263,153 +355,6 @@ function deleteRecord(id) {
     saveRecords();
     showRecords();
 }
-
-
-// ===== 🧮 计算小工具 =====
-
-const calcName = document.getElementById("calc-name");
-const calcAmount = document.getElementById("calc-amount");
-const calcCurrency = document.getElementById("calc-currency");
-const calcList = document.getElementById("calc-list");
-
-// 购物车：加进来的每一样东西
-let calcItems = [];
-
-// 汇率表：1 台币可以换多少外币（先拿出上次存的）
-let rates = JSON.parse(localStorage.getItem("rates")) || {};
-let ratesTime = localStorage.getItem("ratesTime") || "";
-
-// 把外币换成台币
-function toTWD(amount, currency) {
-  if (currency === "TWD") return amount;  // 本来就是台币
-  if (!rates[currency]) return null;      // 还没有汇率资料
-  return amount / rates[currency];
-}
-
-// 显示目前选的币种的汇率
-function updateRateInfo() {
-  const currency = calcCurrency.value;
-  const info = document.getElementById("rate-info");
-
-  if (currency === "TWD") {
-    info.textContent = "";  // 台币不用显示汇率
-  } else if (rates[currency]) {
-    const oneToTWD = (1 / rates[currency]).toFixed(4);
-    info.textContent = `${currencySymbols[currency]}1 ≈ NT$ ${oneToTWD}（${ratesTime} 更新）`;
-  } else {
-    info.textContent = "还没有汇率资料，请连上网络";
-  }
-}
-
-// 按「＋ 加入」
-document.getElementById("calc-add").addEventListener("click", function () {
-  const amount = Number(calcAmount.value);
-  if (!amount) return;  // 没填金额就不加
-
-  const twd = toTWD(amount, calcCurrency.value);
-  if (twd === null) {
-    alert("还没有汇率资料，请连上网络再试");
-    return;
-  }
-
-  // 放进购物车
-  calcItems.push({
-    name: calcName.value,
-    amount: amount,
-    currency: calcCurrency.value,
-    twd: Math.round(twd),
-  });
-
-  // 清空输入框，准备加下一样
-  calcName.value = "";
-  calcAmount.value = "";
-  showCalc();
-});
-
-// 显示购物车里的东西 + 合计
-function showCalc() {
-  calcList.innerHTML = "";
-  let total = 0;
-
-  calcItems.forEach(function (item, index) {
-    total += item.twd;
-
-    // 价格文字：外币的话，后面加上「≈ NT$」
-    let priceText = `${currencySymbols[item.currency]} ${item.amount.toLocaleString()}`;
-    if (item.currency !== "TWD") {
-      priceText += ` ≈ NT$ ${item.twd.toLocaleString()}`;
-    }
-
-    const row = document.createElement("div");
-    row.className = "calc-item";
-    row.innerHTML = `
-      <span>${item.name || "（未命名）"}</span>
-      <span>${priceText}</span>
-      <button type="button" class="calc-remove">✕</button>
-    `;
-
-    // 按 ✕：从购物车拿掉这一样
-    row.querySelector(".calc-remove").addEventListener("click", function () {
-      calcItems.splice(index, 1);
-      showCalc();
-    });
-
-    calcList.appendChild(row);
-  });
-
-  document.getElementById("calc-total").textContent = total.toLocaleString();
-}
-
-// 按「填入金额」：把合计和名称填进记账表单
-document.getElementById("calc-fill").addEventListener("click", function () {
-  if (calcItems.length === 0) return;  // 购物车是空的就不做
-
-  let total = 0;
-  const names = [];
-  calcItems.forEach(function (item) {
-    total += item.twd;
-    if (item.name) names.push(item.name);
-  });
-
-  document.getElementById("m-amount").value = total;
-  if (names.length > 0) {
-    document.getElementById("m-item").value = names.join("、");
-  }
-});
-
-// 按「清空」
-document.getElementById("calc-clear").addEventListener("click", function () {
-  calcItems = [];
-  showCalc();
-});
-
-// 从网络抓最新汇率
-async function loadRates() {
-  try {
-    const response = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/twd.json");
-    const data = await response.json();
-    rates = {
-      KRW: data.twd.krw,
-      JPY: data.twd.jpy,
-      USD: data.twd.usd,
-    };
-    ratesTime = data.date;
-
-    // 存进置物柜，下次没网络也能用
-    localStorage.setItem("rates", JSON.stringify(rates));
-    localStorage.setItem("ratesTime", ratesTime);
-  } catch (error) {
-    // 抓不到（例如没网络），就继续用上次存的
-  }
-  updateRateInfo();
-}
-
-// 换币种时，更新汇率小字
-calcCurrency.addEventListener("input", updateRateInfo);
-
-// 打开网页时：先用旧的汇率显示，再去抓新的
-updateRateInfo();
-loadRates();
 
 
 // ===== 📊 统计 =====
@@ -455,8 +400,50 @@ function updateStats() {
 
     document.getElementById("stats-count").textContent = inRange.length;
     document.getElementById("stats-total").textContent = (amountTotal + extraTotal).toLocaleString();
-    document.getElementById("stats-amount").textContent = amountTotal.toLocaleString();
     document.getElementById("stats-extra").textContent = extraTotal.toLocaleString();
+    document.getElementById("stats-extra-line").style.display = extraTotal ? "" : "none";  // 没有二补就不显示
+
+    // 每个分类各花了多少：新资料照每一样的金额，旧资料整笔算进它的分类
+    const catTotals = {};
+    inRange.forEach(function (r) {
+        if (r.items) {
+            r.items.forEach(function (it) {
+                catTotals[it.category] = (catTotals[it.category] || 0) + it.twd;
+            });
+        } else {
+            const cat = r.category || "其他";
+            catTotals[cat] = (catTotals[cat] || 0) + r.amount;
+        }
+    });
+
+    // 🍩 甜甜圈图：每个分类占一段角度（0% ~ 100%）
+    const parts = [];
+    let catHtml = "";
+    let start = 0;
+    Object.keys(categoryIcons).forEach(function (name) {
+        if (!catTotals[name]) return;
+        const percent = catTotals[name] / amountTotal * 100;
+        const color = categoryColors[name];
+        parts.push(`${color} ${start}% ${start + percent}%`);
+        start += percent;
+
+        // 下面的分类清单
+        catHtml += `
+            <div class="legend-row">
+                <span class="legend-dot" style="background-color: ${color}"></span>
+                <span class="legend-name">${categoryIcons[name]} ${name}</span>
+                <span>NT$ ${catTotals[name].toLocaleString()}</span>
+                <span class="legend-percent">${Math.round(percent)}%</span>
+            </div>`;
+    });
+
+    const donut = document.getElementById("stats-donut");
+    if (parts.length > 0) {
+        donut.style.background = `conic-gradient(${parts.join(", ")})`;
+    } else {
+        donut.style.background = "#e6e1ff";  // 没有资料：灰色空圈
+    }
+    document.getElementById("stats-cats").innerHTML = catHtml;
 }
 
 // 改日期时重新计算；按「这个月」跳回本月
@@ -589,6 +576,7 @@ function openViewer(src) {
 // 按「记下来」
 diaryForm.addEventListener("submit", async function (event) {
     event.preventDefault();
+
 
     const entry = {
         id: Date.now(),
@@ -820,3 +808,216 @@ document.getElementById("btn-add").addEventListener("click", openSheet);
 document.getElementById("sheet-close").addEventListener("click", closeSheet);
 document.getElementById("sheet-backdrop").addEventListener("click", closeSheet);
 
+
+// ===== 🛒 购物车计算机（数字键盘） =====
+
+// 现在正在打的数字，例如 "650"
+let keypadText = "";
+
+// 现在选的币种
+let calcCurrency = "TWD";
+
+// 购物车：按「＋加入」放进来的每一样东西
+let calcItems = [];
+
+const calcName = document.getElementById("calc-name");
+const calcList = document.getElementById("calc-list");
+
+// 汇率表：1 台币可以换多少外币（先拿出上次存的）
+let rates = JSON.parse(localStorage.getItem("rates")) || {};
+let ratesTime = localStorage.getItem("ratesTime") || "";
+
+// 把外币换成台币（四舍五入到整数）
+function toTWD(amount, currency) {
+    if (currency === "TWD") return amount;  // 本来就是台币
+    if (!rates[currency]) return null;      // 还没有汇率资料
+    return Math.round(amount / rates[currency]);
+}
+
+// 币种按钮：NT$ ₩ ¥ US$
+const currencyBox = document.getElementById("cur-chips");
+Object.keys(currencySymbols).forEach(function (code) {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "cur-chip";
+    chip.dataset.currency = code;
+    chip.textContent = currencySymbols[code];
+    chip.addEventListener("click", function () {
+        selectCurrency(code);
+    });
+    currencyBox.appendChild(chip);
+});
+
+function selectCurrency(code) {
+    calcCurrency = code;
+    document.querySelectorAll(".cur-chip").forEach(function (chip) {
+        chip.classList.toggle("active", chip.dataset.currency === code);
+    });
+    updateKeypad();
+}
+
+// 算出合计：购物车里的 + 正在打、还没按加入的那一个
+function keypadTotal() {
+    let total = 0;
+    calcItems.forEach(function (item) {
+        total += item.twd;
+    });
+    const now = toTWD(Number(keypadText), calcCurrency);
+    if (now) total += now;
+    return total;
+}
+
+// 更新显示，也把合计放进看不到的金额栏位
+function updateKeypad() {
+    const total = keypadTotal();
+    document.getElementById("amount-text").textContent = total.toLocaleString();
+    document.getElementById("m-amount").value = total;
+    document.getElementById("amount-label").textContent = calcItems.length > 0 ? "合计 " : "";
+
+    // 上面的小字：正在打的数字换算成台币，或显示汇率
+    const expr = document.getElementById("amount-expr");
+    const symbol = currencySymbols[calcCurrency];
+    const amount = Number(keypadText);
+
+    if (calcCurrency !== "TWD" && !rates[calcCurrency]) {
+        expr.textContent = "还没有汇率资料，请连上网络";
+    } else if (amount && calcCurrency !== "TWD") {
+        expr.textContent = `${symbol} ${amount.toLocaleString()} ≈ NT$ ${toTWD(amount, calcCurrency).toLocaleString()}`;
+    } else if (amount && calcItems.length > 0) {
+        expr.textContent = `正在打：NT$ ${amount.toLocaleString()}`;
+    } else if (calcCurrency !== "TWD") {
+        const oneToTWD = (1 / rates[calcCurrency]).toFixed(4);
+        expr.textContent = `${symbol}1 ≈ NT$ ${oneToTWD}（${ratesTime} 更新）`;
+    } else {
+        expr.textContent = "";
+    }
+}
+
+// 显示购物车清单
+function showCalc() {
+    calcList.innerHTML = "";
+
+    calcItems.forEach(function (item, index) {
+        // 价格文字：外币的话，后面加上「≈ NT$」
+        let priceText = `${currencySymbols[item.currency]} ${item.amount.toLocaleString()}`;
+        if (item.currency !== "TWD") {
+            priceText += ` ≈ NT$ ${item.twd.toLocaleString()}`;
+        }
+
+        const row = document.createElement("div");
+        row.className = "calc-item";
+        row.innerHTML = `
+            <span>${categoryIcons[item.category] || "📦"} ${item.name || item.category}</span>
+            <span>${priceText}</span>
+            <button type="button" class="calc-remove">✕</button>
+        `;
+
+        // 按 ✕：从购物车拿掉这一样
+        row.querySelector(".calc-remove").addEventListener("click", function () {
+            calcItems.splice(index, 1);
+            showCalc();
+        });
+
+        calcList.appendChild(row);
+    });
+
+    updateKeypad();
+}
+
+// 按「＋加入」：把正在打的数字放进购物车
+function addToCart() {
+    const amount = Number(keypadText);
+    if (!amount) return;  // 没打数字就不加
+
+    const twd = toTWD(amount, calcCurrency);
+    if (twd === null) {
+        alert("还没有汇率资料，请连上网络再试");
+        return;
+    }
+
+    calcItems.push({
+        category: document.getElementById("m-category").value,
+        name: calcName.value,
+        amount: amount,
+        currency: calcCurrency,
+        twd: twd,
+    });
+
+    // 清空，准备打下一样
+    keypadText = "";
+    calcName.value = "";
+    showCalc();
+}
+
+// 记完一笔后：全部清空，币种回到台币
+function resetCart() {
+    keypadText = "";
+    calcItems = [];
+    calcName.value = "";
+    showCalc();
+    selectCurrency("TWD");
+}
+
+// 购物车 + 还没按加入的那一个（有打数字的话）
+function cartWithPending() {
+    const items = calcItems.slice();
+    const amount = Number(keypadText);
+    const twd = toTWD(amount, calcCurrency);
+    if (amount && twd !== null) {
+        items.push({
+            category: document.getElementById("m-category").value,
+            name: calcName.value,
+            amount: amount,
+            currency: calcCurrency,
+            twd: twd,
+        });
+    }
+    return items;
+}
+
+// 按键盘上的按键
+document.querySelectorAll(".keypad button[data-key]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        const key = btn.dataset.key;
+
+        if (key === "back") {
+            keypadText = keypadText.slice(0, -1);   // 删掉最后一个字
+        } else if (key === "clear") {
+            resetCart();                            // 全部清掉
+            return;
+        } else if (key === "add") {
+            addToCart();
+            return;
+        } else if (keypadText.length < 9) {
+            keypadText += key;                      // 数字接在后面
+            if (keypadText === "0" || keypadText === "00") keypadText = "";  // 开头不要 0
+        }
+
+        updateKeypad();
+    });
+});
+
+// 从网络抓最新汇率
+async function loadRates() {
+    try {
+        const response = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/twd.json");
+        const data = await response.json();
+        rates = {
+            KRW: data.twd.krw,
+            JPY: data.twd.jpy,
+            USD: data.twd.usd,
+        };
+        ratesTime = data.date;
+
+        // 存进置物柜，下次没网络也能用
+        localStorage.setItem("rates", JSON.stringify(rates));
+        localStorage.setItem("ratesTime", ratesTime);
+    } catch (error) {
+        // 抓不到（例如没网络），就继续用上次存的
+    }
+    updateKeypad();
+}
+
+// 打开网页时：先用旧的汇率显示，再去抓新的
+selectCurrency("TWD");
+loadRates();
