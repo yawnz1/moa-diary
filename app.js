@@ -1,5 +1,5 @@
 // 找到底部选单的所有按钮
-const tabButtons = document.querySelectorAll(".tab-bar button");
+const tabButtons = document.querySelectorAll(".tab-bar button[data-page]");
 
 // 帮每个按钮设定：被点击时要做什么
 tabButtons.forEach(function (button) {
@@ -127,6 +127,9 @@ moneyForm.addEventListener("submit", function (event) {
     calcItems = [];
     showCalc();
     document.querySelector(".calc").open = false;
+        // 收起滑出来的画面，跳到记账页看刚记的那笔
+    closeSheet();
+    document.querySelector('[data-page="page-money"]').click();
 });
 
 
@@ -494,12 +497,12 @@ function updateDiaryFields() {
 }
 
 // 点分页按钮
-document.querySelectorAll(".sub-tab").forEach(function (tab) {
+document.querySelectorAll("#page-diary .sub-tab").forEach(function (tab) {
     tab.addEventListener("click", function () {
         currentType = tab.dataset.type;
 
         // 所有分页按钮先变灰，再让被点的变亮
-        document.querySelectorAll(".sub-tab").forEach(function (t) {
+        document.querySelectorAll("#page-diary .sub-tab").forEach(function (t) {
             t.classList.remove("active");
         });
         tab.classList.add("active");
@@ -775,3 +778,45 @@ document.getElementById("import-file").addEventListener("change", async function
         alert("读不了这个文件，确认是 MOA Diary 的备份文件喔 🤔");
     }
 });
+
+
+// ===== 🏗️ 新的版面 =====
+
+// 记账页的小分页：全部 / 待到货
+document.querySelectorAll("#page-money .sub-tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+        document.querySelectorAll("#page-money .sub-tab").forEach(function (t) {
+            t.classList.remove("active");
+        });
+        tab.classList.add("active");
+
+        if (tab.dataset.view === "pending") {
+            document.getElementById("money-view-all").style.display = "none";
+            document.getElementById("money-view-pending").style.display = "block";
+        } else {
+            document.getElementById("money-view-all").style.display = "block";
+            document.getElementById("money-view-pending").style.display = "none";
+        }
+    });
+});
+
+// ➕ 记一笔：打开 / 关闭滑出来的画面
+const addSheet = document.getElementById("add-sheet");
+
+function openSheet() {
+    // 日期还没填的话，自动填今天
+    const dateInput = document.getElementById("m-date");
+    if (!dateInput.value) {
+        dateInput.value = formatDate(getToday());
+    }
+    addSheet.classList.add("open");
+}
+
+function closeSheet() {
+    addSheet.classList.remove("open");
+}
+
+document.getElementById("btn-add").addEventListener("click", openSheet);
+document.getElementById("sheet-close").addEventListener("click", closeSheet);
+document.getElementById("sheet-backdrop").addEventListener("click", closeSheet);
+
