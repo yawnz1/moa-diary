@@ -1,23 +1,52 @@
+/* ===== 🎨 顏色：想換顏色只要改這裡 ===== */
+:root {
+  --bg: #fbe3e6;          /* 整個畫面的底色 */
+  --paper: #fff6ea;       /* 卡片、視窗的奶油色 */
+  --soft: #fbecdc;        /* 卡片裡面的小格子 */
+  --line-soft: #f0d9cf;   /* 淡淡的線、底色 */
+  --line-mid: #c9aea4;    /* 中等的線 */
+  --ink: #2d2a4a;         /* 字、粗邊框、陰影 */
+  --muted: #9a8a92;       /* 比較淡的字 */
+  --muted2: #6e6070;      /* 次要的字 */
+  --primary: #2f6db5;     /* 主色：按鈕、數字 */
+  --primary-dark: #24568f;
+  --heart: #e7849a;       /* 標題的愛心 */
+  --accent: #d94848;      /* 紅色點綴：➕ 按鈕 */
+
+  /* 小視窗輪流用的顏色 */
+  --win-blue: #2f6db5;
+  --win-pink: #e7849a;
+  --win-teal: #2e8b8f;
+  --win-sage: #8fa98a;
+}
+
+/* 🔤 字體：俐方體 11 號（像素字，繁體完整） */
+@font-face {
+  font-family: "Cubic11";
+  src: url("https://cdn.jsdelivr.net/gh/ACh-K/Cubic-11@main/fonts/web/Cubic_11.woff2") format("woff2");
+  font-display: swap;
+}
+
 body {
-  font-family: "Quicksand", "PingFang TC", sans-serif;
-  background-color: #f3f0ff;
-  color: #4a4a68;
+  font-family: "Cubic11", "PingFang TC", sans-serif;
+  background-color: var(--soft);
+  color: var(--ink);
   text-align: center;
     padding: 40px 16px 100px;
 }
 
 h1 {
-  color: #6c63ff;
+  color: var(--primary);
   font-size: 32px;
 }
 
 .heart {
-  color: #ff8fb1;
+  color: var(--heart);
 }
-/* 每一页：白色圆角卡片 */
+/* 每一頁：白色圓角卡片 */
 .page {
   display: none;
-  background-color: white;
+  background-color: var(--paper);
   border-radius: 20px;
   padding: 24px;
   max-width: 480px;
@@ -25,20 +54,22 @@ h1 {
   box-shadow: 0 4px 16px rgba(108, 99, 255, 0.1);
 }
 
-/* 只有 active 的那页才显示 */
+/* 只有 active 的那頁才顯示 */
 .page.active {
   display: block;
 }
 
-/* 底部选单 */
+/* 底部選單 */
 .tab-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  max-width: 528px;      /* 電腦上不要拉滿整個畫面，跟內容卡片一樣寬（480 + 左右內距 24×2） */
+  margin: 0 auto;
   display: flex;
-  background-color: white;
-  border-top: 1px solid #e6e1ff;
+  background-color: var(--paper);
+  border-top: 1px solid var(--line-soft);
   padding: 8px 0 20px;
 }
 
@@ -48,17 +79,17 @@ h1 {
   border: none;
   font-family: inherit;
   font-size: 13px;
-  color: #a09cc0;
+  color: var(--muted);
   cursor: pointer;
 }
 
 .tab-bar button.active {
-  color: #6c63ff;
+  color: var(--primary);
   font-weight: 700;
 }
-/* 倒数日的数字框 */
+/* 倒數日的數字框 */
 .count-box {
-  background-color: #f3f0ff;
+  background-color: var(--soft);
   border-radius: 16px;
   padding: 16px;
   margin: 16px 0;
@@ -67,11 +98,11 @@ h1 {
 .big-number {
   font-size: 40px;
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
   margin: 4px 0;
 }
 
-/* 输入框 */
+/* 輸入框 */
 label {
   display: block;
   text-align: left;
@@ -85,7 +116,7 @@ input, select, textarea {
   box-sizing: border-box;
   margin-top: 6px;
   padding: 10px 12px;
-  border: 1px solid #e6e1ff;
+  border: 1px solid var(--line-soft);
   border-radius: 12px;
   font-family: inherit;
   font-size: 16px;
@@ -93,11 +124,11 @@ input, select, textarea {
 
 hr {
   border: none;
-  border-top: 1px dashed #e6e1ff;
+  border-top: 1px dashed var(--line-soft);
   margin: 24px 0;
 }
 
-/* 两个栏位并排 */
+/* 兩個欄位並排 */
 .row {
   display: flex;
   gap: 12px;
@@ -108,14 +139,14 @@ hr {
   min-width: 0;
 }
 
-/* 主要按钮 */
+/* 主要按鈕 */
 .btn-main {
   width: 100%;
   margin-top: 16px;
   padding: 14px;
   border: none;
   border-radius: 999px;
-  background-color: #6c63ff;
+  background-color: var(--primary);
   color: white;
   font-family: inherit;
   font-size: 16px;
@@ -123,9 +154,9 @@ hr {
   cursor: pointer;
 }
 
-/* 记账卡片 */
+/* 記帳卡片 */
 .money-card {
-  background-color: #f3f0ff;
+  background-color: var(--soft);
   border-radius: 16px;
   padding: 14px 16px;
   margin-top: 12px;
@@ -140,8 +171,8 @@ hr {
 
 .status {
   font-size: 12px;
-  background-color: white;
-  color: #6c63ff;
+  background-color: var(--paper);
+  color: var(--primary);
   padding: 4px 10px;
   border-radius: 999px;
     cursor: pointer;
@@ -150,12 +181,12 @@ hr {
 .money-amount {
   font-size: 22px;
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
   margin: 6px 0;
 }
 
 
-/* 资料小标签 */
+/* 資料小標籤 */
 .info-tags {
   display: flex;
   flex-wrap: wrap;
@@ -164,40 +195,40 @@ hr {
 
 .info-tag {
   font-size: 12px;
-  background-color: white;
-  color: #7a7896;
+  background-color: var(--paper);
+  color: var(--muted2);
   padding: 4px 10px;
   border-radius: 999px;
 }
 
 .money-note {
   font-size: 13px;
-  color: #7a7896;
+  color: var(--muted2);
   margin: 10px 0 0;
 }
 
 
-/* 删除按钮 */
+/* 刪除按鈕 */
 .btn-delete {
   display: block;
   margin: 10px 0 0 auto;
   background: none;
   border: none;
-  color: #c0bcd6;
+  color: var(--line-mid);
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;
 }
 
 
-/* 汇率说明小字 */
+/* 匯率說明小字 */
 .rate-info {
   font-size: 13px;
-  color: #7a7896;
+  color: var(--muted2);
 }
 
 
-/* 🧮 计算小工具 */
+/* 🧮 計算小工具 */
 
 
 
@@ -207,7 +238,7 @@ hr {
   padding: 10px;
   border: none;
   border-radius: 999px;
-  background-color: #6c63ff;
+  background-color: var(--primary);
   color: white;
   font-family: inherit;
   font-size: 14px;
@@ -216,16 +247,16 @@ hr {
 }
 
 .btn-light {
-  background-color: white;
-  color: #6c63ff;
+  background-color: var(--paper);
+  color: var(--primary);
 }
 
-/* 购物车的每一样 */
+/* 購物車的每一樣 */
 .calc-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: white;
+  background-color: var(--paper);
   border-radius: 12px;
   padding: 8px 12px;
   margin-top: 8px;
@@ -239,33 +270,33 @@ hr {
 .calc-remove {
   background: none;
   border: none;
-  color: #c0bcd6;
+  color: var(--line-mid);
   cursor: pointer;
 }
 
 .calc-total {
   font-size: 18px;
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
   text-align: right;
   margin: 12px 0 4px;
 }
 
 
-/* 没有资料时的提示 */
+/* 沒有資料時的提示 */
 .empty {
-  color: #a09cc0;
+  color: var(--muted);
   margin-top: 16px;
 }
 
-/* 日期框：左右留白小一点；iPhone 上拿掉灰底 */
+/* 日期框：左右留白小一點；iPhone 上拿掉灰底 */
 input[type="date"] {
   min-width: 0;
   min-height: 44px;
   padding: 10px 8px;
   -webkit-appearance: none;
   appearance: none;
-  background-color: white;
+  background-color: var(--paper);
 }
 
 /* iPhone 的日期文字靠左 */
@@ -273,7 +304,7 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
-/* 手机上：统计的「从」「到」改成上下排 */
+/* 手機上：統計的「從」「到」改成上下排 */
 @media (max-width: 480px) {
   .stats-dates {
     flex-direction: column;
@@ -282,7 +313,7 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 
-/* 记录的内文：保留换行 */
+/* 記錄的內文：保留換行 */
 .diary-text {
   font-size: 14px;
   line-height: 1.6;
@@ -291,7 +322,7 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 
-/* 照片格子：一排 3 张 */
+/* 照片格子：一排 3 張 */
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -307,7 +338,7 @@ input[type="date"]::-webkit-date-and-time-value {
   cursor: pointer;
 }
 
-/* 预览照片右上角的 ✕ */
+/* 預覽照片右上角的 ✕ */
 .preview-item {
   position: relative;
 }
@@ -326,7 +357,7 @@ input[type="date"]::-webkit-date-and-time-value {
   cursor: pointer;
 }
 
-/* 看大图：黑色半透明背景盖满整个画面 */
+/* 看大圖：黑色半透明背景蓋滿整個畫面 */
 .viewer {
   position: fixed;
   inset: 0;
@@ -344,11 +375,11 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 
-/* 记录页的小分页 */
+/* 記錄頁的小分頁 */
 .sub-tabs {
   display: flex;
   gap: 4px;
-  background-color: #f3f0ff;
+  background-color: var(--soft);
   padding: 4px;
   border-radius: 999px;
   margin-bottom: 8px;
@@ -360,7 +391,7 @@ input[type="date"]::-webkit-date-and-time-value {
   border: none;
   border-radius: 999px;
   background: none;
-  color: #a09cc0;
+  color: var(--muted);
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -368,20 +399,20 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 .sub-tab.active {
-  background-color: white;
-  color: #6c63ff;
+  background-color: var(--paper);
+  color: var(--primary);
   box-shadow: 0 2px 8px rgba(108, 99, 255, 0.15);
 }
 
 
-/* 底部选单正中间的 ➕ */
+/* 底部選單正中間的 ➕ */
 .tab-bar .tab-add {
   flex: 0 0 auto;
   width: 56px;
   height: 56px;
   margin-top: -24px;
   border-radius: 50%;
-  background-color: #6c63ff;
+  background-color: var(--primary);
   color: white;
   font-size: 30px;
   font-weight: 400;
@@ -389,20 +420,20 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 
-/* ➕ 从下面滑出来的画面 */
+/* ➕ 從下面滑出來的畫面 */
 .sheet {
   position: fixed;
   inset: 0;
   z-index: 50;
   pointer-events: none;
-  visibility: hidden;                  /* 关着时整个藏起来，iPhone 状态栏才不会一直是灰的 */
-  transition: visibility 0s 0.3s;      /* 等滑下去的动画跑完（0.3 秒）再藏 */
+  visibility: hidden;                  /* 關著時整個藏起來，iPhone 狀態欄才不會一直是灰的 */
+  transition: visibility 0s 0.3s;      /* 等滑下去的動畫跑完（0.3 秒）再藏 */
 }
 
 .sheet-backdrop {
   position: absolute;
   inset: 0;
-  background-color: transparent;  /* 关着时完全透明，iPhone 状态栏才不会被染黑 */
+  background-color: transparent;  /* 關著時完全透明，iPhone 狀態欄才不會被染黑 */
   transition: background-color 0.3s;
 }
 
@@ -417,17 +448,17 @@ input[type="date"]::-webkit-date-and-time-value {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: white;
+  background-color: var(--paper);
   border-radius: 24px 24px 0 0;
   transform: translateY(100%);
   transition: transform 0.3s;
 }
 
-/* 打开的时候 */
+/* 打開的時候 */
 .sheet.open {
   pointer-events: auto;
   visibility: visible;
-  transition: visibility 0s;           /* 打开时马上出现 */
+  transition: visibility 0s;           /* 打開時馬上出現 */
 }
 
 .sheet.open .sheet-backdrop {
@@ -438,25 +469,25 @@ input[type="date"]::-webkit-date-and-time-value {
   transform: translateY(0);
 }
 
-/* 面板最上面：标题 + ✕ */
+/* 面板最上面：標題 + ✕ */
 .sheet-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 18px;
-  color: #6c63ff;
+  color: var(--primary);
 }
 
 .sheet-close {
   background: none;
   border: none;
   font-size: 20px;
-  color: #a09cc0;
+  color: var(--muted);
   cursor: pointer;
 }
 
 
-/* 🔢 金额 + 数字键盘 */
+/* 🔢 金額 + 數字鍵盤 */
 .field-title {
   text-align: left;
   font-size: 14px;
@@ -464,7 +495,7 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 .amount-box {
-  background-color: #f3f0ff;
+  background-color: var(--soft);
   border-radius: 16px;
   padding: 10px 16px;
   margin-top: 6px;
@@ -475,14 +506,14 @@ input[type="date"]::-webkit-date-and-time-value {
   min-height: 18px;
   margin: 0;
   font-size: 13px;
-  color: #a09cc0;
+  color: var(--muted);
 }
 
 .amount-display {
   margin: 0;
   font-size: 32px;
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
 }
 
 .keypad {
@@ -496,8 +527,8 @@ input[type="date"]::-webkit-date-and-time-value {
   padding: 14px 0;
   border: none;
   border-radius: 14px;
-  background-color: #f3f0ff;
-  color: #4a4a68;
+  background-color: var(--soft);
+  color: var(--ink);
   font-family: inherit;
   font-size: 22px;
   font-weight: 700;
@@ -506,12 +537,12 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 .keypad button:active {
-  background-color: #e6e1ff;
+  background-color: var(--line-soft);
   transform: scale(0.95);
 }
 
 .keypad .key-fn {
-  color: #6c63ff;
+  color: var(--primary);
 }
 
 .keypad .key-wide {
@@ -527,26 +558,26 @@ input[type="date"]::-webkit-date-and-time-value {
   padding: 16px 24px 8px;
 }
 
-/* 面板下面：金额 + 键盘，固定不动 */
+/* 面板下面：金額 + 鍵盤，固定不動 */
 .sheet-bottom {
   padding: 8px 24px 24px;
-  border-top: 1px solid #e6e1ff;
+  border-top: 1px solid var(--line-soft);
 }
 
-/* ✓ 记一笔：键盘最后一排，占 2 格 */
+/* ✓ 記一筆：鍵盤最後一排，佔 2 格 */
 .keypad .key-submit {
   grid-column: span 2;
-  background-color: #6c63ff;
+  background-color: var(--primary);
   color: white;
   font-size: 18px;
 }
 
 .keypad .key-submit:active {
-  background-color: #5a52e0;
+  background-color: var(--primary-dark);
 }
 
 
-/* 数字输入框：拿掉右边的上下箭头 */
+/* 數字輸入框：拿掉右邊的上下箭頭 */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -559,7 +590,7 @@ input[type="number"] {
 }
 
 
-/* 卡片上的下一步按钮 */
+/* 卡片上的下一步按鈕 */
 .steps {
   display: flex;
   gap: 6px;
@@ -571,15 +602,15 @@ input[type="number"] {
   padding: 8px;
   border: none;
   border-radius: 999px;
-  background-color: white;
-  color: #6c63ff;
+  background-color: var(--paper);
+  color: var(--primary);
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
 
-/* 🏷️ 分类按钮 */
+/* 🏷️ 分類按鈕 */
 .cat-chips {
   display: flex;
   flex-wrap: wrap;
@@ -591,10 +622,10 @@ input[type="number"] {
 .cur-chip,
 .type-chip {
   padding: 6px 12px;
-  border: 1px solid #e6e1ff;
+  border: 1px solid var(--line-soft);
   border-radius: 999px;
-  background-color: white;
-  color: #7a7896;
+  background-color: var(--paper);
+  color: var(--muted2);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
@@ -603,19 +634,19 @@ input[type="number"] {
 .cat-chip.active,
 .cur-chip.active,
 .type-chip.active {
-  border-color: #6c63ff;
-  background-color: #6c63ff;
+  border-color: var(--primary);
+  background-color: var(--primary);
   color: white;
   font-weight: 700;
 }
 
-/* 统计里：每个分类花多少 */
+/* 統計裡：每個分類花多少 */
 .cat-stats {
   justify-content: center;
   margin-top: 8px;
 }
 
-/* 🛒 购物车计算机 */
+/* 🛒 購物車計算機 */
 .cur-chips {
   display: flex;
   gap: 6px;
@@ -631,7 +662,7 @@ input[type="number"] {
 }
 
 .cart-list .calc-item {
-  background-color: #f3f0ff;
+  background-color: var(--soft);
   margin-top: 6px;
   padding: 6px 12px;
 }
@@ -661,21 +692,21 @@ input[type="number"] {
   padding: 10px 0;
 }
 
-/* 🍩 统计的甜甜圈图 */
+/* 🍩 統計的甜甜圈圖 */
 .donut {
   position: relative;
   width: 200px;
   height: 200px;
   margin: 16px auto 8px;
   border-radius: 50%;
-  background-color: #e6e1ff;
+  background-color: var(--line-soft);
 }
 
 .donut-hole {
   position: absolute;
   inset: 30px;
   border-radius: 50%;
-  background-color: white;
+  background-color: var(--paper);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -688,18 +719,18 @@ input[type="number"] {
 
 .donut-label {
   font-size: 13px;
-  color: #a09cc0;
+  color: var(--muted);
 }
 
 .donut-total {
   font-size: 22px;
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
 }
 
 .donut-sub {
   font-size: 12px;
-  color: #7a7896;
+  color: var(--muted2);
 }
 
 .cat-legend {
@@ -711,7 +742,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: white;
+  background-color: var(--paper);
   border-radius: 12px;
   padding: 8px 12px;
   margin-top: 6px;
@@ -732,7 +763,7 @@ input[type="number"] {
 .legend-percent {
   width: 36px;
   text-align: right;
-  color: #a09cc0;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -740,7 +771,7 @@ input[type="number"] {
   margin-top: 8px;
 }
 
-/* 过期的倒数：变灰、淡一点 */
+/* 過期的倒數：變灰、淡一點 */
 .count-box.past {
   filter: grayscale(1);
   opacity: 0.6;
@@ -756,18 +787,18 @@ input[type="number"] {
   top: 50%;
   transform: translateY(-50%);
   padding: 6px 14px;
-  border: 1px solid #e6e1ff;
+  border: 1px solid var(--line-soft);
   border-radius: 999px;
-  background-color: white;
-  color: #6c63ff;
+  background-color: var(--paper);
+  color: var(--primary);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
 }
 
-/* ⏳ 倒数管理画面的每一行 */
+/* ⏳ 倒數管理畫面的每一行 */
 .ev-row {
-  background-color: #f3f0ff;
+  background-color: var(--soft);
   border-radius: 12px;
   padding: 8px 10px;
   margin-top: 6px;
@@ -794,7 +825,7 @@ input[type="number"] {
 
 .ev-row-date {
   font-size: 12px;
-  color: #a09cc0;
+  color: var(--muted);
 }
 
 .ev-btn-space {
@@ -803,7 +834,7 @@ input[type="number"] {
 }
 
 #btn-add-event {
-  border: 1px dashed #c0bcd6;
+  border: 1px dashed var(--line-mid);
 }
 
 .ev-btn {
@@ -813,8 +844,8 @@ input[type="number"] {
   padding: 0;
   border: none;
   border-radius: 8px;
-  background-color: white;
-  color: #6c63ff;
+  background-color: var(--paper);
+  color: var(--primary);
   font-size: 14px;
   cursor: pointer;
   touch-action: manipulation;
@@ -825,12 +856,12 @@ input[type="number"] {
   cursor: default;
 }
 
-/* 倒数管理画面：最下面留点空间，不要贴边 */
+/* 倒數管理畫面：最下面留點空間，不要貼邊 */
 #event-sheet .sheet-scroll {
   padding-bottom: 32px;
 }
 
-/* 倒数管理：选类型的两颗按钮 */
+/* 倒數管理：選類型的兩顆按鈕 */
 .ev-types {
   display: flex;
   gap: 6px;
@@ -841,10 +872,12 @@ input[type="number"] {
   flex: 1;
 }
 
-/* ⚙️ 标题右边的设定按钮 */
+/* ⚙️ 標題右邊的設定按鈕 */
 header {
   position: relative;
-  padding-top: 1px;   /* 让标题的上边距留在 header 里面，⚙️ 才放得到标题上方 */
+  max-width: 528px;   /* 跟內容卡片一樣寬，⚙️ 才不會跑到電腦畫面最右邊 */
+  margin: 0 auto;
+  padding-top: 1px;   /* 讓標題的上邊距留在 header 裡面，⚙️ 才放得到標題上方 */
 }
 
 .btn-settings {
@@ -858,7 +891,7 @@ header {
   opacity: 0.7;
 }
 
-/* ===== 🐥 黄春 =====（整块独立，要拿掉的话删掉这一段到最后） */
+/* ===== 🐥 黃春 =====（整塊獨立，要拿掉的話刪掉這一段到最後） */
 .pet-room {
   position: relative;
   height: 320px;
@@ -870,13 +903,13 @@ header {
 .pet-wall {
   position: absolute;
   inset: 0 0 35% 0;
-  background-color: #f3f0ff;
+  background-color: var(--soft);
 }
 
 .pet-floor {
   position: absolute;
   inset: 65% 0 0 0;
-  background-color: #e6e1ff;
+  background-color: var(--line-soft);
 }
 
 .pet-deco {
@@ -906,12 +939,12 @@ header {
   transition: transform 0.5s;
 }
 
-/* 🍽️ 吃饱：肚子变大 */
+/* 🍽️ 吃飽：肚子變大 */
 .pet-emoji.big-belly {
   transform: scale(1.35, 1.1);
 }
 
-/* 👗 穿在身上的东西（叠在 🐥 上面） */
+/* 👗 穿在身上的東西（疊在 🐥 上面） */
 .wear {
   position: absolute;
   left: 50%;
@@ -934,7 +967,7 @@ header {
   font-size: 0.4em;
 }
 
-/* 往右走：左右翻过来 */
+/* 往右走：左右翻過來 */
 .pet-body.face-right {
   transform: scaleX(-1);
 }
@@ -948,7 +981,7 @@ header {
   40% { transform: translateY(-40px); }
 }
 
-/* 点黄春冒出来的爱心 */
+/* 點黃春冒出來的愛心 */
 .pet-heart {
   position: absolute;
   bottom: 40%;
@@ -962,14 +995,14 @@ header {
   100% { transform: translateY(-90px) scale(1.2); opacity: 0; }
 }
 
-/* 🐥 金币和饱足度 */
+/* 🐥 金幣和飽足度 */
 .pet-status {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 14px;
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
 }
 
 .pet-coins {
@@ -980,7 +1013,7 @@ header {
   width: 90px;
   height: 10px;
   border-radius: 999px;
-  background-color: #e6e1ff;
+  background-color: var(--line-soft);
   overflow: hidden;
 }
 
@@ -996,7 +1029,7 @@ header {
   text-align: right;
 }
 
-/* 房间里可以点的：衣柜、餐桌 */
+/* 房間裡可以點的：衣櫃、餐桌 */
 .pet-spot {
   position: absolute;
   display: flex;
@@ -1013,10 +1046,10 @@ header {
 .pet-spot small {
   font-family: inherit;
   font-size: 11px;
-  color: #7a7896;
+  color: var(--muted2);
 }
 
-/* 黄春头上的泡泡 */
+/* 黃春頭上的泡泡 */
 .pet-thought,
 .pet-say {
   position: absolute;
@@ -1028,15 +1061,15 @@ header {
 }
 
 .pet-say {
-  background-color: white;
+  background-color: var(--paper);
   border-radius: 999px;
   padding: 2px 10px;
   font-size: 14px;
-  color: #6c63ff;
+  color: var(--primary);
   font-weight: 700;
 }
 
-/* 喂的食物：出现一下就被吃掉 */
+/* 餵的食物：出現一下就被吃掉 */
 .pet-food {
   position: absolute;
   bottom: 30%;
@@ -1060,8 +1093,8 @@ header {
   padding: 10px 14px;
   border: none;
   border-radius: 14px;
-  background-color: #f3f0ff;
-  color: #4a4a68;
+  background-color: var(--soft);
+  color: var(--ink);
   font-family: inherit;
   font-size: 15px;
   text-align: left;
@@ -1080,22 +1113,22 @@ header {
 
 .shop-name small {
   font-size: 12px;
-  color: #a09cc0;
+  color: var(--muted);
 }
 
 .shop-price {
   font-weight: 700;
-  color: #6c63ff;
+  color: var(--primary);
 }
 
-/* 👗 衣柜 */
+/* 👗 衣櫃 */
 .wardrobe-preview {
   display: flex;
   justify-content: center;
   padding: 36px 0 20px;
   margin: 8px 0;
   border-radius: 20px;
-  background-color: #f3f0ff;
+  background-color: var(--soft);
 }
 
 .wardrobe-preview .pet-body {
@@ -1117,8 +1150,8 @@ header {
   padding: 10px 4px;
   border: 2px solid transparent;
   border-radius: 14px;
-  background-color: #f3f0ff;
-  color: #4a4a68;
+  background-color: var(--soft);
+  color: var(--ink);
   font-family: inherit;
   font-size: 13px;
   cursor: pointer;
@@ -1126,15 +1159,277 @@ header {
 
 .wardrobe-item small {
   font-size: 11px;
-  color: #a09cc0;
+  color: var(--muted);
 }
 
 .wardrobe-item.wearing {
-  border-color: #6c63ff;
+  border-color: var(--primary);
+  background-color: var(--paper);
+}
+
+/* 肚子餓的泡泡：放高一點，才不會壓到帽子 */
+.pet-thought {
+  bottom: 125%;
+}
+
+/* 電腦寬畫面：底部選單上面圓角，看起來像手機 */
+@media (min-width: 481px) {
+  .tab-bar {
+    border: 1px solid var(--line-soft);
+    border-bottom: none;
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+/* 📷 選擇照片按鈕 */
+.photo-pick {
+  display: block;
+  box-sizing: border-box;
+  background-color: var(--soft);
+  border: 1px dashed var(--line-mid);
+  text-align: center;
+  cursor: pointer;
+}
+
+/* 看不到但還在的東西（例如藏起來的選檔案框） */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+
+/* ===== 💾 Y2K 復古視窗風（第一次：配色和外框） ===== */
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+/* 字體統一：按鈕、輸入框也用像素字 */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* 每一頁：直角、粗邊框、往右下的陰影 */
+.page {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.count-box,
+.money-card,
+.ev-row,
+.legend-row,
+.calc-item,
+.shop-row,
+.wardrobe-item,
+.amount-box,
+.wardrobe-preview,
+.pet-room {
+  border: 2px solid var(--ink);
+  border-radius: 0;
+}
+
+/* 按鈕：方塊、可以按的感覺 */
+.btn-main,
+.btn-small,
+.btn-step,
+.btn-mode,
+.keypad button,
+.ev-btn {
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.btn-main:active,
+.btn-small:active,
+.btn-step:active,
+.keypad button:active,
+.ev-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* 輸入框 */
+input,
+select,
+textarea {
+  border: 2px solid var(--ink);
+  border-radius: 0;
   background-color: white;
 }
 
-/* 肚子饿的泡泡：放高一点，才不会压到帽子 */
-.pet-thought {
-  bottom: 125%;
+/* 小標籤、膠囊按鈕都變方的 */
+.info-tag,
+.status,
+.cat-chip,
+.cur-chip,
+.type-chip,
+.sub-tabs,
+.sub-tab,
+.pet-say {
+  border-radius: 0;
+}
+
+.cat-chip,
+.cur-chip,
+.type-chip {
+  border: 2px solid var(--ink);
+}
+
+.sub-tabs {
+  border: 2px solid var(--ink);
+}
+
+/* 底部選單：像舊電腦的工作列 */
+.tab-bar {
+  border-top: 3px solid var(--ink);
+}
+
+@media (min-width: 481px) {
+  .tab-bar {
+    border: 3px solid var(--ink);
+    border-bottom: none;
+    border-radius: 0;
+  }
+}
+
+.tab-bar .tab-add {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background-color: var(--accent);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* 滑出來的畫面 */
+.sheet-panel {
+  border: 3px solid var(--ink);
+  border-bottom: none;
+  border-radius: 0;
+}
+
+/* ===== 💾 小視窗（Y2K 第二次） ===== */
+.win {
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--paper);
+  box-shadow: 5px 5px 0 var(--c);
+}
+
+/* 標題列：三個圓點＋標籤 */
+.win-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background-color: var(--c);
+  border-bottom: 2px solid var(--ink);
+  text-align: left;
+}
+
+.win-dots i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 3px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background-color: var(--paper);
+}
+
+.win-tab {
+  padding: 0 6px;
+  border: 2px solid var(--ink);
+  background-color: var(--paper);
+  font-size: 12px;
+}
+
+.win-right {
+  margin-left: auto;
+}
+
+.win-right .status {
+  border: 2px solid var(--ink);
+}
+
+/* 一排像素愛心 */
+.win-hearts {
+  padding-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--accent);
+}
+
+.win-body {
+  padding: 6px 16px 14px;
+}
+
+.win .big-number {
+  color: var(--c);
+}
+
+/* ⏳ Loading 條 */
+.win-load {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.win-load b {
+  flex: 1;
+  height: 10px;
+  border: 2px solid var(--ink);
+  background-color: white;
+}
+
+.win-load i {
+  display: block;
+  height: 100%;
+  background-color: var(--c);
+}
+
+/* ===== 💾 滑出畫面的標題列（Y2K 第三次） ===== */
+#add-sheet { --c: var(--win-blue); }
+#event-sheet { --c: var(--win-teal); }
+#settings-sheet { --c: var(--win-pink); }
+#food-sheet { --c: var(--win-sage); }
+#wardrobe-sheet { --c: var(--win-pink); }
+
+.sheet-header {
+  position: sticky;      /* 往下滑時標題列留在最上面 */
+  top: -16px;
+  z-index: 2;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: -16px -24px 12px;
+  padding: 6px 10px;
+  background-color: var(--c);
+  border-bottom: 2px solid var(--ink);
+}
+
+.sheet-header .win-tab {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.sheet-close {
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  background-color: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  box-shadow: 2px 2px 0 var(--ink);
 }

@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>♡MOA Diary♡</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,58 +15,71 @@
   <main>
         <section id="page-home" class="page active">
       <div class="home-title">
-        <h2>⏳ 倒数日</h2>
-        <button type="button" class="btn-mode" id="btn-home-edit">编辑</button>
+        <h2>⏳ 倒數日</h2>
+        <button type="button" class="btn-mode" id="btn-home-edit">編輯</button>
       </div>
 
-      <!-- 所有卡片（由 app.js 做出来，顺序在「编辑」里调） -->
+      <!-- 所有卡片（由 app.js 做出來，順序在「編輯」裡調） -->
       <div id="event-list"></div>
     </section>
 
        <section id="page-money" class="page">
-      <h2>💰 记账</h2>
+      <h2>💰 記帳</h2>
 
       <div class="sub-tabs">
         <button type="button" class="sub-tab active" data-view="all">💰 全部</button>
-        <button type="button" class="sub-tab" data-view="pending">📦 待到货</button>
+        <button type="button" class="sub-tab" data-view="pending">📦 待到貨</button>
       </div>
 
       <!-- 💰 全部 -->
       <div id="money-view-all">
-        <div class="count-box">
-          <p><strong>📊 统计</strong></p>
+        <div class="count-box win" style="--c: var(--win-blue);">
+          <div class="win-bar">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <span class="win-tab">📊 統計.exe</span>
+          </div>
+          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
+          <div class="win-body">
           <div class="row stats-dates">
-            <label>从
+            <label>從
               <input type="date" id="stats-from">
             </label>
             <label>到
               <input type="date" id="stats-to">
             </label>
           </div>
-          <button type="button" class="btn-small btn-light" id="stats-this-month">这个月</button>
+          <button type="button" class="btn-small btn-light" id="stats-this-month">這個月</button>
 
-          <!-- 🍩 甜甜圈图：每一块是一个分类 -->
+          <!-- 🍩 甜甜圈圖：每一塊是一個分類 -->
           <div class="donut" id="stats-donut">
             <div class="donut-hole">
-              <p class="donut-label">花费</p>
+              <p class="donut-label">花費</p>
               <p class="donut-total">NT$ <span id="stats-total">0</span></p>
-              <p class="donut-sub">共 <span id="stats-count">0</span> 笔</p>
-              <p class="donut-sub" id="stats-extra-line">含二补 NT$ <span id="stats-extra">0</span></p>
+              <p class="donut-sub">共 <span id="stats-count">0</span> 筆</p>
+              <p class="donut-sub" id="stats-extra-line">含二補 NT$ <span id="stats-extra">0</span></p>
             </div>
           </div>
           <div class="cat-legend" id="stats-cats"></div>
+          </div>
         </div>
 
 
         <div id="money-list"></div>
       </div>
 
-      <!-- 📦 待到货 -->
+      <!-- 📦 待到貨 -->
       <div id="money-view-pending" style="display: none;">
-        <div class="count-box">
-          <p>待二补合计</p>
+        <div class="count-box win" style="--c: var(--win-teal);">
+          <div class="win-bar">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <span class="win-tab">📦 待到貨.exe</span>
+          </div>
+          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
+          <div class="win-body">
+          <p>待二補合計</p>
           <p class="big-number">NT$ <span id="pending-extra">0</span></p>
-          <p>📦 还有 <span id="pending-count">0</span> 笔还没到货</p>
+          <p>📦 還有 <span id="pending-count">0</span> 筆還沒到貨</p>
+          </div>
         </div>
 
         <div id="pending-list"></div>
@@ -76,48 +87,66 @@
     </section>
 
         <section id="page-diary" class="page">
-      <h2>📸 记录</h2>
+      <h2>📸 記錄</h2>
       <div class="sub-tabs">
-        <button type="button" class="sub-tab active" data-type="concert">🎤 演唱会</button>
+        <button type="button" class="sub-tab active" data-type="concert">🎤 演唱會</button>
         <button type="button" class="sub-tab" data-type="mood">💭 心情</button>
       </div>
+      <div class="count-box win" style="--c: var(--win-blue);">
+          <div class="win-bar">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <span class="win-tab">✏️ 新增紀錄.exe</span>
+          </div>
+          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
+          <div class="win-body">
       <form id="diary-form">
                 <label>日期
           <input type="date" id="d-date" required>
         </label>
 
         <div id="concert-fields">
-          <label>演唱会名称
-            <input type="text" id="d-title" placeholder="例如：TXT 台北演唱会 Day 1">
+          <label>演唱會名稱
+            <input type="text" id="d-title" placeholder="例如：TXT 台北演唱會 Day 1">
           </label>
           <div class="row">
-            <label>地点
+            <label>地點
               <input type="text" id="d-place" placeholder="例如：台北小巨蛋">
             </label>
             <label>座位
-              <input type="text" id="d-seat" placeholder="例如：A 区 12 排">
+              <input type="text" id="d-seat" placeholder="例如：A 區 12 排">
             </label>
           </div>
         </div>
 
-        <label>写点什么
+        <label>寫點什麼
           <textarea id="d-text" rows="4" placeholder="今天的心情…"></textarea>
         </label>
-        <label>照片（最多 9 张）
-          <input type="file" id="d-photos" accept="image/*" multiple>
+        <p class="field-title">照片（最多 9 張）</p>
+        <!-- 整個按鈕就是 label，點了會打開選照片；真正的 input 藏起來 -->
+        <label class="btn-small btn-light photo-pick">📷 選擇照片
+          <input type="file" id="d-photos" class="visually-hidden" accept="image/*" multiple>
         </label>
         <div id="photo-preview" class="photo-grid"></div>
-        <button type="submit" class="btn-main">记下来 ♡</button>
+        <button type="submit" class="btn-main">記下來 ♡</button>
       </form>
+          </div>
+      </div>
 
       <div id="diary-list"></div>
     </section>
 
-    <!-- 🐥 黄春：整块独立（要拿掉的话：删掉这个 section、底部选单那格、style.css 和 app.js 里标「🐥 黄春」的那段） -->
+    <!-- 🐥 黃春：整塊獨立（要拿掉的話：刪掉這個 section、底部選單那格、style.css 和 app.js 裡標「🐥 黃春」的那段） -->
     <section id="page-pet" class="page">
-      <h2>🐥 黄春的房间</h2>
+      <h2>🐥 黃春的房間</h2>
 
-      <!-- 金币和饱足度 -->
+      <div class="count-box win" style="--c: var(--win-sage);">
+          <div class="win-bar">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <span class="win-tab">🐥 黃春.exe</span>
+          </div>
+          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
+          <div class="win-body">
+      <!-- 金幣和飽足度 -->
       <div class="pet-status">
         <span class="pet-coins">🪙 <span id="pet-coins">0</span></span>
         <span class="pet-full-label">🍙</span>
@@ -131,11 +160,11 @@
         <span class="pet-deco" style="left: 14%; top: 18%;">🖼️</span>
         <span class="pet-deco" style="right: 14%; top: 14%;">🪟</span>
 
-        <!-- 可以点的：衣柜、餐桌 -->
-        <button type="button" class="pet-spot" id="btn-wardrobe" style="left: 3%; bottom: 36%;">🚪<small>衣柜</small></button>
-        <button type="button" class="pet-spot" id="btn-food" style="right: 3%; bottom: 36%;">🍽️<small>喂食</small></button>
+        <!-- 可以點的：衣櫃、餐桌 -->
+        <button type="button" class="pet-spot" id="btn-wardrobe" style="left: 3%; bottom: 36%;">🚪<small>衣櫃</small></button>
+        <button type="button" class="pet-spot" id="btn-food" style="right: 3%; bottom: 36%;">🍽️<small>餵食</small></button>
 
-        <!-- 黄春：外层负责左右走，中间负责跳，里面负责转向 -->
+        <!-- 黃春：外層負責左右走，中間負責跳，裡面負責轉向 -->
         <div class="pet" id="pet">
           <span class="pet-thought" id="pet-thought" hidden>💭🍙</span>
           <span class="pet-say" id="pet-say" hidden>嗝～</span>
@@ -150,11 +179,14 @@
         </div>
       </div>
 
-      <p class="rate-info">点点看黄春 💜</p>
+          </div>
+      </div>
+
+      <p class="rate-info">點點看黃春 💜</p>
     </section>
   </main>
 
-  <!-- ➕ 记一笔：从下面滑出来的画面 -->
+  <!-- ➕ 記一筆：從下面滑出來的畫面 -->
   <div id="add-sheet" class="sheet">
     <div class="sheet-backdrop" id="sheet-backdrop"></div>
     <div class="sheet-panel">
@@ -162,50 +194,51 @@
       <!-- 上面：可以上下滑 -->
       <div class="sheet-scroll">
         <div class="sheet-header">
-          <strong>记一笔 ♡</strong>
+          <span class="win-dots"><i></i><i></i><i></i></span>
+          <strong class="win-tab">記一筆 ♡</strong>
           <button type="button" class="sheet-close" id="sheet-close">✕</button>
         </div>
 
 
         <form id="money-form">
-          <p class="field-title">这一样的分类</p>
+          <p class="field-title">這一樣的分類</p>
           <div class="cat-chips" id="cat-chips"></div>
           <input type="hidden" id="m-category" value="其他">
 
           <label>日期
             <input type="date" id="m-date" required>
           </label>
-          <label>代购
-            <input type="text" id="m-agent" placeholder="例如：小明代购">
+          <label>代購
+            <input type="text" id="m-agent" placeholder="例如：小明代購">
           </label>
-          <label>购买平台
+          <label>購買平台
             <input type="text" id="m-platform" placeholder="例如：Weverse Shop">
           </label>
 
         
-                      <label>运输方式
+                      <label>運輸方式
             <select id="m-shipping">
-              <option value="">无</option>
-              <option value="空运">✈️ 空运</option>
-              <option value="海运">🚢 海运</option>
+              <option value="">無</option>
+              <option value="空運">✈️ 空運</option>
+              <option value="海運">🚢 海運</option>
             </select>
           </label>
 
-          <label>状态
+          <label>狀態
             <select id="m-status">
-                            <option value="货到付款">💰 货到付款</option>
+                            <option value="貨到付款">💰 貨到付款</option>
               <option value="已付款" selected>💳 已付款</option>
-              <option value="已发货">🚚 已发货</option>
-              <option value="完成">✅ 完成（已经拿到了）</option>
+              <option value="已發貨">🚚 已發貨</option>
+              <option value="完成">✅ 完成（已經拿到了）</option>
             </select>
           </label>
-          <label>备注
+          <label>備注
             <textarea id="m-note" rows="2"></textarea>
           </label>
         </form>
       </div>
 
-      <!-- 下面：固定不动 -->
+      <!-- 下面：固定不動 -->
       <div class="sheet-bottom">
         <div class="cur-chips" id="cur-chips"></div>
         <div class="cart-list" id="calc-list"></div>
@@ -213,7 +246,7 @@
           <p class="amount-expr" id="amount-expr"></p>
           <p class="amount-display"><span id="amount-label"></span>NT$ <span id="amount-text">0</span></p>
         </div>
-        <input type="text" id="calc-name" class="calc-name" placeholder="这一样的名称（选填，例如：yj 小卡）">
+        <input type="text" id="calc-name" class="calc-name" placeholder="這一樣的名稱（選填，例如：yj 小卡）">
         <input type="hidden" id="m-amount">
 
         <div class="keypad">
@@ -231,78 +264,88 @@
           <button type="button" data-key="clear" class="key-fn">C</button>
           <button type="button" data-key="0">0</button>
           <button type="button" data-key="00">00</button>
-          <button type="submit" form="money-form" class="key-submit">✓ 记一笔</button>
+          <button type="submit" form="money-form" class="key-submit">✓ 記一筆</button>
         </div>
       </div>
 
     </div>
   </div>
-  <!-- ⏳ 倒数管理：从下面滑出来的画面 -->
+  <!-- ⏳ 倒數管理：從下面滑出來的畫面 -->
   <div id="event-sheet" class="sheet">
     <div class="sheet-backdrop" id="event-sheet-backdrop"></div>
     <div class="sheet-panel">
       <div class="sheet-scroll">
         <div class="sheet-header">
-          <strong>⏳ 倒数管理</strong>
+          <span class="win-dots"><i></i><i></i><i></i></span>
+          <strong class="win-tab">⏳ 倒數管理</strong>
           <button type="button" class="sheet-close" id="event-sheet-close">✕</button>
         </div>
-        <p class="rate-info">↑ ↓ 调整首页的顺序</p>
+        <p class="rate-info">↑ ↓ 調整首頁的順序</p>
         <div id="event-manager"></div>
-        <button type="button" class="btn-small btn-light" id="btn-add-event">＋ 新增倒数</button>
+        <button type="button" class="btn-small btn-light" id="btn-add-event">＋ 新增倒數</button>
       </div>
     </div>
   </div>
 
-  <!-- ⚙️ 设定：从下面滑出来的画面 -->
+  <!-- ⚙️ 設定：從下面滑出來的畫面 -->
   <div id="settings-sheet" class="sheet">
     <div class="sheet-backdrop" id="settings-backdrop"></div>
     <div class="sheet-panel">
       <div class="sheet-scroll">
         <div class="sheet-header">
-          <strong>⚙️ 设定</strong>
+          <span class="win-dots"><i></i><i></i><i></i></span>
+          <strong class="win-tab">⚙️ 設定</strong>
           <button type="button" class="sheet-close" id="settings-close">✕</button>
         </div>
 
-        <div class="count-box">
-          <p><strong>💾 资料备份</strong></p>
-          <p class="rate-info">换手机、换电脑，或怕资料不见时使用</p>
+        <div class="count-box win" style="--c: var(--win-pink);">
+          <div class="win-bar">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <span class="win-tab">💾 資料備份</span>
+          </div>
+          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
+          <div class="win-body">
+          <p class="rate-info">換手機、換電腦，或怕資料不見時使用</p>
           <div class="row">
-            <button type="button" class="btn-small" id="btn-export">导出备份</button>
-            <button type="button" class="btn-small btn-light" id="btn-import">导入备份</button>
+            <button type="button" class="btn-small" id="btn-export">匯出備份</button>
+            <button type="button" class="btn-small btn-light" id="btn-import">匯入備份</button>
           </div>
           <input type="file" id="import-file" accept=".json" style="display: none;">
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 🐥 黄春：🍽️ 喂食 -->
+  <!-- 🐥 黃春：🍽️ 餵食 -->
   <div id="food-sheet" class="sheet">
     <div class="sheet-backdrop" id="food-backdrop"></div>
     <div class="sheet-panel">
       <div class="sheet-scroll">
         <div class="sheet-header">
-          <strong>🍽️ 喂黄春</strong>
+          <span class="win-dots"><i></i><i></i><i></i></span>
+          <strong class="win-tab">🍽️ 餵黃春</strong>
           <button type="button" class="sheet-close" id="food-close">✕</button>
         </div>
-        <p class="rate-info">🪙 <span id="food-coins">0</span>・饱足度 <span id="food-full">0</span>/100</p>
+        <p class="rate-info">🪙 <span id="food-coins">0</span>・飽足度 <span id="food-full">0</span>/100</p>
         <div id="food-list"></div>
       </div>
     </div>
   </div>
 
-  <!-- 🐥 黄春：👗 衣柜 -->
+  <!-- 🐥 黃春：👗 衣櫃 -->
   <div id="wardrobe-sheet" class="sheet">
     <div class="sheet-backdrop" id="wardrobe-backdrop"></div>
     <div class="sheet-panel">
       <div class="sheet-scroll">
         <div class="sheet-header">
-          <strong>👗 衣柜</strong>
+          <span class="win-dots"><i></i><i></i><i></i></span>
+          <strong class="win-tab">👗 衣櫃</strong>
           <button type="button" class="sheet-close" id="wardrobe-close">✕</button>
         </div>
         <p class="rate-info">🪙 <span id="wardrobe-coins">0</span></p>
 
-        <!-- 放大的黄春，先看穿起来的样子 -->
+        <!-- 放大的黃春，先看穿起來的樣子 -->
         <div class="wardrobe-preview">
           <span class="pet-body" id="preview-body">
             <span class="pet-emoji">🐥</span>
@@ -316,17 +359,17 @@
         <div class="wardrobe-items" id="wardrobe-items"></div>
       </div>
       <div class="sheet-bottom">
-        <button type="button" class="btn-small" id="wardrobe-save">保存</button>
+        <button type="button" class="btn-small" id="wardrobe-save">儲存</button>
       </div>
     </div>
   </div>
 
     <nav class="tab-bar">
-    <button class="active" data-page="page-home">🏠<br>首页</button>
-    <button data-page="page-money">💰<br>记账</button>
+    <button class="active" data-page="page-home">🏠<br>首頁</button>
+    <button data-page="page-money">💰<br>記帳</button>
     <button class="tab-add" id="btn-add">＋</button>
-    <button data-page="page-diary">📸<br>记录</button>
-    <button data-page="page-pet">🐥<br>黄春</button>
+    <button data-page="page-diary">📸<br>記錄</button>
+    <button data-page="page-pet">🐥<br>黃春</button>
   </nav>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="app.js"></script>
