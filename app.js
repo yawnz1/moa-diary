@@ -1,3 +1,246 @@
+// ===== 👾 像素圖 =====
+// 圖示庫（pixelarticons）有的，用 icon("名字")；沒有的，用 px("名字") 畫我們自己的像素圖。
+// 之後換成自己畫的圖：把 px() 裡對應的那一張換成 <img> 就好。
+
+function icon(name) {
+    return `<i class="pxi pixelart-icons-font-${name}" aria-hidden="true"></i>`;
+}
+
+// 顏色代號：一個字母 = 一種顏色，「.」= 透明
+const pixelColors = {
+    K: "#2d2a4a", Y: "#ffd23f", y: "#f0a800", O: "#ff8a3d", W: "#ffffff", R: "#e04848",
+    P: "#f49ac2", B: "#2f6db5", b: "#9fd8ff", G: "#5cb85c", g: "#2e7d32", N: "#a0704c",
+    n: "#6b4a2e", S: "#c9c3d6", s: "#8a8494", D: "#f2c14e", L: "#8b7cf6",
+};
+
+// 每一張圖：一行字 = 一排格子
+const pixelArt = {
+    // 🐥 黃春（16×16，臉朝左；衣服也畫在同樣大小的格子上，疊上去剛好對齊）
+    chick: [
+        "................",
+        "......KKKK......",
+        ".....KYYYYK.....",
+        "....KYYYYYYK....",
+        "....KYKYYYYK....",
+        "...KOOYYYYYYK...",
+        "....KYYYYYYYK...",
+        "...KYYYYYYYYYK..",
+        "..KYYYYYyyYYYK..",
+        "..KYYYYYyyYYYK..",
+        "..KYYYYYYYYYYK..",
+        "...KYYYYYYYYK...",
+        "....KKKKKKKK....",
+        ".....O....O.....",
+        "....OO...OO.....",
+        "................",
+    ],
+    bow: [
+        "........PP.PP...",
+        "........PPRPP...",
+        "........P...P...",
+    ],
+    cap: [
+        ".....BBBBB......",
+        "....BBBBBBB.....",
+        "..BBBBBBBBBK....",
+    ],
+    crown: [
+        ".....D.D.D......",
+        ".....DDDDD......",
+        ".....DRDRD......",
+    ],
+    glasses: [
+        "................",
+        "................",
+        "................",
+        "...KKKKKKKKK....",
+        "...KbbKKKbbK....",
+        "...KKKK.KKKK....",
+    ],
+    sunglasses: [
+        "................",
+        "................",
+        "................",
+        "...KKKKKKKKK....",
+        "...KKKKKKKKK....",
+        "...KKK...KKK....",
+    ],
+    scarf: [
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "....KRRRRRRK....",
+        "...KRRRRRRRRK...",
+        "..........RR....",
+        "..........R.....",
+    ],
+    necklace: [
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "....D.......D...",
+        ".....D.....D....",
+        "......DDRDD.....",
+    ],
+    // 🍽️ 食物（12×12）
+    rice: [
+        "............",
+        ".....KK.....",
+        "....KWWK....",
+        "...KWWWWK...",
+        "..KWWWWWWK..",
+        "..KWWWWWWK..",
+        ".KWWWWWWWWK.",
+        ".KWWKKKKWWK.",
+        ".KWWKKKKWWK.",
+        ".KWWKKKKWWK.",
+        "..KKKKKKKK..",
+        "............",
+    ],
+    strawberry: [
+        "....gGGg....",
+        "...gGggGg...",
+        "..KRRgRRRK..",
+        ".KRRWRRRWRK.",
+        ".KRRRRRWRRK.",
+        ".KRWRRRRRRK.",
+        "..KRRRWRRK..",
+        "..KRRRRRRK..",
+        "...KRRWRK...",
+        "....KRRK....",
+        ".....KK.....",
+        "............",
+    ],
+    cake: [
+        "............",
+        ".....RR.....",
+        ".....KK.....",
+        "..KKKKKKKK..",
+        "..KWWWWWWK..",
+        "..KPPPPPPK..",
+        "..KWWWWWWK..",
+        "..KPPPPPPK..",
+        "..KNNNNNNK..",
+        "..KKKKKKKK..",
+        "............",
+        "............",
+    ],
+    chicken: [
+        "............",
+        "...KKKK.....",
+        "..KNNNNK....",
+        ".KNNnNNNK...",
+        ".KNNNNNNK...",
+        ".KNNNNnNK...",
+        "..KNNNNK....",
+        "...KNNK.....",
+        "....KWK.....",
+        ".....KWK....",
+        "....KWKWK...",
+        ".....K.K....",
+    ],
+    // 🏠 房間（12×12）
+    frame: [
+        "NNNNNNNNNNNN",
+        "NnnnnnnnnnnN",
+        "NnbbbbbbbbnN",
+        "NnbbbbbWbbnN",
+        "NnbbbbbbbbnN",
+        "NnbbGGbbbbnN",
+        "NnbGGGGbGbnN",
+        "NnGGGGGGGGnN",
+        "NnnnnnnnnnnN",
+        "NNNNNNNNNNNN",
+        "............",
+        "............",
+    ],
+    window: [
+        "KKKKKKKKKKKK",
+        "KbbbbKbbbbbK",
+        "KbWbbKbbbbbK",
+        "KbbbbKbbbbbK",
+        "KbbbbKbbbbbK",
+        "KKKKKKKKKKKK",
+        "KbbbbKbbbbbK",
+        "KbbbbKbbWbbK",
+        "KbbbbKbbbbbK",
+        "KbbbbKbbbbbK",
+        "KKKKKKKKKKKK",
+        "............",
+    ],
+    door: [
+        "..KKKKKKKK..",
+        "..KNNNNNNK..",
+        "..KNnnnnNK..",
+        "..KNnNNnNK..",
+        "..KNnnnnNK..",
+        "..KNNNNNNK..",
+        "..KNNNNDNK..",
+        "..KNnnnnNK..",
+        "..KNnNNnNK..",
+        "..KNnnnnNK..",
+        "..KNNNNNNK..",
+        "..KKKKKKKK..",
+    ],
+    plate: [
+        "............",
+        "............",
+        "............",
+        "...KKKKKK...",
+        "..KSSSSSSK..",
+        ".KSWWWWWWSK.",
+        ".KSWWWWWWSK.",
+        ".KSWWWWWWSK.",
+        "..KSSSSSSK..",
+        "...KKKKKK...",
+        "............",
+        "............",
+    ],
+    // 🏷️ 分類：門票（12×12）
+    ticket: [
+        "............",
+        "............",
+        ".KKKKKKKKKK.",
+        ".KPPPPKPPPK.",
+        "KPPPPPKPPPPK",
+        ".PPWWPKPPPP.",
+        ".PPWWPKPPPP.",
+        "KPPPPPKPPPPK",
+        ".KPPPPKPPPK.",
+        ".KKKKKKKKKK.",
+        "............",
+        "............",
+    ],
+};
+
+// 把一張像素圖變成 SVG（大小跟著字的大小：1em）
+function px(name) {
+    const rows = pixelArt[name];
+    const w = rows[0].length;   // 都是正方形：衣服只畫上面幾排，下面是空的
+    let rects = "";
+    rows.forEach(function (row, y) {
+        // 同一排、同顏色連在一起的格子，畫成一個長方形（比較快）
+        let x = 0;
+        while (x < row.length) {
+            const c = row[x];
+            let len = 1;
+            while (x + len < row.length && row[x + len] === c) len++;
+            if (pixelColors[c]) {
+                rects += `<rect x="${x}" y="${y}" width="${len}" height="1" fill="${pixelColors[c]}"/>`;
+            }
+            x += len;
+        }
+    });
+    return `<svg class="px" viewBox="0 0 ${w} ${w}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}
+
 // iPhone 狀態欄的顏色：自動用頁面背景色（之後換背景色也會跟著變）
 const themeColor = document.createElement("meta");
 themeColor.name = "theme-color";
@@ -89,18 +332,29 @@ function saveEvents() {
     localStorage.setItem("events", JSON.stringify(events));
 }
 
-// 💾 小視窗：標題列（三個圓點＋標籤＋右邊的東西）和一排像素愛心
+// 💾 小視窗：標題列（三個圓點＋標籤＋右邊的東西）、網址列（選用）、一排像素愛心
 const winColors = ["var(--win-blue)", "var(--win-pink)", "var(--win-teal)", "var(--win-sage)"];
 
-function winBar(title, right) {
+function winBar(title, right, withUrl) {
     return `
         <div class="win-bar">
             <span class="win-dots"><i></i><i></i><i></i></span>
             <span class="win-tab">${title}</span>
             ${right ? `<span class="win-right">${right}</span>` : ""}
         </div>
-        <div class="win-hearts">${"♥".repeat(30)}</div>
+        ${withUrl ? winUrl() : ""}
+        ${winHearts()}
     `;
+}
+
+// 網址列：網址的字之後用 textContent 放進 .win-url-text
+function winUrl() {
+    return `<div class="win-url">${icon("reload")}<span class="win-url-text"></span>${icon("mail")}</div>`;
+}
+
+// 一排像素愛心（用圖示庫的愛心，不會變成 iPhone 的 emoji）
+function winHearts() {
+    return `<div class="win-hearts">${icon("heart").repeat(20)}</div>`;
 }
 
 // 首頁：照順序顯示所有卡片（只顯示，不能改）
@@ -109,7 +363,7 @@ function showEvents() {
     list.innerHTML = "";
 
     if (events.length === 0) {
-        list.innerHTML = `<p class="rate-info">還沒有卡片，按右上角「編輯」新增 ✨</p>`;
+        list.innerHTML = `<p class="rate-info">還沒有卡片，按右上角「編輯」新增 ${icon("sparkles")}</p>`;
     }
 
     events.forEach(function (ev, index) {
@@ -131,21 +385,21 @@ function showEvents() {
             bigText = `${days === null ? "?" : days} 天`;
             if (days === 0) {
                 topText = `<span class="ev-name"></span>`;
-                bigText = "就是今天！🎉";
+                bigText = `就是今天！${icon("sparkles")}`;
             } else if (days < 0) {
                 topText = `<span class="ev-name"></span> 已經過了`;
                 bigText = `${-days} 天`;
             }
         }
 
-        // ⏳ 倒數的 Loading 條：100 天以上是空的，越接近越滿，當天全滿
+        // ⏳ 倒數的 Loading 條：從活動前一年（365 天）開始算，活動當天 100%
         let loadingHtml = "";
         if (ev.type === "countdown" && days !== null && days >= 0) {
-            const percent = Math.max(0, Math.min(100, 100 - days));
+            const percent = Math.max(0, Math.min(100, Math.round((365 - days) / 365 * 100)));
             loadingHtml = `
                 <div class="win-load">
                     <span>Loading...</span>
-                    <b><i style="width: ${percent}%"></i></b>
+                    <b><i style="width: ${Math.max(percent, 6)}%"></i></b>
                     <span>${percent}%</span>
                 </div>`;
         }
@@ -155,7 +409,7 @@ function showEvents() {
         card.className = "count-box win" + (ev.type === "countdown" && days !== null && days < 0 ? " past" : "");
         card.style.setProperty("--c", winColors[index % winColors.length]);   // 每張輪流換顏色
         card.innerHTML = `
-            ${winBar(ev.type === "since" ? "已經過了" : "倒數")}
+            ${winBar(ev.type === "since" ? "已經過了" : "倒數", "", true)}
             <div class="win-body">
                 <p>${topText}</p>
                 <p class="big-number">${bigText}</p>
@@ -164,6 +418,7 @@ function showEvents() {
         `;
         // 名稱用 textContent 放，避免奇怪的符號把畫面弄亂
         card.querySelector(".ev-name").textContent = ev.name || (ev.type === "since" ? "紀念日" : "活動");
+        card.querySelector(".win-url-text").textContent = "https://moa-diary/" + (ev.name || "event");
         list.appendChild(card);
     });
 
@@ -171,7 +426,7 @@ function showEvents() {
 }
 
 // 類型的文字
-const eventTypeNames = { countdown: "⏳ 倒數", since: "📅 已經過了" };
+const eventTypeNames = { countdown: icon("hourglass") + " 倒數", since: icon("calendar") + " 已經過了" };
 
 // ⏳ 倒數管理畫面：每一行有 ↑ ↓ ✏️ 🗑️
 function showEventManager() {
@@ -187,10 +442,10 @@ function showEventManager() {
                     <div class="ev-row-name"></div>
                     <div class="ev-row-date">${eventTypeNames[ev.type]}・${ev.date ? ev.date.replaceAll("-", "/") : "未設定"}</div>
                 </div>
-                <button type="button" class="ev-btn ev-up" ${index === 0 ? "disabled" : ""}>↑</button>
-                <button type="button" class="ev-btn ev-down" ${index === events.length - 1 ? "disabled" : ""}>↓</button>
-                <button type="button" class="ev-btn ev-edit">✏️</button>
-                <button type="button" class="ev-btn ev-delete">🗑️</button>
+                <button type="button" class="ev-btn ev-up" ${index === 0 ? "disabled" : ""} aria-label="往上">${icon("arrow-up")}</button>
+                <button type="button" class="ev-btn ev-down" ${index === events.length - 1 ? "disabled" : ""} aria-label="往下">${icon("arrow-down")}</button>
+                <button type="button" class="ev-btn ev-edit" aria-label="編輯">${icon("pencil")}</button>
+                <button type="button" class="ev-btn ev-delete" aria-label="刪除">${icon("trash")}</button>
             </div>
             <div class="edit-fields" ${editingEventId === ev.id ? "" : "hidden"}>
                 <div class="ev-types">
@@ -337,12 +592,12 @@ records.forEach(function (r) {
 });
 
 // 狀態前面的小圖示
-const statusIcons = { "貨到付款": "💰 貨到付款", "已付款": "💳 已付款", "已發貨": "🚚 已發貨", "待付二補": "💸 待付二補", "完成": "✅ 完成" };
+const statusIcons = { "貨到付款": icon("money") + " 貨到付款", "已付款": icon("credit-card") + " 已付款", "已發貨": icon("truck") + " 已發貨", "待付二補": icon("coins") + " 待付二補", "完成": icon("check") + " 完成" };
 
 // ===== 🏷️ 分類 =====
 
 // 分類和它的小圖示
-const categoryIcons = { "專輯": "💿", "小卡": "🃏", "周邊": "🎀", "門票": "🎫", "交通": "🚄", "住宿": "🏨", "其他": "📦" };
+const categoryIcons = { "專輯": icon("album"), "小卡": icon("image"), "周邊": icon("gift"), "門票": px("ticket"), "交通": icon("bus"), "住宿": icon("bed"), "其他": icon("package") };
 
 // 分類在甜甜圈圖上的顏色
 const categoryColors = { "專輯": "#8b7cf6", "小卡": "#f49ac2", "周邊": "#fbbf77", "門票": "#6cc5b0", "交通": "#7cb8f0", "住宿": "#f6d36b", "其他": "#c0bcd6" };
@@ -359,7 +614,7 @@ Object.keys(categoryIcons).forEach(function (name) {
     chip.type = "button";
     chip.className = "cat-chip";
     chip.dataset.cat = name;
-    chip.textContent = categoryIcons[name] + " " + name;
+    chip.innerHTML = categoryIcons[name] + " " + name;
     chip.addEventListener("click", function () {
         selectCategory(name);
     });
@@ -436,11 +691,11 @@ moneyForm.addEventListener("submit", function (event) {
 
 // 這一筆用到的所有分類圖示，例如「🃏🎀」
 function cardIcons(r) {
-    if (!r.items) return categoryIcons[r.category] || "📦";  // 舊資料只有一個分類
+    if (!r.items) return categoryIcons[r.category] || categoryIcons["其他"];  // 舊資料只有一個分類
     let icons = "";
     r.items.forEach(function (it) {
-        const icon = categoryIcons[it.category] || "📦";
-        if (!icons.includes(icon)) icons += icon;
+        const catIcon = categoryIcons[it.category] || categoryIcons["其他"];
+        if (!icons.includes(catIcon)) icons += catIcon;
     });
     return icons;
 }
@@ -449,10 +704,10 @@ function cardIcons(r) {
 function makeCard(r) {
     // 準備一個空籃子，有填的資料才放進去
     const tags = [];
-    if (r.platform) tags.push("🛍️ " + r.platform);
-    if (r.agent) tags.push("🙋 " + r.agent);
-    if (r.shipping) tags.push("📦 " + r.shipping);
-    if (r.extra) tags.push("➕ 二補 NT$ " + r.extra);
+    if (r.platform) tags.push(icon("shopping-bag") + " " + r.platform);
+    if (r.agent) tags.push(icon("human") + " " + r.agent);
+    if (r.shipping) tags.push(icon("ship") + " " + r.shipping);
+    if (r.extra) tags.push(icon("plus") + " 二補 NT$ " + r.extra);
 
     // 把籃子裡的每個資料，變成一顆小標籤
     let tagsHtml = "";
@@ -463,17 +718,17 @@ function makeCard(r) {
     // 有寫備注才顯示
     let noteHtml = "";
     if (r.note) {
-        noteHtml = `<p class="money-note">📝 ${r.note}</p>`;
+        noteHtml = `<p class="money-note">${icon("note")} ${r.note}</p>`;
     }
 
     // 依照狀態，顯示下一步的按鈕
     let stepsHtml = "";
     if (r.status === "已付款" || r.status === "貨到付款") {
-        stepsHtml = `<button class="btn-step" data-act="ship">🚚 已發貨</button><button class="btn-step" data-act="arrive">📦 到貨了</button>`;
+        stepsHtml = `<button class="btn-step" data-act="ship">${icon("truck")} 已發貨</button><button class="btn-step" data-act="arrive">${icon("package")} 到貨了</button>`;
     } else if (r.status === "已發貨") {
-        stepsHtml = `<button class="btn-step" data-act="arrive">📦 到貨了</button>`;
+        stepsHtml = `<button class="btn-step" data-act="arrive">${icon("package")} 到貨了</button>`;
     } else if (r.status === "待付二補") {
-        stepsHtml = `<button class="btn-step" data-act="paid">✓ 已付二補</button>`;
+        stepsHtml = `<button class="btn-step" data-act="paid">${icon("check")} 已付二補</button>`;
     }
 
     // 小視窗的顏色：用第一個分類的顏色（跟甜甜圈圖一樣）
@@ -492,7 +747,7 @@ function makeCard(r) {
             <div class="info-tags">${tagsHtml}</div>
             ${noteHtml}
             <div class="steps">${stepsHtml}</div>
-            <button class="btn-delete">🗑️ 刪除</button>
+            <button class="btn-delete">${icon("trash")} 刪除</button>
         </div>
     `;
 
@@ -548,7 +803,7 @@ function showPending() {
 
     // 全部都到貨了
     if (pending.length === 0) {
-        pendingList.innerHTML = `<p class="empty">🎉 全部都到貨了！</p>`;
+        pendingList.innerHTML = `<p class="empty">${icon("sparkles")} 全部都到貨了！</p>`;
     }
 }
 
@@ -794,7 +1049,7 @@ function showPreview() {
         item.className = "preview-item";
         item.innerHTML = `
             <img src="${photo}">
-            <button type="button">✕</button>
+            <button type="button" aria-label="拿掉">${icon("close")}</button>
         `;
         item.querySelector("button").addEventListener("click", function () {
             newPhotos.splice(index, 1);
@@ -858,15 +1113,15 @@ function showDiary() {
 
     shown.forEach(function (d) {
         // 標題：演唱會顯示名稱，心情就顯示「心情」
-        let titleText = "💭 心情";
+        let titleText = icon("message") + " 心情";
         if (d.type === "concert") {
-            titleText = "🎤 " + (d.title || "演唱會");
+            titleText = icon("mic") + " " + (d.title || "演唱會");
         }
 
         // 小標籤：有填才放
         const tags = [];
-        if (d.place) tags.push("📍 " + d.place);
-        if (d.seat) tags.push("💺 " + d.seat);
+        if (d.place) tags.push(icon("map-pin") + " " + d.place);
+        if (d.seat) tags.push(icon("label") + " " + d.seat);
 
         let tagsHtml = "";
         tags.forEach(function (text) {
@@ -894,13 +1149,13 @@ function showDiary() {
         card.className = "money-card win";
         card.style.setProperty("--c", d.type === "concert" ? "var(--win-blue)" : "var(--win-pink)");
         card.innerHTML = `
-            ${winBar(`${d.type === "concert" ? "🎤" : "💭"} ${d.date}`)}
+            ${winBar(`${icon(d.type === "concert" ? "mic" : "message")} ${d.date}`)}
             <div class="win-body">
                 <strong>${titleText}</strong>
                 <div class="info-tags">${tagsHtml}</div>
                 ${photosHtml}
                 ${textHtml}
-                <button class="btn-delete">🗑️ 刪除</button>
+                <button class="btn-delete">${icon("trash")} 刪除</button>
             </div>
         `;
 
@@ -921,9 +1176,9 @@ function showDiary() {
     // 這個分頁還沒有記錄
     if (shown.length === 0) {
         if (currentType === "concert") {
-            diaryList.innerHTML = `<p class="empty">還沒有演唱會記錄，記下第一場吧 🎤</p>`;
+            diaryList.innerHTML = `<p class="empty">還沒有演唱會記錄，記下第一場吧 ${icon("mic")}</p>`;
         } else {
-            diaryList.innerHTML = `<p class="empty">還沒有心情記錄，寫下第一篇吧 💭</p>`;
+            diaryList.innerHTML = `<p class="empty">還沒有心情記錄，寫下第一篇吧 ${icon("message")}</p>`;
         }
     }
 }
@@ -1157,9 +1412,9 @@ function showCalc() {
         const row = document.createElement("div");
         row.className = "calc-item";
         row.innerHTML = `
-            <span>${categoryIcons[item.category] || "📦"} ${item.name || item.category}</span>
+            <span>${categoryIcons[item.category] || categoryIcons["其他"]} ${item.name || item.category}</span>
             <span>${priceText}</span>
-            <button type="button" class="calc-remove">✕</button>
+            <button type="button" class="calc-remove" aria-label="拿掉">${icon("close")}</button>
         `;
 
         // 按 ✕：從購物車拿掉這一樣
@@ -1297,22 +1552,22 @@ function savePet() {
 
 // 🍽️ 食物：價錢、加多少飽足度
 const petFoods = [
-    { icon: "🍙", name: "飯團", price: 100, full: 10 },
-    { icon: "🍓", name: "草莓", price: 200, full: 20 },
-    { icon: "🍰", name: "蛋糕", price: 300, full: 30 },
-    { icon: "🍗", name: "炸雞", price: 500, full: 50 },
+    { icon: "rice", name: "飯團", price: 100, full: 10 },
+    { icon: "strawberry", name: "草莓", price: 200, full: 20 },
+    { icon: "cake", name: "蛋糕", price: 300, full: 30 },
+    { icon: "chicken", name: "炸雞", price: 500, full: 50 },
 ];
 
 // 👗 衣服：分三個部位
 const petSlots = { hat: "帽子", eyes: "眼鏡", neck: "脖子" };
 const petClothes = [
-    { id: "bow", slot: "hat", icon: "🎀", name: "蝴蝶結", price: 300 },
-    { id: "cap", slot: "hat", icon: "🧢", name: "棒球帽", price: 500 },
-    { id: "crown", slot: "hat", icon: "👑", name: "皇冠", price: 1500 },
-    { id: "glasses", slot: "eyes", icon: "👓", name: "眼鏡", price: 400 },
-    { id: "sunglasses", slot: "eyes", icon: "🕶️", name: "墨鏡", price: 600 },
-    { id: "scarf", slot: "neck", icon: "🧣", name: "圍巾", price: 400 },
-    { id: "necklace", slot: "neck", icon: "📿", name: "項鏈", price: 800 },
+    { id: "bow", slot: "hat", icon: "bow", emoji: "🎀", name: "蝴蝶結", price: 300 },
+    { id: "cap", slot: "hat", icon: "cap", emoji: "🧢", name: "棒球帽", price: 500 },
+    { id: "crown", slot: "hat", icon: "crown", emoji: "👑", name: "皇冠", price: 1500 },
+    { id: "glasses", slot: "eyes", icon: "glasses", emoji: "👓", name: "眼鏡", price: 400 },
+    { id: "sunglasses", slot: "eyes", icon: "sunglasses", emoji: "🕶️", name: "墨鏡", price: 600 },
+    { id: "scarf", slot: "neck", icon: "scarf", emoji: "🧣", name: "圍巾", price: 400 },
+    { id: "necklace", slot: "neck", icon: "necklace", emoji: "📿", name: "項鏈", price: 800 },
 ];
 
 // 🪙 金幣＝記帳總額（商品＋二補）－ 在商店花掉的
@@ -1345,7 +1600,7 @@ function showWearing(body, wearing) {
         const item = petClothes.find(function (c) {
             return c.id === wearing[slot];
         });
-        body.querySelector(".wear-" + slot).textContent = item ? item.icon : "";
+        body.querySelector(".wear-" + slot).innerHTML = item ? px(item.icon) : "";
     });
 }
 
@@ -1365,7 +1620,7 @@ function petJump() {
 function petHeart() {
     const heart = document.createElement("span");
     heart.className = "pet-heart";
-    heart.textContent = "💜";
+    heart.innerHTML = icon("heart");
     heart.style.left = petX + pet.offsetWidth / 2 + randomBetween(-16, 16) + "px";
     petRoom.appendChild(heart);
     setTimeout(function () {
@@ -1427,9 +1682,9 @@ function showFoodList() {
         btn.type = "button";
         btn.className = "shop-row";
         btn.innerHTML = `
-            <span class="shop-icon">${food.icon}</span>
+            <span class="shop-icon">${px(food.icon)}</span>
             <span class="shop-name">${food.name}<small>飽足度 +${food.full}</small></span>
-            <span class="shop-price">🪙 ${food.price}</span>
+            <span class="shop-price">${icon("coins")} ${food.price}</span>
         `;
         btn.addEventListener("click", function () {
             feedPet(food);
@@ -1460,7 +1715,7 @@ function feedPet(food) {
     // 🍽️ 吃東西：食物出現在黃春旁邊，然後大肚子、打嗝、冒愛心
     const bite = document.createElement("span");
     bite.className = "pet-food";
-    bite.textContent = food.icon;
+    bite.innerHTML = px(food.icon);
     bite.style.left = petX + pet.offsetWidth / 2 + "px";
     petRoom.appendChild(bite);
     setTimeout(function () {
@@ -1532,9 +1787,9 @@ function showWardrobe() {
         btn.type = "button";
         btn.className = "wardrobe-item" + (wearing ? " wearing" : "");
         btn.innerHTML = `
-            <span class="shop-icon">${item.icon}</span>
+            <span class="wear-mini">${px("chick")}<span class="wear">${px(item.icon)}</span></span>
             <span>${item.name}</span>
-            <small>${wearing ? "穿著中" : owned ? "已擁有" : "🪙 " + item.price}</small>
+            <small>${wearing ? "穿著中" : owned ? "已擁有" : icon("coins") + " " + item.price}</small>
         `;
         btn.addEventListener("click", function () {
             if (!owned) {
@@ -1543,7 +1798,7 @@ function showWardrobe() {
                     alert("金幣不夠喔 🪙");
                     return;
                 }
-                if (!confirm(`要花 🪙${item.price} 買 ${item.icon} ${item.name} 嗎？`)) return;
+                if (!confirm(`要花 🪙${item.price} 買 ${item.emoji} ${item.name} 嗎？`)) return;
                 petData.spent += item.price;
                 petData.owned.push(item.id);
                 savePet();
@@ -1589,3 +1844,19 @@ setInterval(updatePetStatus, 60 * 1000);
 updatePetStatus();
 showWearing(petBody, petData.wearing);
 petNextMove();
+
+
+// ===== 👾 把畫面上預留的像素圖位置畫出來 =====
+document.querySelectorAll("[data-px]").forEach(function (el) {
+    el.innerHTML = px(el.dataset.px);
+});
+document.querySelectorAll(".px-chick").forEach(function (el) {
+    el.innerHTML = px("chick");
+});
+
+// HTML 裡寫好的小視窗（統計、待到貨、新增紀錄、黃春、資料備份）：標題列下面補上愛心排
+document.querySelectorAll(".win > .win-bar").forEach(function (bar) {
+    if (!bar.parentElement.querySelector(":scope > .win-hearts")) {   // 還沒有愛心排才補
+        bar.insertAdjacentHTML("afterend", winHearts());
+    }
+});

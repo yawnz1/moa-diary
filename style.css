@@ -179,7 +179,7 @@ hr {
 }
 
 .money-amount {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--primary);
   margin: 6px 0;
@@ -530,7 +530,7 @@ input[type="date"]::-webkit-date-and-time-value {
   background-color: var(--soft);
   color: var(--ink);
   font-family: inherit;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
@@ -723,7 +723,7 @@ input[type="number"] {
 }
 
 .donut-total {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--primary);
 }
@@ -1356,17 +1356,6 @@ textarea {
   border: 2px solid var(--ink);
 }
 
-/* 一排像素愛心 */
-.win-hearts {
-  padding-top: 4px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-align: center;
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: var(--accent);
-}
-
 .win-body {
   padding: 6px 16px 14px;
 }
@@ -1432,4 +1421,139 @@ textarea {
   color: var(--ink);
   font-size: 14px;
   box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* ===== 👾 像素圖示和像素圖 ===== */
+i.pxi {
+  font-size: 1.15em;
+  line-height: 1;
+  vertical-align: -0.18em;
+}
+
+svg.px {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.25em;
+}
+
+/* 房間的畫、窗、門、盤子 */
+.pet-deco svg.px,
+.pet-spot svg.px {
+  width: 40px;
+  height: 40px;
+}
+
+.shop-icon svg.px {
+  width: 32px;
+  height: 32px;
+}
+
+/* 🐥 黃春本人：大小跟著 .pet-body 的字體大小（房間 56px、衣櫃 110px） */
+.pet-emoji svg.px {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+/* 衣服：跟黃春一樣大的透明圖，整張疊在黃春上面 */
+.wear {
+  inset: 0;
+  left: 0;
+  top: 0;
+  transform: none;
+  font-size: inherit;
+}
+
+.wear svg.px {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+.wear-hat,
+.wear-eyes,
+.wear-neck {
+  top: 0;
+  font-size: inherit;
+}
+
+/* 點黃春冒出來的愛心 */
+.pet-heart {
+  color: var(--accent);
+}
+
+/* ⏳ Loading 條：會一直往右跑的條紋 */
+.win-load i {
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0 3px, transparent 3px 8px);
+  background-size: 8px 100%;
+  animation: load-run 0.6s linear infinite;
+}
+
+@keyframes load-run {
+  to { background-position: 8px 0; }
+}
+
+/* 衣櫃裡每件衣服：小小的黃春穿著那一件 */
+.wear-mini {
+  position: relative;
+  display: block;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.wear-mini svg.px {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+/* 底部選單的圖示大一點 */
+.tab-bar i.pxi,
+.tab-bar svg.px {
+  font-size: 18px;
+}
+
+.tab-bar .px-chick svg.px {
+  width: 1em;
+  height: 1em;
+}
+
+/* 小視窗的網址列和像素愛心 */
+.win-url {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 8px 0;
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+.win-url-text {
+  flex: 1;
+  min-width: 0;
+  padding: 1px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background-color: white;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.win-hearts {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  padding-top: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.win-hearts i.pxi {
+  font-size: 14px;
+  flex-shrink: 0;
 }

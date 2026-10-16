@@ -4,18 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>♡MOA Diary♡</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixelarticons@2.4.2/fonts/pixelart-icons-font.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1><span class="heart">♡</span> MOA Diary <span class="heart">♡</span></h1>
-    <button type="button" class="btn-settings" id="btn-settings">⚙️</button>
+    <button type="button" class="btn-settings" id="btn-settings" aria-label="設定"><i class="pxi pixelart-icons-font-settings-cog" aria-hidden="true"></i></button>
   </header>
 
   <main>
         <section id="page-home" class="page active">
       <div class="home-title">
-        <h2>⏳ 倒數日</h2>
+        <h2><i class="pxi pixelart-icons-font-hourglass" aria-hidden="true"></i> 倒數日</h2>
         <button type="button" class="btn-mode" id="btn-home-edit">編輯</button>
       </div>
 
@@ -24,11 +25,11 @@
     </section>
 
        <section id="page-money" class="page">
-      <h2>💰 記帳</h2>
+      <h2><i class="pxi pixelart-icons-font-wallet" aria-hidden="true"></i> 記帳</h2>
 
       <div class="sub-tabs">
-        <button type="button" class="sub-tab active" data-view="all">💰 全部</button>
-        <button type="button" class="sub-tab" data-view="pending">📦 待到貨</button>
+        <button type="button" class="sub-tab active" data-view="all"><i class="pxi pixelart-icons-font-wallet" aria-hidden="true"></i> 全部</button>
+        <button type="button" class="sub-tab" data-view="pending"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨</button>
       </div>
 
       <!-- 💰 全部 -->
@@ -36,9 +37,8 @@
         <div class="count-box win" style="--c: var(--win-blue);">
           <div class="win-bar">
             <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab">📊 統計.exe</span>
+            <span class="win-tab"><i class="pxi pixelart-icons-font-chart-bar-big" aria-hidden="true"></i> 統計.exe</span>
           </div>
-          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
           <div class="win-body">
           <div class="row stats-dates">
             <label>從
@@ -72,13 +72,12 @@
         <div class="count-box win" style="--c: var(--win-teal);">
           <div class="win-bar">
             <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab">📦 待到貨.exe</span>
+            <span class="win-tab"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨.exe</span>
           </div>
-          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
           <div class="win-body">
           <p>待二補合計</p>
           <p class="big-number">NT$ <span id="pending-extra">0</span></p>
-          <p>📦 還有 <span id="pending-count">0</span> 筆還沒到貨</p>
+          <p><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 還有 <span id="pending-count">0</span> 筆還沒到貨</p>
           </div>
         </div>
 
@@ -87,17 +86,16 @@
     </section>
 
         <section id="page-diary" class="page">
-      <h2>📸 記錄</h2>
+      <h2><i class="pxi pixelart-icons-font-camera" aria-hidden="true"></i> 記錄</h2>
       <div class="sub-tabs">
-        <button type="button" class="sub-tab active" data-type="concert">🎤 演唱會</button>
-        <button type="button" class="sub-tab" data-type="mood">💭 心情</button>
+        <button type="button" class="sub-tab active" data-type="concert"><i class="pxi pixelart-icons-font-mic" aria-hidden="true"></i> 演唱會</button>
+        <button type="button" class="sub-tab" data-type="mood"><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i> 心情</button>
       </div>
       <div class="count-box win" style="--c: var(--win-blue);">
           <div class="win-bar">
             <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab">✏️ 新增紀錄.exe</span>
+            <span class="win-tab"><i class="pxi pixelart-icons-font-pencil" aria-hidden="true"></i> 新增紀錄.exe</span>
           </div>
-          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
           <div class="win-body">
       <form id="diary-form">
                 <label>日期
@@ -123,7 +121,7 @@
         </label>
         <p class="field-title">照片（最多 9 張）</p>
         <!-- 整個按鈕就是 label，點了會打開選照片；真正的 input 藏起來 -->
-        <label class="btn-small btn-light photo-pick">📷 選擇照片
+        <label class="btn-small btn-light photo-pick"><i class="pxi pixelart-icons-font-camera" aria-hidden="true"></i> 選擇照片
           <input type="file" id="d-photos" class="visually-hidden" accept="image/*" multiple>
         </label>
         <div id="photo-preview" class="photo-grid"></div>
@@ -137,19 +135,18 @@
 
     <!-- 🐥 黃春：整塊獨立（要拿掉的話：刪掉這個 section、底部選單那格、style.css 和 app.js 裡標「🐥 黃春」的那段） -->
     <section id="page-pet" class="page">
-      <h2>🐥 黃春的房間</h2>
+      <h2><span class="px-chick"></span> 黃春的房間</h2>
 
       <div class="count-box win" style="--c: var(--win-sage);">
           <div class="win-bar">
             <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab">🐥 黃春.exe</span>
+            <span class="win-tab"><span class="px-chick"></span> 黃春.exe</span>
           </div>
-          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
           <div class="win-body">
       <!-- 金幣和飽足度 -->
       <div class="pet-status">
-        <span class="pet-coins">🪙 <span id="pet-coins">0</span></span>
-        <span class="pet-full-label">🍙</span>
+        <span class="pet-coins"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="pet-coins">0</span></span>
+        <span class="pet-full-label" data-px="rice"></span>
         <div class="full-bar"><div class="full-fill" id="pet-full-fill"></div></div>
         <span class="pet-full-num" id="pet-full-num">0</span>
       </div>
@@ -157,20 +154,20 @@
       <div class="pet-room" id="pet-room">
         <div class="pet-wall"></div>
         <div class="pet-floor"></div>
-        <span class="pet-deco" style="left: 14%; top: 18%;">🖼️</span>
-        <span class="pet-deco" style="right: 14%; top: 14%;">🪟</span>
+        <span class="pet-deco" style="left: 14%; top: 18%;" data-px="frame"></span>
+        <span class="pet-deco" style="right: 14%; top: 14%;" data-px="window"></span>
 
         <!-- 可以點的：衣櫃、餐桌 -->
-        <button type="button" class="pet-spot" id="btn-wardrobe" style="left: 3%; bottom: 36%;">🚪<small>衣櫃</small></button>
-        <button type="button" class="pet-spot" id="btn-food" style="right: 3%; bottom: 36%;">🍽️<small>餵食</small></button>
+        <button type="button" class="pet-spot" id="btn-wardrobe" style="left: 3%; bottom: 36%;"><span data-px="door"></span><small>衣櫃</small></button>
+        <button type="button" class="pet-spot" id="btn-food" style="right: 3%; bottom: 36%;"><span data-px="plate"></span><small>餵食</small></button>
 
         <!-- 黃春：外層負責左右走，中間負責跳，裡面負責轉向 -->
         <div class="pet" id="pet">
-          <span class="pet-thought" id="pet-thought" hidden>💭🍙</span>
+          <span class="pet-thought" id="pet-thought" hidden><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i><span data-px="rice"></span></span>
           <span class="pet-say" id="pet-say" hidden>嗝～</span>
           <div class="pet-hop" id="pet-hop">
             <span class="pet-body" id="pet-body">
-              <span class="pet-emoji" id="pet-emoji">🐥</span>
+              <span class="pet-emoji" id="pet-emoji" data-px="chick"></span>
               <span class="wear wear-hat"></span>
               <span class="wear wear-eyes"></span>
               <span class="wear wear-neck"></span>
@@ -182,7 +179,7 @@
           </div>
       </div>
 
-      <p class="rate-info">點點看黃春 💜</p>
+      <p class="rate-info">點點看黃春 <i class="pxi pixelart-icons-font-heart" aria-hidden="true"></i></p>
     </section>
   </main>
 
@@ -196,7 +193,7 @@
         <div class="sheet-header">
           <span class="win-dots"><i></i><i></i><i></i></span>
           <strong class="win-tab">記一筆 ♡</strong>
-          <button type="button" class="sheet-close" id="sheet-close">✕</button>
+          <button type="button" class="sheet-close" id="sheet-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
         </div>
 
 
@@ -253,7 +250,7 @@
           <button type="button" data-key="7">7</button>
           <button type="button" data-key="8">8</button>
           <button type="button" data-key="9">9</button>
-          <button type="button" data-key="back" class="key-fn">⌫</button>
+          <button type="button" data-key="back" class="key-fn" aria-label="刪掉一個字"><i class="pxi pixelart-icons-font-delete" aria-hidden="true"></i></button>
           <button type="button" data-key="4">4</button>
           <button type="button" data-key="5">5</button>
           <button type="button" data-key="6">6</button>
@@ -264,7 +261,7 @@
           <button type="button" data-key="clear" class="key-fn">C</button>
           <button type="button" data-key="0">0</button>
           <button type="button" data-key="00">00</button>
-          <button type="submit" form="money-form" class="key-submit">✓ 記一筆</button>
+          <button type="submit" form="money-form" class="key-submit"><i class="pxi pixelart-icons-font-check" aria-hidden="true"></i> 記一筆</button>
         </div>
       </div>
 
@@ -277,10 +274,10 @@
       <div class="sheet-scroll">
         <div class="sheet-header">
           <span class="win-dots"><i></i><i></i><i></i></span>
-          <strong class="win-tab">⏳ 倒數管理</strong>
-          <button type="button" class="sheet-close" id="event-sheet-close">✕</button>
+          <strong class="win-tab"><i class="pxi pixelart-icons-font-hourglass" aria-hidden="true"></i> 倒數管理</strong>
+          <button type="button" class="sheet-close" id="event-sheet-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
         </div>
-        <p class="rate-info">↑ ↓ 調整首頁的順序</p>
+        <p class="rate-info"><i class="pxi pixelart-icons-font-arrow-up" aria-hidden="true"></i> <i class="pxi pixelart-icons-font-arrow-down" aria-hidden="true"></i> 調整首頁的順序</p>
         <div id="event-manager"></div>
         <button type="button" class="btn-small btn-light" id="btn-add-event">＋ 新增倒數</button>
       </div>
@@ -294,16 +291,15 @@
       <div class="sheet-scroll">
         <div class="sheet-header">
           <span class="win-dots"><i></i><i></i><i></i></span>
-          <strong class="win-tab">⚙️ 設定</strong>
-          <button type="button" class="sheet-close" id="settings-close">✕</button>
+          <strong class="win-tab"><i class="pxi pixelart-icons-font-settings-cog" aria-hidden="true"></i> 設定</strong>
+          <button type="button" class="sheet-close" id="settings-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
         </div>
 
         <div class="count-box win" style="--c: var(--win-pink);">
           <div class="win-bar">
             <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab">💾 資料備份</span>
+            <span class="win-tab"><i class="pxi pixelart-icons-font-save" aria-hidden="true"></i> 資料備份</span>
           </div>
-          <div class="win-hearts">♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥</div>
           <div class="win-body">
           <p class="rate-info">換手機、換電腦，或怕資料不見時使用</p>
           <div class="row">
@@ -324,10 +320,10 @@
       <div class="sheet-scroll">
         <div class="sheet-header">
           <span class="win-dots"><i></i><i></i><i></i></span>
-          <strong class="win-tab">🍽️ 餵黃春</strong>
-          <button type="button" class="sheet-close" id="food-close">✕</button>
+          <strong class="win-tab"><span data-px="plate"></span> 餵黃春</strong>
+          <button type="button" class="sheet-close" id="food-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
         </div>
-        <p class="rate-info">🪙 <span id="food-coins">0</span>・飽足度 <span id="food-full">0</span>/100</p>
+        <p class="rate-info"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="food-coins">0</span>・飽足度 <span id="food-full">0</span>/100</p>
         <div id="food-list"></div>
       </div>
     </div>
@@ -340,15 +336,15 @@
       <div class="sheet-scroll">
         <div class="sheet-header">
           <span class="win-dots"><i></i><i></i><i></i></span>
-          <strong class="win-tab">👗 衣櫃</strong>
-          <button type="button" class="sheet-close" id="wardrobe-close">✕</button>
+          <strong class="win-tab"><span data-px="door"></span> 衣櫃</strong>
+          <button type="button" class="sheet-close" id="wardrobe-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
         </div>
-        <p class="rate-info">🪙 <span id="wardrobe-coins">0</span></p>
+        <p class="rate-info"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="wardrobe-coins">0</span></p>
 
         <!-- 放大的黃春，先看穿起來的樣子 -->
         <div class="wardrobe-preview">
           <span class="pet-body" id="preview-body">
-            <span class="pet-emoji">🐥</span>
+            <span class="pet-emoji" data-px="chick"></span>
             <span class="wear wear-hat"></span>
             <span class="wear wear-eyes"></span>
             <span class="wear wear-neck"></span>
@@ -365,11 +361,11 @@
   </div>
 
     <nav class="tab-bar">
-    <button class="active" data-page="page-home">🏠<br>首頁</button>
-    <button data-page="page-money">💰<br>記帳</button>
+    <button class="active" data-page="page-home"><i class="pxi pixelart-icons-font-home" aria-hidden="true"></i><br>首頁</button>
+    <button data-page="page-money"><i class="pxi pixelart-icons-font-wallet" aria-hidden="true"></i><br>記帳</button>
     <button class="tab-add" id="btn-add">＋</button>
-    <button data-page="page-diary">📸<br>記錄</button>
-    <button data-page="page-pet">🐥<br>黃春</button>
+    <button data-page="page-diary"><i class="pxi pixelart-icons-font-camera" aria-hidden="true"></i><br>記錄</button>
+    <button data-page="page-pet"><span class="px-chick"></span><br>黃春</button>
   </nav>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="app.js"></script>
