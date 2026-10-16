@@ -953,48 +953,37 @@ setThisMonth();
 
 
 // ===== 📸 記錄 =====
+// 演唱會：票夾（每一場是一張票根，底下可以有好幾筆記錄）
+// 心情：一篇一篇的記錄
 
 const diaryForm = document.getElementById("diary-form");
+const diaryFormWin = document.getElementById("diary-form-win");   // 新增一筆的小視窗（會被搬到要新增的地方）
 const diaryList = document.getElementById("diary-list");
+const ticketList = document.getElementById("ticket-list");
 
 // 現在在哪個分頁："concert"（演唱會）或 "mood"（心情）
 let currentType = "concert";
 
-// 所有記錄（打開網頁時會從 localForage 拿出來）
+// 所有記錄、所有場次（打開網頁時會從 localForage 拿出來）
 let diaryEntries = [];
+let tickets = [];
+
+// 現在展開的是哪一張票根；新增一筆是要加到哪一場（心情就是 null）
+let openTicketId = null;
+let entryTicketId = null;
 
 // 這一篇準備要放的照片（還沒按「記下來」）
 let newPhotos = [];
 
-// 照著現在的分頁，調整表單
-function updateDiaryFields() {
-    const concertFields = document.getElementById("concert-fields");
-    const textBox = document.getElementById("d-text");
+// 小章的選項
+const ticketStamps = ["已參加", "即將參加", "線上參加", "沒搶到"];
 
-    if (currentType === "concert") {
-        concertFields.style.display = "block";
-        textBox.placeholder = "今天的演唱會…";
-    } else {
-        concertFields.style.display = "none";
-        textBox.placeholder = "今天的心情…";
-    }
+async function saveDiary() {
+    await localforage.setItem("diaryEntries", diaryEntries);
+    await localforage.setItem("concertTickets", tickets);
 }
 
-// 點分頁按鈕
-document.querySelectorAll("#page-diary .sub-tab").forEach(function (tab) {
-    tab.addEventListener("click", function () {
-        currentType = tab.dataset.type;
-
-        // 所有分頁按鈕先變灰，再讓被點的變亮
-        document.querySelectorAll("#page-diary .sub-tab").forEach(function (t) {
-            t.classList.remove("active");
-        });
-        tab.classList.add("active");
-
-        updateDiaryFields();
-        showDiary();
-    });
-});
+// ----- 照片 -----
 
 // 把照片縮小、壓縮，變成一串文字（才能存進置物櫃）
 function compressImage(file) {
@@ -1020,6 +1009,16 @@ function compressImage(file) {
 
         img.src = URL.createObjectURL(file);
     });
+}
+
+// 照片的排法：照片幾張，就用幾張的排法（6 張以上都是一排 3 張）
+function photoGridHtml(photos) {
+    if (photos.length === 0) return "";
+    let html = `<div class="photo-grid photos-${Math.min(photos.length, 6)}">`;
+    photos.forEach(function (photo) {
+        html += `<img src="${photo}">`;
+    });
+    return html + `</div>`;
 }
 
 // 選好照片時
@@ -1070,120 +1069,364 @@ function openViewer(src) {
     document.body.appendChild(viewer);
 }
 
+// ----- 新增一筆（演唱會、心情共用同一個表單） -----
+
+// 打開表單：放到 where 裡面；ticketId 是要加到哪一場（心情就是 null）
+function openEntryForm(where, ticketId) {
+    entryTicketId = ticketId;
+    where.appendChild(diaryFormWin);
+    diaryFormWin.hidden = false;
+
+    const dateInput = document.getElementById("d-date");
+    if (!dateInput.value) {
+        // 演唱會預設用那一場的日期，心情預設今天
+        const ticket = tickets.find(function (t) { return t.id === ticketId; });
+        dateInput.value = ticket && ticket.date ? ticket.date : formatDate(getToday());
+    }
+    document.getElementById("d-text").placeholder = ticketId ? "今天的演唱會…" : "今天的心情…";
+}
+
+// 收起表單：搬回心情分頁原本的位置，內容清空
+function closeEntryForm() {
+    diaryFormWin.hidden = true;
+    document.getElementById("diary-form-home").appendChild(diaryFormWin);
+    entryTicketId = null;
+    diaryForm.reset();
+    newPhotos = [];
+    showPreview();
+}
+
+document.getElementById("btn-add-mood").addEventListener("click", function () {
+    openEntryForm(document.getElementById("diary-form-home"), null);
+});
+document.getElementById("diary-form-close").addEventListener("click", closeEntryForm);
+
 // 按「記下來」
 diaryForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-
     const entry = {
         id: Date.now(),
-        type: currentType,  // 在哪個分頁寫的，就是哪一種
+        type: entryTicketId ? "concert" : "mood",
+        ticketId: entryTicketId,
         date: document.getElementById("d-date").value,
-        title: document.getElementById("d-title").value,
-        place: document.getElementById("d-place").value,
-        seat: document.getElementById("d-seat").value,
         text: document.getElementById("d-text").value,
         photos: newPhotos,
     };
 
     diaryEntries.unshift(entry);
-    await localforage.setItem("diaryEntries", diaryEntries);  // 存進大置物櫃
-
+    await saveDiary();
+    closeEntryForm();
     showDiary();
-    diaryForm.reset();
-
-    // 照片預覽也清空
-    newPhotos = [];
-    showPreview();
 });
 
-// 顯示現在這個分頁的記錄
-function showDiary() {
-    diaryList.innerHTML = "";
+// ----- 一筆記錄的小視窗（心情、票根底下都用這個） -----
+
+function makeEntryCard(d, color) {
+    let textHtml = "";
+    if (d.text) {
+        textHtml = `<p class="diary-text"></p>`;
+    }
+
+    const card = document.createElement("div");
+    card.className = "money-card win";
+    card.style.setProperty("--c", color);
+    card.innerHTML = `
+        ${winBar(`${icon(d.type === "concert" ? "mic" : "message")} ${d.date}`)}
+        <div class="win-body">
+            ${photoGridHtml(d.photos)}
+            ${textHtml}
+            <button class="btn-delete">${icon("trash")} 刪除</button>
+        </div>
+    `;
+    if (d.text) card.querySelector(".diary-text").textContent = d.text;
+
+    // 點照片看大圖
+    card.querySelectorAll(".photo-grid img").forEach(function (img) {
+        img.addEventListener("click", function () {
+            openViewer(img.src);
+        });
+    });
+
+    card.querySelector(".btn-delete").addEventListener("click", function () {
+        deleteDiary(d.id);
+    });
+    return card;
+}
+
+// ----- 🎫 票夾 -----
+
+// 這一場底下的記錄（照日期、新增順序，舊的在上面）
+function ticketEntries(ticket) {
+    return diaryEntries
+        .filter(function (d) { return d.ticketId === ticket.id; })
+        .sort(function (a, b) { return a.date.localeCompare(b.date) || a.id - b.id; });
+}
+
+// 封面：自己選的 → 第一筆記錄的第一張照片 → 像素小圖
+function ticketCover(ticket) {
+    if (ticket.cover) return `<img src="${ticket.cover}">`;
+    const withPhoto = ticketEntries(ticket).find(function (d) { return d.photos.length > 0; });
+    if (withPhoto) return `<img src="${withPhoto.photos[0]}">`;
+    return icon("mic");
+}
+
+function showTickets() {
+    // 表單如果在票夾裡，先搬出來，才不會跟著被清掉
+    if (ticketList.contains(diaryFormWin)) {
+        document.getElementById("diary-form-home").appendChild(diaryFormWin);
+    }
+    ticketList.innerHTML = "";
 
     // 照日期排：最近的在最上面
-    diaryEntries.sort(function (a, b) {
-        return b.date.localeCompare(a.date);
+    tickets.sort(function (a, b) {
+        return (b.date || "").localeCompare(a.date || "");
     });
+    document.getElementById("ticket-count").textContent = tickets.length + " 場";
 
-    // 只挑出現在這個分頁的
-    const shown = diaryEntries.filter(function (d) {
-        return d.type === currentType;
-    });
+    if (tickets.length === 0) {
+        ticketList.innerHTML = `<p class="empty">還沒有票根，按「＋ 新增場次」${icon("mic")}</p>`;
+    }
 
-    shown.forEach(function (d) {
-        // 標題：演唱會顯示名稱，心情就顯示「心情」
-        let titleText = icon("message") + " 心情";
-        if (d.type === "concert") {
-            titleText = icon("mic") + " " + (d.title || "演唱會");
-        }
+    tickets.forEach(function (ticket, index) {
+        const entries = ticketEntries(ticket);
+        const [y, m, d] = (ticket.date || "----").split("-");
+        const color = winColors[index % winColors.length];
 
-        // 小標籤：有填才放
-        const tags = [];
-        if (d.place) tags.push(icon("map-pin") + " " + d.place);
-        if (d.seat) tags.push(icon("label") + " " + d.seat);
-
-        let tagsHtml = "";
-        tags.forEach(function (text) {
-            tagsHtml += `<span class="info-tag">${text}</span>`;
-        });
-
-        // 內文：有寫才顯示
-        let textHtml = "";
-        if (d.text) {
-            textHtml = `<p class="diary-text">${d.text}</p>`;
-        }
-
-        // 照片：有才顯示
-        let photosHtml = "";
-        if (d.photos.length > 0) {
-            photosHtml = `<div class="photo-grid">`;
-            d.photos.forEach(function (photo) {
-                photosHtml += `<img src="${photo}">`;
-            });
-            photosHtml += `</div>`;
-        }
-
-        // 💾 小視窗：演唱會藍色、心情粉色，標題列放日期
-        const card = document.createElement("div");
-        card.className = "money-card win";
-        card.style.setProperty("--c", d.type === "concert" ? "var(--win-blue)" : "var(--win-pink)");
-        card.innerHTML = `
-            ${winBar(`${icon(d.type === "concert" ? "mic" : "message")} ${d.date}`)}
-            <div class="win-body">
-                <strong>${titleText}</strong>
-                <div class="info-tags">${tagsHtml}</div>
-                ${photosHtml}
-                ${textHtml}
-                <button class="btn-delete">${icon("trash")} 刪除</button>
+        const item = document.createElement("div");
+        item.className = "tk-item";
+        item.innerHTML = `
+            <button type="button" class="tk" style="--c: ${color};">
+                <span class="tk-cover">${ticketCover(ticket)}</span>
+                <span class="tk-main">
+                    <span class="tk-title"></span>
+                    <span class="tk-artist"></span>
+                    <span class="tk-place"></span>
+                </span>
+                <span class="tk-stub">
+                    <span class="tk-hole tk-hole-top"></span>
+                    <span class="tk-hole tk-hole-bottom"></span>
+                    <span class="tk-month">${m ? Number(m) + " 月" : ""}</span>
+                    <span class="tk-day">${d ? Number(d) : "?"}</span>
+                    <span class="tk-year">${y !== "----" ? y : ""}</span>
+                    <span class="tk-stamp">${ticket.stamp || "已參加"}</span>
+                    <span class="tk-num">${entries.length} 筆</span>
+                </span>
+            </button>
+            <div class="tk-detail" ${openTicketId === ticket.id ? "" : "hidden"}>
+                <div class="row">
+                    <button type="button" class="btn-small tk-add">＋ 新增一筆</button>
+                    <button type="button" class="btn-small btn-light tk-edit">${icon("pencil")} 編輯場次</button>
+                </div>
+                <div class="tk-form-spot"></div>
+                <div class="tk-entries"></div>
             </div>
         `;
 
-        // 點照片看大圖
-        card.querySelectorAll(".photo-grid img").forEach(function (img) {
-            img.addEventListener("click", function () {
-                openViewer(img.src);
-            });
+        // 你打的字用 textContent 放，避免奇怪的符號把畫面弄亂
+        item.querySelector(".tk-title").textContent = ticket.title || "演唱會";
+        item.querySelector(".tk-artist").textContent = ticket.artist || "";
+        item.querySelector(".tk-place").textContent = [ticket.place, ticket.seat].filter(Boolean).join("・");
+
+        // 點票根：展開 / 收起
+        item.querySelector(".tk").addEventListener("click", function () {
+            openTicketId = openTicketId === ticket.id ? null : ticket.id;
+            if (entryTicketId === ticket.id) closeEntryForm();
+            showTickets();
         });
 
-        card.querySelector(".btn-delete").addEventListener("click", function () {
-            deleteDiary(d.id);
+        item.querySelector(".tk-add").addEventListener("click", function () {
+            openEntryForm(item.querySelector(".tk-form-spot"), ticket.id);
+        });
+        item.querySelector(".tk-edit").addEventListener("click", function () {
+            openTicketSheet(ticket);
         });
 
-        diaryList.appendChild(card);
+        // 底下的記錄
+        const list = item.querySelector(".tk-entries");
+        entries.forEach(function (d) {
+            list.appendChild(makeEntryCard(d, color));
+        });
+        if (entries.length === 0) {
+            list.innerHTML = `<p class="empty">這一場還沒有記錄</p>`;
+        }
+
+        ticketList.appendChild(item);
+
+        // 正在幫這一場新增一筆：表單放回來
+        if (entryTicketId === ticket.id && openTicketId === ticket.id) {
+            item.querySelector(".tk-form-spot").appendChild(diaryFormWin);
+        }
+    });
+}
+
+// ----- 🎫 新增 / 編輯場次（從下面滑出來） -----
+
+const ticketSheet = document.getElementById("ticket-sheet");
+let editingTicket = null;   // 正在編輯的那一場（新增就是 null）
+let ticketCoverPhoto = "";  // 選好的封面
+let ticketStamp = "已參加";
+let stampTouched = false;   // 有沒有自己點過小章
+
+function showTicketStamps() {
+    const box = document.getElementById("t-stamps");
+    box.innerHTML = "";
+    ticketStamps.forEach(function (name) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "type-chip" + (name === ticketStamp ? " active" : "");
+        chip.textContent = name;
+        chip.addEventListener("click", function () {
+            ticketStamp = name;
+            stampTouched = true;
+            showTicketStamps();
+        });
+        box.appendChild(chip);
+    });
+}
+
+function showTicketCover() {
+    const box = document.getElementById("t-cover-preview");
+    box.innerHTML = ticketCoverPhoto ? `<img src="${ticketCoverPhoto}">` : "";
+    document.getElementById("t-cover-remove").hidden = !ticketCoverPhoto;
+}
+
+function openTicketSheet(ticket) {
+    editingTicket = ticket;
+    document.getElementById("t-title").value = ticket ? ticket.title : "";
+    document.getElementById("t-artist").value = ticket ? ticket.artist || "" : "";
+    document.getElementById("t-date").value = ticket ? ticket.date : "";
+    document.getElementById("t-place").value = ticket ? ticket.place || "" : "";
+    document.getElementById("t-seat").value = ticket ? ticket.seat || "" : "";
+    ticketCoverPhoto = ticket ? ticket.cover || "" : "";
+    ticketStamp = ticket ? ticket.stamp || "已參加" : "已參加";
+    stampTouched = Boolean(ticket);
+    document.getElementById("t-delete").hidden = !ticket;
+    document.getElementById("ticket-sheet-title").textContent = ticket ? "編輯場次" : "新增場次";
+    showTicketStamps();
+    showTicketCover();
+    ticketSheet.classList.add("open");
+}
+
+function closeTicketSheet() {
+    ticketSheet.classList.remove("open");
+}
+
+document.getElementById("btn-add-ticket").addEventListener("click", function () {
+    openTicketSheet(null);
+});
+document.getElementById("ticket-sheet-close").addEventListener("click", closeTicketSheet);
+document.getElementById("ticket-sheet-backdrop").addEventListener("click", closeTicketSheet);
+
+// 改日期：還沒自己點過小章的話，未來的日期自動變「即將參加」
+document.getElementById("t-date").addEventListener("input", function () {
+    if (stampTouched) return;
+    ticketStamp = this.value > formatDate(getToday()) ? "即將參加" : "已參加";
+    showTicketStamps();
+});
+
+// 選封面
+document.getElementById("t-cover").addEventListener("change", async function (event) {
+    const file = event.target.files[0];
+    event.target.value = "";
+    if (!file) return;
+    const photo = await compressImage(file);
+    if (photo) {
+        ticketCoverPhoto = photo;
+        showTicketCover();
+    }
+});
+document.getElementById("t-cover-remove").addEventListener("click", function () {
+    ticketCoverPhoto = "";
+    showTicketCover();
+});
+
+// 儲存場次
+document.getElementById("t-save").addEventListener("click", async function () {
+    const data = {
+        title: document.getElementById("t-title").value,
+        artist: document.getElementById("t-artist").value,
+        date: document.getElementById("t-date").value,
+        place: document.getElementById("t-place").value,
+        seat: document.getElementById("t-seat").value,
+        cover: ticketCoverPhoto,
+        stamp: ticketStamp,
+    };
+    if (!data.title) {
+        alert("請填演唱會名稱喔");
+        return;
+    }
+
+    if (editingTicket) {
+        Object.assign(editingTicket, data);
+    } else {
+        const ticket = Object.assign({ id: Date.now() }, data);
+        tickets.push(ticket);
+        openTicketId = ticket.id;   // 新增完直接展開，方便馬上新增記錄
+    }
+    await saveDiary();
+    closeTicketSheet();
+    showTickets();
+});
+
+// 刪除場次：連同底下的記錄一起刪
+document.getElementById("t-delete").addEventListener("click", async function () {
+    const ticket = editingTicket;
+    const count = ticketEntries(ticket).length;
+    if (!confirm(`確定要刪除「${ticket.title}」嗎？\n底下的 ${count} 筆記錄也會一起刪掉喔！`)) return;
+
+    if (entryTicketId === ticket.id) closeEntryForm();
+    tickets = tickets.filter(function (t) { return t.id !== ticket.id; });
+    diaryEntries = diaryEntries.filter(function (d) { return d.ticketId !== ticket.id; });
+    await saveDiary();
+    closeTicketSheet();
+    showTickets();
+});
+
+// ----- 💭 心情 -----
+
+function showMoods() {
+    diaryList.innerHTML = "";
+
+    // 照日期排：最近的在最上面
+    const moods = diaryEntries
+        .filter(function (d) { return d.type === "mood"; })
+        .sort(function (a, b) { return b.date.localeCompare(a.date); });
+
+    moods.forEach(function (d) {
+        diaryList.appendChild(makeEntryCard(d, "var(--win-pink)"));
     });
 
-    // 這個分頁還沒有記錄
-    if (shown.length === 0) {
-        if (currentType === "concert") {
-            diaryList.innerHTML = `<p class="empty">還沒有演唱會記錄，記下第一場吧 ${icon("mic")}</p>`;
-        } else {
-            diaryList.innerHTML = `<p class="empty">還沒有心情記錄，寫下第一篇吧 ${icon("message")}</p>`;
-        }
+    if (moods.length === 0) {
+        diaryList.innerHTML = `<p class="empty">還沒有心情記錄，寫下第一篇吧 ${icon("message")}</p>`;
     }
 }
 
-// 刪除一篇
+// 照現在的分頁，顯示票夾或心情
+function showDiary() {
+    document.getElementById("concert-view").hidden = currentType !== "concert";
+    document.getElementById("mood-view").hidden = currentType !== "mood";
+    if (currentType === "concert") showTickets();
+    else showMoods();
+}
+
+// 點分頁按鈕
+document.querySelectorAll("#page-diary .sub-tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+        currentType = tab.dataset.type;
+
+        // 所有分頁按鈕先變灰，再讓被點的變亮
+        document.querySelectorAll("#page-diary .sub-tab").forEach(function (t) {
+            t.classList.remove("active");
+        });
+        tab.classList.add("active");
+
+        closeEntryForm();
+        showDiary();
+    });
+});
+
+// 刪除一筆
 async function deleteDiary(id) {
     if (!confirm("確定要刪除這篇記錄嗎？")) {
         return;
@@ -1191,17 +1434,45 @@ async function deleteDiary(id) {
     diaryEntries = diaryEntries.filter(function (d) {
         return d.id !== id;
     });
-    await localforage.setItem("diaryEntries", diaryEntries);
+    await saveDiary();
     showDiary();
 }
 
-// 打開網頁時：從大置物櫃拿出所有記錄
+// 以前的演唱會記錄（沒有 ticketId）：變成票根＋一筆記錄；同名稱、同日期的放在同一張
+function moveOldConcerts() {
+    let changed = false;
+    diaryEntries.forEach(function (d) {
+        if (d.type !== "concert" || d.ticketId) return;
+        let ticket = tickets.find(function (t) {
+            return t.title === (d.title || "演唱會") && t.date === d.date;
+        });
+        if (!ticket) {
+            ticket = {
+                id: Date.now() + tickets.length,
+                title: d.title || "演唱會",
+                artist: "",
+                date: d.date,
+                place: d.place || "",
+                seat: d.seat || "",
+                cover: "",
+                stamp: d.date > formatDate(getToday()) ? "即將參加" : "已參加",
+            };
+            tickets.push(ticket);
+        }
+        d.ticketId = ticket.id;
+        changed = true;
+    });
+    return changed;
+}
+
+// 打開網頁時：從大置物櫃拿出所有記錄和場次
 async function loadDiary() {
     diaryEntries = (await localforage.getItem("diaryEntries")) || [];
+    tickets = (await localforage.getItem("concertTickets")) || [];
+    if (moveOldConcerts()) await saveDiary();
     showDiary();
 }
 
-updateDiaryFields();
 loadDiary();
 
 
@@ -1215,6 +1486,7 @@ document.getElementById("btn-export").addEventListener("click", function () {
         events: events,
         moneyRecords: records,
         diaryEntries: diaryEntries,
+        concertTickets: tickets,
     };
 
     // 變成文字，再包成一個檔案
@@ -1264,6 +1536,8 @@ document.getElementById("import-file").addEventListener("change", async function
         else localStorage.removeItem("fanStart");
         localStorage.setItem("moneyRecords", JSON.stringify(backup.moneyRecords));
         await localforage.setItem("diaryEntries", backup.diaryEntries);
+        // 舊的備份沒有票夾：打開時會自動把演唱會記錄變成票根
+        await localforage.setItem("concertTickets", backup.concertTickets || []);
 
         alert("匯入完成！🎉");
         location.reload();  // 重新載入頁面，顯示匯入的資料

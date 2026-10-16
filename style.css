@@ -1557,3 +1557,213 @@ svg.px {
   font-size: 14px;
   flex-shrink: 0;
 }
+
+/* ===== 🎫 票夾 ===== */
+#ticket-sheet { --c: var(--win-blue); }
+
+.tk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0 8px;
+}
+
+.tk-count {
+  padding: 0 8px;
+  border: 2px solid var(--ink);
+  background-color: white;
+  font-size: 13px;
+}
+
+.tk-item {
+  margin-top: 16px;
+}
+
+/* 一張票根：左邊封面、中間文字、右邊撕下來的那一截 */
+.tk {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+  border: 3px solid var(--ink);
+  background-color: var(--c);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: white;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tk-cover {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  margin: 8px;
+  border: 2px solid var(--ink);
+  background-color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--c);
+  font-size: 28px;
+}
+
+.tk-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-main {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.tk-title {
+  font-size: 15px;
+}
+
+.tk-artist,
+.tk-place {
+  font-size: 11px;
+  opacity: 0.9;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tk-artist:empty,
+.tk-place:empty {
+  display: none;
+}
+
+.tk-stub {
+  position: relative;
+  flex-shrink: 0;
+  width: 66px;
+  border-left: 3px dashed var(--ink);
+  background-color: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+/* 票根上下的半圓缺口 */
+.tk-hole {
+  position: absolute;
+  left: -11px;
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background-color: var(--paper);
+}
+
+.tk-hole-top { top: -11px; }
+.tk-hole-bottom { bottom: -11px; }
+
+.tk-month,
+.tk-year,
+.tk-num {
+  font-size: 10px;
+}
+
+.tk-day {
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--c);
+}
+
+.tk-stamp {
+  margin: 3px 0 2px;
+  padding: 0 3px;
+  border: 2px solid var(--win-teal);
+  background-color: white;
+  color: var(--win-teal);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* 展開後：新增一筆、編輯場次、底下的記錄 */
+.tk-detail {
+  margin: 10px 0 0 12px;
+  padding-left: 10px;
+  border-left: 3px dashed var(--ink);
+}
+
+/* 封面預覽 */
+.t-cover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.t-cover-row .btn-small {
+  margin-top: 0;
+}
+
+.t-cover-preview:empty {
+  display: none;
+}
+
+.t-cover-preview {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--ink);
+  overflow: hidden;
+}
+
+.t-cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 新增一筆的小視窗：右上角的收起按鈕 */
+#diary-form-win .win-bar .sheet-close {
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+}
+
+/* ===== 🖼️ 照片：張數不同，排法不同 ===== */
+.photo-grid[class*="photos-"] img {
+  border-radius: 0;
+  border: 2px solid var(--ink);
+  box-sizing: border-box;
+}
+
+.photo-grid.photos-1 { grid-template-columns: 1fr; }
+.photo-grid.photos-2 { grid-template-columns: 1fr 1fr; }
+.photo-grid.photos-4 { grid-template-columns: 1fr 1fr; }
+.photo-grid.photos-6 { grid-template-columns: repeat(3, 1fr); }
+
+/* 3 張：左邊一張大的，右邊上下兩張 */
+.photo-grid.photos-3 {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.photo-grid.photos-3 img:first-child {
+  grid-row: span 2;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+/* 5 張：上面 2 張、下面 3 張 */
+.photo-grid.photos-5 {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.photo-grid.photos-5 img { grid-column: span 2; }
+.photo-grid.photos-5 img:nth-child(-n + 2) { grid-column: span 3; }
