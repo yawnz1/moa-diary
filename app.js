@@ -335,7 +335,7 @@ function saveEvents() {
     localStorage.setItem("events", JSON.stringify(events));
 }
 
-// 💾 小視窗：標題列（三個圓點＋標籤＋右邊的東西）、網址列（選用）、一排像素愛心
+// 💾 小視窗：標題列（三個圓點＋標籤＋右邊的東西）；首頁卡片才有網址列和一排像素愛心
 const winColors = ["var(--win-blue)", "var(--win-pink)", "var(--win-teal)", "var(--win-sage)"];
 
 function winBar(title, right, withUrl) {
@@ -345,8 +345,7 @@ function winBar(title, right, withUrl) {
             <span class="win-tab">${title}</span>
             ${right ? `<span class="win-right">${right}</span>` : ""}
         </div>
-        ${withUrl ? winUrl() : ""}
-        ${winHearts()}
+        ${withUrl ? winUrl() + winHearts() : ""}
     `;
 }
 
@@ -454,7 +453,7 @@ function showEvents() {
 }
 
 // 類型的文字
-const eventTypeNames = { countdown: icon("hourglass") + " 倒數", since: icon("calendar") + " 已經過了" };
+const eventTypeNames = { countdown: icon("clock") + " 倒數", since: icon("calendar") + " 已經過了" };
 
 // ⏳ 倒數管理畫面：每一行有 ↑ ↓ ✏️ 🗑️
 function showEventManager() {
@@ -653,7 +652,7 @@ const statusIcons = { "貨到付款": icon("money") + " 貨到付款", "已付�
 const categoryIcons = { "專輯": icon("album"), "小卡": icon("image"), "周邊": icon("gift"), "門票": px("ticket"), "交通": icon("bus"), "住宿": icon("bed"), "其他": icon("package") };
 
 // 分類在甜甜圈圖上的顏色
-const categoryColors = { "專輯": "#8b7cf6", "小卡": "#f49ac2", "周邊": "#fbbf77", "門票": "#6cc5b0", "交通": "#7cb8f0", "住宿": "#f6d36b", "其他": "#c0bcd6" };
+const categoryColors = { "專輯": "#a8c8f0", "小卡": "#f7b8c8", "周邊": "#fbe29a", "門票": "#f6b49a", "交通": "#a8dcc8", "住宿": "#c9b8ee", "其他": "#d9cfc7" };   // 馬卡龍色系
 
 // 以前記的帳沒有分類，就當成「其他」
 records.forEach(function (r) {
@@ -1013,13 +1012,37 @@ function updateStats() {
     document.getElementById("stats-cats").innerHTML = catHtml;
 }
 
+// 📊 日期範圍：平常收成一行，點了才展開選日期
+const statsRangeBtn = document.getElementById("stats-range-btn");
+function updateStatsRange() {
+    const from = document.getElementById("stats-from").value;
+    const to = document.getElementById("stats-to").value;
+    const show = function (d) { return d ? d.replaceAll("-", "/") : "不限"; };
+    // 同一年的話，後面那個日期只寫月日，比較短
+    const toText = from && to && from.slice(0, 4) === to.slice(0, 4) ? to.slice(5).replace("-", "/") : show(to);
+    const open = !document.getElementById("stats-range-panel").hidden;
+    statsRangeBtn.innerHTML = `${icon("calendar")} ${show(from)}～${toText} ${open ? "▲" : "▼"}`;
+}
+statsRangeBtn.addEventListener("click", function () {
+    const panel = document.getElementById("stats-range-panel");
+    panel.hidden = !panel.hidden;
+    if (panel.hidden) closeCalendar();   // 收起來時，日曆也收
+    updateStatsRange();
+});
+document.getElementById("stats-from").addEventListener("input", updateStatsRange);
+document.getElementById("stats-to").addEventListener("input", updateStatsRange);
+
 // 改日期時重新計算；按「這個月」跳回本月
 document.getElementById("stats-from").addEventListener("input", updateStats);
 document.getElementById("stats-to").addEventListener("input", updateStats);
-document.getElementById("stats-this-month").addEventListener("click", setThisMonth);
+document.getElementById("stats-this-month").addEventListener("click", function () {
+    setThisMonth();
+    updateStatsRange();
+});
 
 // 打開網頁時，預設顯示這個月
 setThisMonth();
+updateStatsRange();
 
 
 // ===== 📸 記錄 =====
@@ -2309,12 +2332,6 @@ document.querySelectorAll(".px-chick").forEach(function (el) {
     el.innerHTML = px("chick");
 });
 
-// HTML 裡寫好的小視窗（統計、待到貨、新增紀錄、黃春、資料備份）：標題列下面補上愛心排
-document.querySelectorAll(".win > .win-bar").forEach(function (bar) {
-    if (!bar.parentElement.querySelector(":scope > .win-hearts")) {   // 還沒有愛心排才補
-        bar.insertAdjacentHTML("afterend", winHearts());
-    }
-});
 
 
 // ===== 💬 App 自己做的提示、確認視窗、下拉選單、日曆 =====

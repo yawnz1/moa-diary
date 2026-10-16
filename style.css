@@ -8,16 +8,17 @@
   --ink: #2d2a4a;         /* 字、粗邊框、陰影 */
   --muted: #9a8a92;       /* 比較淡的字 */
   --muted2: #6e6070;      /* 次要的字 */
-  --primary: #2f6db5;     /* 主色：按鈕、數字 */
-  --primary-dark: #24568f;
-  --heart: #e7849a;       /* 標題的愛心 */
-  --accent: #d94848;      /* 紅色點綴：➕ 按鈕 */
+  --primary: #6f8fd8;     /* 主色的「字」：標題、數字（比按鈕深一點才看得清楚） */
+  --primary-dark: #5a78c0;
+  --btn: #a8c8f0;         /* 按鈕的底色（馬卡龍淡藍，字用深色） */
+  --heart: #f2a0b6;       /* 標題的愛心 */
+  --accent: #f6a39a;      /* 點綴：➕ 按鈕、刪除（馬卡龍蜜桃） */
 
-  /* 小視窗輪流用的顏色 */
-  --win-blue: #2f6db5;
-  --win-pink: #e7849a;
-  --win-teal: #2e8b8f;
-  --win-sage: #8fa98a;
+  /* 小視窗輪流用的顏色（馬卡龍色系） */
+  --win-blue: #a8c8f0;
+  --win-pink: #f7b8c8;
+  --win-teal: #a8dcc8;
+  --win-sage: #c9b8ee;
 }
 
 /* 🔤 字體：俐方體 11 號（像素字，繁體完整） */
@@ -2130,4 +2131,117 @@ svg.px {
 .sheet-bottom .keypad .key-submit,
 .sheet-bottom .keypad .key-add {
   font-size: 14px;
+}
+
+/* ===== 🍬 馬卡龍色系：底色變淡了，按鈕上的字改成深色才看得清楚 ===== */
+.btn-main,
+.btn-small,
+.keypad .key-submit,
+.cat-chip.active,
+.cur-chip.active,
+.type-chip.active,
+.tab-bar .tab-add,
+.cal-day.selected,
+.ev-milestone.today,
+.tk {
+  color: var(--ink);
+}
+
+.btn-main,
+.btn-small,
+.keypad .key-submit,
+.cat-chip.active,
+.cur-chip.active,
+.type-chip.active {
+  background-color: var(--btn);
+}
+
+.btn-light {
+  background-color: var(--paper);
+}
+
+.keypad .key-submit:active {
+  background-color: var(--win-blue);
+}
+
+.tab-bar .tab-add {
+  background-color: var(--win-pink);
+}
+
+/* 淡淡的顏色當「字」的時候太淺：混一點深色進去 */
+.win .big-number,
+.tk-day {
+  color: color-mix(in srgb, var(--c) 55%, var(--ink));
+}
+
+.tk-cover {
+  color: color-mix(in srgb, var(--c) 55%, var(--ink));
+}
+
+.tk-stamp {
+  border-color: color-mix(in srgb, var(--win-teal) 50%, var(--ink));
+  color: color-mix(in srgb, var(--win-teal) 50%, var(--ink));
+}
+
+.tk-artist,
+.tk-place,
+.tk-seat {
+  opacity: 0.8;
+}
+
+.cal-week:first-child,
+.cal-week:nth-child(7) {
+  color: color-mix(in srgb, var(--accent) 60%, var(--ink));
+}
+
+.pet-heart,
+.win-hearts {
+  color: color-mix(in srgb, var(--heart) 75%, var(--ink));
+}
+
+/* ===== 🧭 底部選單：選中的那一格有方塊底色 ===== */
+.tab-bar button:not(.tab-add) {
+  margin: 0 4px;
+  padding: 4px 0;
+  border: 2px solid transparent;
+}
+
+.tab-bar button.active:not(.tab-add) {
+  border-color: var(--ink);
+  background-color: var(--win-blue);
+  box-shadow: 2px 2px 0 var(--ink);
+  color: var(--ink);
+}
+
+/* ===== 📊 統計：日期範圍收成一行 ===== */
+.stats-range-btn {
+  margin-top: 0;
+  justify-content: center;
+}
+
+/* 小視窗標題列：不要折成兩行，放不下的字用「…」 */
+.win-bar {
+  flex-wrap: nowrap;
+}
+
+.win-dots {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.win-bar .win-tab {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.win-right,
+.win-right .status {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.stats-range-btn {
+  white-space: nowrap;
 }
