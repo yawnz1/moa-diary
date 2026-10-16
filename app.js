@@ -1202,6 +1202,7 @@ function showTickets() {
                     <span class="tk-title"></span>
                     <span class="tk-artist"></span>
                     <span class="tk-place"></span>
+                    <span class="tk-seat"></span>
                 </span>
                 <span class="tk-stub">
                     <span class="tk-hole tk-hole-top"></span>
@@ -1226,7 +1227,11 @@ function showTickets() {
         // 你打的字用 textContent 放，避免奇怪的符號把畫面弄亂
         item.querySelector(".tk-title").textContent = ticket.title || "演唱會";
         item.querySelector(".tk-artist").textContent = ticket.artist || "";
-        item.querySelector(".tk-place").textContent = [ticket.place, ticket.seat].filter(Boolean).join("・");
+        // 地點、座位各一行（有填才顯示），前面放像素圖示
+        if (ticket.place) item.querySelector(".tk-place").innerHTML = icon("map-pin") + " <span></span>";
+        if (ticket.seat) item.querySelector(".tk-seat").innerHTML = icon("label") + " <span></span>";
+        if (ticket.place) item.querySelector(".tk-place span").textContent = ticket.place;
+        if (ticket.seat) item.querySelector(".tk-seat span").textContent = ticket.seat;
 
         // 點票根：展開 / 收起
         item.querySelector(".tk").addEventListener("click", function () {

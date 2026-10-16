@@ -1767,3 +1767,48 @@ svg.px {
 
 .photo-grid.photos-5 img { grid-column: span 2; }
 .photo-grid.photos-5 img:nth-child(-n + 2) { grid-column: span 3; }
+
+/* 🎫 票根：手機上比較窄，騰出空間給中間的字 */
+.tk-cover {
+  width: 64px;
+  height: 64px;
+  margin: 8px 6px 8px 8px;
+  align-self: center;
+}
+
+.tk-main {
+  padding: 8px 6px 8px 2px;
+}
+
+.tk-title {
+  font-size: 14px;
+  line-height: 1.3;
+  /* 名稱最多兩行，再長才用「…」 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tk-artist,
+.tk-place,
+.tk-seat {
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.9;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tk-seat:empty {
+  display: none;
+}
+
+.tk-stub {
+  width: 56px;
+}
+
+.tk-day {
+  font-size: 22px;
+}
