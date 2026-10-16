@@ -75,7 +75,7 @@
             <span class="win-tab"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨.exe</span>
           </div>
           <div class="win-body">
-          <p>待二補合計</p>
+          <p>待到貨金額</p>
           <p class="big-number">NT$ <span id="pending-extra">0</span></p>
           <p><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 還有 <span id="pending-count">0</span> 筆還沒到貨</p>
           </div>
@@ -104,35 +104,6 @@
       <!-- 💭 心情 -->
       <div id="mood-view" hidden>
         <button type="button" class="btn-small btn-light" id="btn-add-mood">＋ 新增</button>
-        <!-- 新增一筆的表單平常收起來；演唱會新增時會被搬到那張票根底下 -->
-        <div id="diary-form-home">
-      <div class="count-box win" id="diary-form-win" style="--c: var(--win-pink);" hidden>
-          <div class="win-bar">
-            <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab"><i class="pxi pixelart-icons-font-pencil" aria-hidden="true"></i> 新增一筆.exe</span>
-            <button type="button" class="sheet-close win-right" id="diary-form-close" aria-label="收起來"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
-          </div>
-          <div class="win-body">
-      <form id="diary-form">
-                <label>日期
-          <input type="date" id="d-date" required>
-        </label>
-
-        <label>寫點什麼
-          <textarea id="d-text" rows="4" placeholder="今天的心情…"></textarea>
-        </label>
-        <p class="field-title">照片（最多 9 張）</p>
-        <!-- 整個按鈕就是 label，點了會打開選照片；真正的 input 藏起來 -->
-        <label class="btn-small btn-light photo-pick"><i class="pxi pixelart-icons-font-camera" aria-hidden="true"></i> 選擇照片
-          <input type="file" id="d-photos" class="visually-hidden" accept="image/*" multiple>
-        </label>
-        <div id="photo-preview" class="photo-grid"></div>
-        <button type="submit" class="btn-main">記下來 ♡</button>
-      </form>
-          </div>
-      </div>
-
-        </div>
         <div id="diary-list"></div>
       </div>
     </section>
@@ -196,7 +167,7 @@
       <div class="sheet-scroll">
         <div class="sheet-header">
           <span class="win-dots"><i></i><i></i><i></i></span>
-          <strong class="win-tab">記一筆 ♡</strong>
+          <strong class="win-tab" id="money-sheet-title">記一筆 ♡</strong>
           <button type="button" class="sheet-close" id="sheet-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
         </div>
 
@@ -220,17 +191,17 @@
                       <label>運輸方式
             <select id="m-shipping">
               <option value="">無</option>
-              <option value="空運">✈️ 空運</option>
-              <option value="海運">🚢 海運</option>
+              <option value="空運">空運</option>
+              <option value="海運">海運</option>
             </select>
           </label>
 
           <label>狀態
             <select id="m-status">
-                            <option value="貨到付款">💰 貨到付款</option>
-              <option value="已付款" selected>💳 已付款</option>
-              <option value="已發貨">🚚 已發貨</option>
-              <option value="完成">✅ 完成（已經拿到了）</option>
+                            <option value="貨到付款">貨到付款</option>
+              <option value="已付款" selected>已付款</option>
+              <option value="已發貨">已發貨</option>
+              <option value="完成">完成</option>
             </select>
           </label>
           <label>備注
@@ -284,6 +255,36 @@
         <p class="rate-info"><i class="pxi pixelart-icons-font-arrow-up" aria-hidden="true"></i> <i class="pxi pixelart-icons-font-arrow-down" aria-hidden="true"></i> 調整首頁的順序</p>
         <div id="event-manager"></div>
         <button type="button" class="btn-small btn-light" id="btn-add-event">＋ 新增倒數</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✏️ 新增 / 編輯一筆記錄（心情、票根底下共用）：從下面滑出來的畫面 -->
+  <div id="entry-sheet" class="sheet">
+    <div class="sheet-backdrop" id="entry-sheet-backdrop"></div>
+    <div class="sheet-panel">
+      <div class="sheet-scroll">
+        <div class="sheet-header">
+          <span class="win-dots"><i></i><i></i><i></i></span>
+          <strong class="win-tab"><i class="pxi pixelart-icons-font-pencil" aria-hidden="true"></i> <span id="diary-form-title">新增一筆.exe</span></strong>
+          <button type="button" class="sheet-close" id="diary-form-close" aria-label="關閉"><i class="pxi pixelart-icons-font-close" aria-hidden="true"></i></button>
+        </div>
+      <form id="diary-form">
+                <label>日期
+          <input type="date" id="d-date" required>
+        </label>
+
+        <label>寫點什麼
+          <textarea id="d-text" rows="4" placeholder="今天的心情…"></textarea>
+        </label>
+        <p class="field-title">照片（最多 9 張）</p>
+        <!-- 整個按鈕就是 label，點了會打開選照片；真正的 input 藏起來 -->
+        <label class="btn-small btn-light photo-pick"><i class="pxi pixelart-icons-font-camera" aria-hidden="true"></i> 選擇照片
+          <input type="file" id="d-photos" class="visually-hidden" accept="image/*" multiple>
+        </label>
+        <div id="photo-preview" class="photo-grid"></div>
+        <button type="submit" class="btn-main">記下來 ♡</button>
+      </form>
       </div>
     </div>
   </div>

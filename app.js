@@ -328,6 +328,9 @@ saveEvents();
 // 管理畫面裡，現在打開 ✏️ 的是哪一個
 let editingEventId = null;
 
+// 按「＋ 新增倒數」還沒按完成的那一張（按完成才會真的加進清單）
+let eventDraft = null;
+
 function saveEvents() {
     localStorage.setItem("events", JSON.stringify(events));
 }
@@ -357,6 +360,28 @@ function winHearts() {
     return `<div class="win-hearts">${icon("heart").repeat(20)}</div>`;
 }
 
+// 🎉 紀念日：每 100 天、每滿一年。當天顯示慶祝，10 天內才提醒，平常什麼都不顯示
+function milestoneText(startDate, passed) {
+    const start = new Date(startDate + "T00:00");
+    const today = getToday();
+
+    // 下一個滿 N 年（今年的紀念日過了，就看明年）
+    let anniversary = new Date(today.getFullYear(), start.getMonth(), start.getDate());
+    if (anniversary < today) anniversary = new Date(today.getFullYear() + 1, start.getMonth(), start.getDate());
+    const years = anniversary.getFullYear() - start.getFullYear();
+    const daysToYear = daysBetween(today, anniversary);
+
+    // 下一個 100 的倍數
+    const daysToHundred = passed % 100 === 0 ? 0 : 100 - (passed % 100);
+    const hundred = passed + daysToHundred;
+
+    if (passed > 0 && daysToHundred === 0) return `<p class="ev-milestone today">${icon("sparkles")} ${passed} 天紀念！</p>`;
+    if (years >= 1 && daysToYear === 0) return `<p class="ev-milestone today">${icon("sparkles")} 滿 ${years} 年紀念！</p>`;
+    if (years >= 1 && daysToYear <= 10 && daysToYear <= daysToHundred) return `<p class="ev-milestone">再 ${daysToYear} 天就滿 ${years} 年了！</p>`;
+    if (daysToHundred <= 10) return `<p class="ev-milestone">再 ${daysToHundred} 天就 ${hundred} 天了！</p>`;
+    return "";
+}
+
 // 首頁：照順序顯示所有卡片（只顯示，不能改）
 function showEvents() {
     const list = document.getElementById("event-list");
@@ -372,6 +397,7 @@ function showEvents() {
 
         let topText = "";
         let bigText = "";
+        let milestoneHtml = "";
 
         if (ev.type === "since") {
             // 📅 已經過了：上面放名稱，下面放天數
@@ -379,6 +405,7 @@ function showEvents() {
             if (days === null) bigText = "? 天";
             else if (days > 0) bigText = "還沒到";
             else bigText = `${-days} 天`;
+            if (days !== null && days <= 0) milestoneHtml = milestoneText(ev.date, -days);
         } else {
             // ⏳ 倒數：還沒到 / 今天 / 過期
             topText = `距離 <span class="ev-name"></span> 還有`;
@@ -414,6 +441,7 @@ function showEvents() {
                 <p>${topText}</p>
                 <p class="big-number">${bigText}</p>
                 ${loadingHtml}
+                ${milestoneHtml}
             </div>
         `;
         // 名稱用 textContent 放，避免奇怪的符號把畫面弄亂
@@ -433,9 +461,13 @@ function showEventManager() {
     const list = document.getElementById("event-manager");
     list.innerHTML = "";
 
-    events.forEach(function (ev, index) {
+    // 正在新增的那一張放在最下面（還沒存）
+    const rows = eventDraft ? events.concat([eventDraft]) : events;
+
+    rows.forEach(function (ev, index) {
+        const isDraft = ev === eventDraft;
         const row = document.createElement("div");
-        row.className = "ev-row";
+        row.className = "ev-row" + (isDraft ? " ev-draft" : "");
         row.innerHTML = `
             <div class="ev-row-top">
                 <div class="ev-row-info">
@@ -458,12 +490,16 @@ function showEventManager() {
                 <label>日期
                     <input type="date" class="ev-input-date">
                 </label>
-                <button type="button" class="btn-small ev-done">完成</button>
+                <div class="row">
+                    <button type="button" class="btn-small btn-light ev-cancel">取消</button>
+                    <button type="button" class="btn-small ev-done">完成</button>
+                </div>
             </div>
         `;
-        row.querySelector(".ev-row-name").textContent = ev.name || "（未命名）";
+        row.querySelector(".ev-row-name").textContent = isDraft ? "＋ 新的卡片" : (ev.name || "（未命名）");
         row.querySelector(".ev-input-name").value = ev.name;
         row.querySelector(".ev-input-date").value = ev.date;
+        pixelDate(row.querySelector(".ev-input-date"));
 
         // 類型按鈕：選一個，名稱的提示也跟著換
         let chosenType = ev.type;
@@ -495,19 +531,35 @@ function showEventManager() {
             showEventManager();
         });
 
-        // 完成：存起來、收起
+        // 完成：存起來、收起（新的那一張到這時候才加進清單）
         row.querySelector(".ev-done").addEventListener("click", function () {
+            const date = row.querySelector(".ev-input-date").value;
+            if (!date) {
+                toast("請選日期喔", "calendar");
+                return;
+            }
             ev.type = chosenType;
             ev.name = row.querySelector(".ev-input-name").value;
-            ev.date = row.querySelector(".ev-input-date").value;
+            ev.date = date;
+            if (isDraft) {
+                events.push(ev);
+                eventDraft = null;
+            }
             editingEventId = null;
             saveEvents();
             showEvents();
         });
 
+        // 取消：不存，收起（新的那一張直接不要）
+        row.querySelector(".ev-cancel").addEventListener("click", function () {
+            if (isDraft) eventDraft = null;
+            editingEventId = null;
+            showEventManager();
+        });
+
         // 🗑️ 刪除
-        row.querySelector(".ev-delete").addEventListener("click", function () {
-            if (!confirm(`確定要刪除「${ev.name || "未命名"}」嗎？`)) return;
+        row.querySelector(".ev-delete").addEventListener("click", async function () {
+            if (!(await askConfirm(`確定要刪除「${ev.name || "未命名"}」嗎？`, { danger: true, okText: "刪除" }))) return;
             events.splice(index, 1);
             saveEvents();
             showEvents();
@@ -526,12 +578,11 @@ function moveEvent(from, to) {
 }
 
 // ＋ 新增倒數：加在最下面，直接打開 ✏️
+// ＋ 新增倒數：先打開一張空白的填寫區，按「完成」才真的新增
 document.getElementById("btn-add-event").addEventListener("click", function () {
-    const ev = { id: Date.now(), type: "countdown", name: "", date: "" };
-    events.push(ev);
-    editingEventId = ev.id;
-    saveEvents();
-    showEvents();
+    eventDraft = { id: Date.now(), type: "countdown", name: "", date: "" };
+    editingEventId = eventDraft.id;
+    showEventManager();
 });
 
 showEvents();
@@ -542,6 +593,7 @@ const eventSheet = document.getElementById("event-sheet");
 function closeEventSheet() {
     eventSheet.classList.remove("open");
     editingEventId = null;   // 沒按完成的輸入框也收起來
+    eventDraft = null;       // 還沒按完成的新卡片也不要
     showEventManager();
 }
 
@@ -589,6 +641,7 @@ localStorage.setItem("moneyRecords", JSON.stringify(records));  // 換好就存�
 records.forEach(function (r) {
     if (r.status === "待二補") r.status = "待付二補";
     if (r.status === "已到貨") r.status = "完成";
+    if (r.status === "待付二補") r.status = "完成";   // 現在到貨就算完成，沒有「待付二補」了
 });
 
 // 狀態前面的小圖示
@@ -646,7 +699,7 @@ moneyForm.addEventListener("submit", function (event) {
 
     // 沒輸入金額就提醒
     if (items.length === 0) {
-        alert("還沒輸入金額喔 💸");
+        toast("還沒輸入金額喔", "coins");
         return;
     }
 
@@ -661,9 +714,9 @@ moneyForm.addEventListener("submit", function (event) {
         if (!names.includes(name)) names.push(name);
     });
 
-    // 把表單的內容做成一張資料卡
+    // 把表單的內容做成一張資料卡（編輯的話，沿用原本的編號）
     const record = {
-        id: Date.now(),
+        id: editingRecordId || Date.now(),
         date: document.getElementById("m-date").value,
         item: names.join("、"),
         category: cats[0],   // 舊格式留著：第一個分類
@@ -672,18 +725,23 @@ moneyForm.addEventListener("submit", function (event) {
         agent: document.getElementById("m-agent").value,
         platform: document.getElementById("m-platform").value,
         shipping: document.getElementById("m-shipping").value,
-                extra: 0,  // 二補等到貨了再填
+        extra: 0,  // 二補等到貨了再填
         status: document.getElementById("m-status").value,
         note: document.getElementById("m-note").value,
     };
 
-    records.unshift(record);  // 放到最前面（最新的在最上面）
+    if (editingRecordId) {
+        // ✏️ 編輯：換掉原本那一筆（二補照舊）
+        const index = records.findIndex(function (r) { return r.id === editingRecordId; });
+        record.extra = records[index].extra || 0;
+        records[index] = record;
+    } else {
+        records.unshift(record);  // 放到最前面（最新的在最上面）
+    }
     saveRecords();            // 存進置物櫃
     showRecords();            // 重新顯示列表
-    moneyForm.reset();        // 清空表單
-    selectCategory("其他");   // 分類回到「其他」
-    resetCart();              // 購物車計算機也清空
-        // 收起滑出來的畫面，跳到記帳頁看剛記的那筆
+    clearMoneyForm();         // 表單、分類、購物車都清空
+    // 收起滑出來的畫面，跳到記帳頁看剛記的那筆
     closeSheet();
     document.querySelector('[data-page="page-money"]').click();
 });
@@ -701,7 +759,8 @@ function cardIcons(r) {
 }
 
 // 做出一張記帳卡片（記帳頁、待到貨頁都會用到）
-function makeCard(r) {
+// mode："all"（全部頁：可以編輯、刪除）或 "pending"（待到貨頁：只能更新到貨進度）
+function makeCard(r, mode) {
     // 準備一個空籃子，有填的資料才放進去
     const tags = [];
     if (r.platform) tags.push(icon("shopping-bag") + " " + r.platform);
@@ -721,14 +780,24 @@ function makeCard(r) {
         noteHtml = `<p class="money-note">${icon("note")} ${r.note}</p>`;
     }
 
-    // 依照狀態，顯示下一步的按鈕
+    // 待到貨頁：依照狀態，顯示下一步的按鈕
     let stepsHtml = "";
-    if (r.status === "已付款" || r.status === "貨到付款") {
-        stepsHtml = `<button class="btn-step" data-act="ship">${icon("truck")} 已發貨</button><button class="btn-step" data-act="arrive">${icon("package")} 到貨了</button>`;
-    } else if (r.status === "已發貨") {
-        stepsHtml = `<button class="btn-step" data-act="arrive">${icon("package")} 到貨了</button>`;
-    } else if (r.status === "待付二補") {
-        stepsHtml = `<button class="btn-step" data-act="paid">${icon("check")} 已付二補</button>`;
+    if (mode === "pending") {
+        if (r.status === "已付款" || r.status === "貨到付款") {
+            stepsHtml = `<button class="btn-step" data-act="ship">${icon("truck")} 已發貨</button><button class="btn-step" data-act="arrive">${icon("package")} 到貨了</button>`;
+        } else if (r.status === "已發貨") {
+            stepsHtml = `<button class="btn-step" data-act="arrive">${icon("package")} 到貨了</button>`;
+        }
+    }
+
+    // 全部頁：編輯、刪除
+    let actionsHtml = "";
+    if (mode === "all") {
+        actionsHtml = `
+            <div class="card-actions">
+                <button class="btn-edit-card">${icon("pencil")} 編輯</button>
+                <button class="btn-delete">${icon("trash")} 刪除</button>
+            </div>`;
     }
 
     // 小視窗的顏色：用第一個分類的顏色（跟甜甜圈圖一樣）
@@ -746,8 +815,8 @@ function makeCard(r) {
             <p class="money-amount">NT$ ${r.amount.toLocaleString()}</p>
             <div class="info-tags">${tagsHtml}</div>
             ${noteHtml}
-            <div class="steps">${stepsHtml}</div>
-            <button class="btn-delete">${icon("trash")} 刪除</button>
+            ${stepsHtml ? `<div class="steps">${stepsHtml}</div>` : ""}
+            ${actionsHtml}
         </div>
     `;
 
@@ -758,10 +827,17 @@ function makeCard(r) {
         });
     });
 
-    // 點刪除按鈕：刪掉這一筆
-    card.querySelector(".btn-delete").addEventListener("click", function () {
-        deleteRecord(r.id);
-    });
+    if (mode === "all") {
+        // 點刪除按鈕：刪掉這一筆
+        card.querySelector(".btn-delete").addEventListener("click", function () {
+            deleteRecord(r.id);
+        });
+
+        // 點編輯：把這一筆的內容帶回記一筆的畫面
+        card.querySelector(".btn-edit-card").addEventListener("click", function () {
+            editRecord(r);
+        });
+    }
 
     return card;  // 把做好的卡片交出去
 }
@@ -771,7 +847,7 @@ function showRecords() {
     moneyList.innerHTML = "";  // 先清空
 
     records.forEach(function (r) {
-        moneyList.appendChild(makeCard(r));
+        moneyList.appendChild(makeCard(r, "all"));
     });
 
         // 待到貨頁也一起更新
@@ -791,14 +867,14 @@ function showPending() {
         return r.status !== "完成";
     });
 
-    // 一張一張顯示，順便把「待二補」的二補金額加起來
-    let extraTotal = 0;
+    // 一張一張顯示，順便把還沒到貨的金額加起來
+    let pendingTotal = 0;
     pending.forEach(function (r) {
-        if (r.status === "待付二補") extraTotal += r.extra;
-        pendingList.appendChild(makeCard(r));
+        pendingTotal += r.amount;
+        pendingList.appendChild(makeCard(r, "pending"));
     });
 
-    document.getElementById("pending-extra").textContent = extraTotal.toLocaleString();
+    document.getElementById("pending-extra").textContent = pendingTotal.toLocaleString();
     document.getElementById("pending-count").textContent = pending.length;
 
     // 全部都到貨了
@@ -812,7 +888,7 @@ showRecords();
 
 
 // 按卡片上的下一步按鈕
-function nextStep(id, act) {
+async function nextStep(id, act) {
     const record = records.find(function (r) {
         return r.id === id;
     });
@@ -820,17 +896,11 @@ function nextStep(id, act) {
     if (act === "ship") {
         record.status = "已發貨";
     } else if (act === "arrive") {
-        const answer = prompt("📦 到貨了！有二補嗎？\n有的話輸入金額，沒有就直接按「確定」");
+        const answer = await askDialog("到貨了！有二補嗎？\n有的話輸入金額，沒有就直接按「確定」", { title: "到貨了", withInput: true, placeholder: "二補金額（沒有就空白）" });
         if (answer === null) return;  // 按了取消，什麼都不改
         const extra = Number(answer);
-        if (extra > 0) {
-            record.extra = extra;
-            record.status = "待付二補";
-        } else {
-            record.status = "完成";
-        }
-    } else if (act === "paid") {
-        record.status = "完成";
+        if (extra > 0) record.extra = extra;   // 有二補就記下來（統計會算進去）
+        record.status = "完成";                 // 不管有沒有二補，到貨了就完成
     }
 
     saveRecords();
@@ -838,9 +908,9 @@ function nextStep(id, act) {
 }
 
 // 刪除一筆
-function deleteRecord(id) {
+async function deleteRecord(id) {
     // 先問一下，按「取消」就不刪
-    if (!confirm("確定要刪除這一筆嗎？")) {
+    if (!(await askConfirm("確定要刪除這一筆嗎？", { danger: true, okText: "刪除" }))) {
         return;
     }
 
@@ -957,7 +1027,7 @@ setThisMonth();
 // 心情：一篇一篇的記錄
 
 const diaryForm = document.getElementById("diary-form");
-const diaryFormWin = document.getElementById("diary-form-win");   // 新增一筆的小視窗（會被搬到要新增的地方）
+const entrySheet = document.getElementById("entry-sheet");   // 新增 / 編輯一筆的滑出畫面
 const diaryList = document.getElementById("diary-list");
 const ticketList = document.getElementById("ticket-list");
 
@@ -975,8 +1045,11 @@ let entryTicketId = null;
 // 這一篇準備要放的照片（還沒按「記下來」）
 let newPhotos = [];
 
+// ✏️ 現在在編輯哪一筆記錄（新增就是 null）
+let editingEntryId = null;
+
 // 小章的選項
-const ticketStamps = ["已參加", "即將參加", "線上參加", "沒搶到"];
+const ticketStamps = ["已參加", "即將參加", "線上參加"];
 
 async function saveDiary() {
     await localforage.setItem("diaryEntries", diaryEntries);
@@ -1027,7 +1100,7 @@ document.getElementById("d-photos").addEventListener("change", async function (e
 
     for (const file of files) {
         if (newPhotos.length >= 9) {
-            alert("最多 9 張喔！");
+            toast("最多 9 張喔！", "image");
             break;
         }
         const photo = await compressImage(file);
@@ -1058,25 +1131,57 @@ function showPreview() {
     });
 }
 
-// 點照片：全螢幕看大圖，再點一下關掉
-function openViewer(src) {
+// 點照片：全螢幕看大圖；可以左右滑、按 ◀ ▶ 看同一篇的其他照片，點旁邊空白關掉
+function openViewer(photos, index) {
     const viewer = document.createElement("div");
     viewer.className = "viewer";
-    viewer.innerHTML = `<img src="${src}">`;
-    viewer.addEventListener("click", function () {
-        viewer.remove();
+    viewer.innerHTML = `
+        <img src="">
+        <button type="button" class="viewer-btn viewer-prev" aria-label="上一張">${icon("chevron-left")}</button>
+        <button type="button" class="viewer-btn viewer-next" aria-label="下一張">${icon("chevron-right")}</button>
+        <button type="button" class="viewer-btn viewer-close" aria-label="關閉">${icon("close")}</button>
+        <span class="viewer-count"></span>
+    `;
+    const img = viewer.querySelector("img");
+
+    function show(i) {
+        index = (i + photos.length) % photos.length;   // 最後一張再往後，回到第一張
+        img.src = photos[index];
+        viewer.querySelector(".viewer-count").textContent = photos.length > 1 ? `${index + 1} / ${photos.length}` : "";
+        viewer.querySelectorAll(".viewer-prev, .viewer-next").forEach(function (b) {
+            b.hidden = photos.length < 2;
+        });
+    }
+
+    viewer.querySelector(".viewer-prev").addEventListener("click", function () { show(index - 1); });
+    viewer.querySelector(".viewer-next").addEventListener("click", function () { show(index + 1); });
+    viewer.querySelector(".viewer-close").addEventListener("click", function () { viewer.remove(); });
+    viewer.addEventListener("click", function (event) {
+        if (event.target === viewer) viewer.remove();   // 點到旁邊黑色的地方才關
     });
+
+    // 手指左右滑
+    let startX = null;
+    viewer.addEventListener("touchstart", function (event) {
+        startX = event.touches[0].clientX;
+    });
+    viewer.addEventListener("touchend", function (event) {
+        if (startX === null) return;
+        const dx = event.changedTouches[0].clientX - startX;
+        if (dx > 40) show(index - 1);
+        if (dx < -40) show(index + 1);
+        startX = null;
+    });
+
+    show(index);
     document.body.appendChild(viewer);
 }
 
 // ----- 新增一筆（演唱會、心情共用同一個表單） -----
 
-// 打開表單：放到 where 裡面；ticketId 是要加到哪一場（心情就是 null）
-function openEntryForm(where, ticketId) {
+// 打開新增一筆（從下面滑出來）；ticketId 是要加到哪一場（心情就是 null）
+function openEntryForm(ticketId) {
     entryTicketId = ticketId;
-    where.appendChild(diaryFormWin);
-    diaryFormWin.hidden = false;
-
     const dateInput = document.getElementById("d-date");
     if (!dateInput.value) {
         // 演唱會預設用那一場的日期，心情預設今天
@@ -1084,41 +1189,64 @@ function openEntryForm(where, ticketId) {
         dateInput.value = ticket && ticket.date ? ticket.date : formatDate(getToday());
     }
     document.getElementById("d-text").placeholder = ticketId ? "今天的演唱會…" : "今天的心情…";
+    entrySheet.style.setProperty("--c", ticketId ? "var(--win-blue)" : "var(--win-pink)");
+    entrySheet.classList.add("open");
 }
 
-// 收起表單：搬回心情分頁原本的位置，內容清空
+// 關掉：內容清空
 function closeEntryForm() {
-    diaryFormWin.hidden = true;
-    document.getElementById("diary-form-home").appendChild(diaryFormWin);
+    entrySheet.classList.remove("open");
     entryTicketId = null;
+    editingEntryId = null;
+    document.getElementById("diary-form-title").textContent = "新增一筆.exe";
     diaryForm.reset();
     newPhotos = [];
     showPreview();
 }
 
 document.getElementById("btn-add-mood").addEventListener("click", function () {
-    openEntryForm(document.getElementById("diary-form-home"), null);
+    openEntryForm(null);
 });
 document.getElementById("diary-form-close").addEventListener("click", closeEntryForm);
+document.getElementById("entry-sheet-backdrop").addEventListener("click", closeEntryForm);
 
 // 按「記下來」
 diaryForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const entry = {
-        id: Date.now(),
-        type: entryTicketId ? "concert" : "mood",
-        ticketId: entryTicketId,
-        date: document.getElementById("d-date").value,
-        text: document.getElementById("d-text").value,
-        photos: newPhotos,
-    };
-
-    diaryEntries.unshift(entry);
+    if (editingEntryId) {
+        // ✏️ 編輯：改原本那一筆
+        const entry = diaryEntries.find(function (d) { return d.id === editingEntryId; });
+        entry.date = document.getElementById("d-date").value;
+        entry.text = document.getElementById("d-text").value;
+        entry.photos = newPhotos;
+    } else {
+        const entry = {
+            id: Date.now(),
+            type: entryTicketId ? "concert" : "mood",
+            ticketId: entryTicketId,
+            date: document.getElementById("d-date").value,
+            text: document.getElementById("d-text").value,
+            photos: newPhotos,
+        };
+        diaryEntries.unshift(entry);
+    }
     await saveDiary();
     closeEntryForm();
     showDiary();
 });
+
+// ✏️ 編輯一筆記錄：滑出畫面打開，內容帶回去
+function editEntry(d) {
+    closeEntryForm();
+    openEntryForm(d.type === "concert" ? d.ticketId : null);
+    editingEntryId = d.id;
+    document.getElementById("diary-form-title").textContent = "編輯一筆.exe";
+    document.getElementById("d-date").value = d.date;
+    document.getElementById("d-text").value = d.text || "";
+    newPhotos = d.photos.slice();   // 複製一份，按「記下來」才算數
+    showPreview();
+}
 
 // ----- 一筆記錄的小視窗（心情、票根底下都用這個） -----
 
@@ -1136,16 +1264,23 @@ function makeEntryCard(d, color) {
         <div class="win-body">
             ${photoGridHtml(d.photos)}
             ${textHtml}
-            <button class="btn-delete">${icon("trash")} 刪除</button>
+            <div class="card-actions">
+                <button class="btn-edit-card">${icon("pencil")} 編輯</button>
+                <button class="btn-delete">${icon("trash")} 刪除</button>
+            </div>
         </div>
     `;
     if (d.text) card.querySelector(".diary-text").textContent = d.text;
 
-    // 點照片看大圖
-    card.querySelectorAll(".photo-grid img").forEach(function (img) {
+    // 點照片看大圖（可以左右滑看同一篇的其他照片）
+    card.querySelectorAll(".photo-grid img").forEach(function (img, index) {
         img.addEventListener("click", function () {
-            openViewer(img.src);
+            openViewer(d.photos, index);
         });
+    });
+
+    card.querySelector(".btn-edit-card").addEventListener("click", function () {
+        editEntry(d);
     });
 
     card.querySelector(".btn-delete").addEventListener("click", function () {
@@ -1172,10 +1307,6 @@ function ticketCover(ticket) {
 }
 
 function showTickets() {
-    // 表單如果在票夾裡，先搬出來，才不會跟著被清掉
-    if (ticketList.contains(diaryFormWin)) {
-        document.getElementById("diary-form-home").appendChild(diaryFormWin);
-    }
     ticketList.innerHTML = "";
 
     // 照日期排：最近的在最上面
@@ -1219,7 +1350,6 @@ function showTickets() {
                     <button type="button" class="btn-small tk-add">＋ 新增一筆</button>
                     <button type="button" class="btn-small btn-light tk-edit">${icon("pencil")} 編輯場次</button>
                 </div>
-                <div class="tk-form-spot"></div>
                 <div class="tk-entries"></div>
             </div>
         `;
@@ -1236,12 +1366,11 @@ function showTickets() {
         // 點票根：展開 / 收起
         item.querySelector(".tk").addEventListener("click", function () {
             openTicketId = openTicketId === ticket.id ? null : ticket.id;
-            if (entryTicketId === ticket.id) closeEntryForm();
             showTickets();
         });
 
         item.querySelector(".tk-add").addEventListener("click", function () {
-            openEntryForm(item.querySelector(".tk-form-spot"), ticket.id);
+            openEntryForm(ticket.id);
         });
         item.querySelector(".tk-edit").addEventListener("click", function () {
             openTicketSheet(ticket);
@@ -1258,11 +1387,7 @@ function showTickets() {
 
         ticketList.appendChild(item);
 
-        // 正在幫這一場新增一筆：表單放回來
-        if (entryTicketId === ticket.id && openTicketId === ticket.id) {
-            item.querySelector(".tk-form-spot").appendChild(diaryFormWin);
-        }
-    });
+});
 }
 
 // ----- 🎫 新增 / 編輯場次（從下面滑出來） -----
@@ -1304,7 +1429,7 @@ function openTicketSheet(ticket) {
     document.getElementById("t-place").value = ticket ? ticket.place || "" : "";
     document.getElementById("t-seat").value = ticket ? ticket.seat || "" : "";
     ticketCoverPhoto = ticket ? ticket.cover || "" : "";
-    ticketStamp = ticket ? ticket.stamp || "已參加" : "已參加";
+    ticketStamp = ticket && ticketStamps.includes(ticket.stamp) ? ticket.stamp : "已參加";   // 以前選「沒搶到」的，改成預設
     stampTouched = Boolean(ticket);
     document.getElementById("t-delete").hidden = !ticket;
     document.getElementById("ticket-sheet-title").textContent = ticket ? "編輯場次" : "新增場次";
@@ -1358,7 +1483,7 @@ document.getElementById("t-save").addEventListener("click", async function () {
         stamp: ticketStamp,
     };
     if (!data.title) {
-        alert("請填演唱會名稱喔");
+        toast("請填演唱會名稱喔", "pencil");
         return;
     }
 
@@ -1378,7 +1503,7 @@ document.getElementById("t-save").addEventListener("click", async function () {
 document.getElementById("t-delete").addEventListener("click", async function () {
     const ticket = editingTicket;
     const count = ticketEntries(ticket).length;
-    if (!confirm(`確定要刪除「${ticket.title}」嗎？\n底下的 ${count} 筆記錄也會一起刪掉喔！`)) return;
+    if (!(await askConfirm(`確定要刪除「${ticket.title}」嗎？\n底下的 ${count} 筆記錄也會一起刪掉喔！`, { danger: true, okText: "刪除" }))) return;
 
     if (entryTicketId === ticket.id) closeEntryForm();
     tickets = tickets.filter(function (t) { return t.id !== ticket.id; });
@@ -1433,7 +1558,7 @@ document.querySelectorAll("#page-diary .sub-tab").forEach(function (tab) {
 
 // 刪除一筆
 async function deleteDiary(id) {
-    if (!confirm("確定要刪除這篇記錄嗎？")) {
+    if (!(await askConfirm("確定要刪除這篇記錄嗎？", { danger: true, okText: "刪除" }))) {
         return;
     }
     diaryEntries = diaryEntries.filter(function (d) {
@@ -1521,11 +1646,11 @@ document.getElementById("import-file").addEventListener("change", async function
 
         // 確認是不是我們的備份檔案
         if (backup.app !== "MOA Diary") {
-            alert("這不是 MOA Diary 的備份檔案喔 🤔");
+            toast("這不是 MOA Diary 的備份檔案喔", "close");
             return;
         }
 
-        if (!confirm(`要匯入 ${backup.exportedAt} 的備份嗎？\n現在的資料會被「整個取代」喔！`)) {
+        if (!(await askConfirm(`要匯入 ${backup.exportedAt} 的備份嗎？\n現在的資料會被「整個取代」喔！`, { title: "匯入備份", danger: true, okText: "匯入" }))) {
             return;
         }
 
@@ -1544,10 +1669,10 @@ document.getElementById("import-file").addEventListener("change", async function
         // 舊的備份沒有票夾：打開時會自動把演唱會記錄變成票根
         await localforage.setItem("concertTickets", backup.concertTickets || []);
 
-        alert("匯入完成！🎉");
-        location.reload();  // 重新載入頁面，顯示匯入的資料
+        toast("匯入完成！", "check");
+        setTimeout(function () { location.reload(); }, 1000);   // 讓提示條顯示一下再重新載入  // 重新載入頁面，顯示匯入的資料
     } catch (error) {
-        alert("讀不了這個檔案，確認是 MOA Diary 的備份檔案喔 🤔");
+        toast("讀不了這個檔案，確認是 MOA Diary 的備份檔案喔", "close");
     }
 });
 
@@ -1586,6 +1711,57 @@ function openSheet() {
 
 function closeSheet() {
     addSheet.classList.remove("open");
+    // 編輯到一半就關掉：不存，表單清空，下次打開是新的一筆
+    if (editingRecordId) clearMoneyForm();
+}
+
+// ✏️ 現在在編輯哪一筆（新增就是 null）
+let editingRecordId = null;
+
+// 清空記一筆的表單
+function clearMoneyForm() {
+    moneyForm.reset();
+    selectCategory("其他");
+    resetCart();
+    editingRecordId = null;
+    document.getElementById("money-sheet-title").textContent = "記一筆 ♡";
+    // 編輯時臨時加的狀態選項（例如「待付二補」）拿掉
+    document.querySelectorAll("#m-status option[data-temp]").forEach(function (o) { o.remove(); });
+    document.getElementById("m-status").dispatchEvent(new Event("change"));
+}
+
+// 把一筆記帳帶回記一筆的畫面
+function editRecord(r) {
+    clearMoneyForm();
+    editingRecordId = r.id;
+    document.getElementById("money-sheet-title").textContent = "編輯這一筆";
+
+    document.getElementById("m-date").value = r.date;
+    document.getElementById("m-agent").value = r.agent || "";
+    document.getElementById("m-platform").value = r.platform || "";
+    document.getElementById("m-note").value = r.note || "";
+
+    // 下拉選單（已經變成按鈕）：選回原本的
+    const shipping = document.getElementById("m-shipping");
+    shipping.value = r.shipping || "";
+    shipping.dispatchEvent(new Event("change"));
+    const status = document.getElementById("m-status");
+    if (!Array.from(status.options).some(function (o) { return o.value === r.status; })) {
+        // 例如「待付二補」不在選項裡：先臨時加進去
+        const option = new Option(r.status, r.status);
+        option.dataset.temp = "yes";
+        status.add(option);
+    }
+    status.value = r.status;
+    status.dispatchEvent(new Event("change"));
+
+    // 購物車：舊資料沒有 items，就當成一樣台幣的東西
+    calcItems = r.items ? r.items.map(function (it) { return Object.assign({}, it); })
+        : [{ category: r.category || "其他", name: r.item, amount: r.amount, currency: "TWD", twd: r.amount }];
+    selectCategory(calcItems[0].category);
+    showCalc();
+
+    addSheet.classList.add("open");
 }
 
 document.getElementById("btn-add").addEventListener("click", openSheet);
@@ -1715,7 +1891,7 @@ function addToCart() {
 
     const twd = toTWD(amount, calcCurrency);
     if (twd === null) {
-        alert("還沒有匯率資料，請連上網路再試");
+        toast("還沒有匯率資料，請連上網路再試", "reload");
         return;
     }
 
@@ -1975,11 +2151,11 @@ function showFoodList() {
 function feedPet(food) {
     const full = petFull();
     if (full >= 100) {
-        alert("黃春已經吃飽了 🐥💤");
+        toast("黃春已經吃飽了", "moon");
         return;
     }
     if (petCoins() < food.price) {
-        alert("金幣不夠喔 🪙");
+        toast("金幣不夠喔", "coins");
         return;
     }
 
@@ -2070,14 +2246,14 @@ function showWardrobe() {
             <span>${item.name}</span>
             <small>${wearing ? "穿著中" : owned ? "已擁有" : icon("coins") + " " + item.price}</small>
         `;
-        btn.addEventListener("click", function () {
+        btn.addEventListener("click", async function () {
             if (!owned) {
                 // 還沒買：問要不要買
                 if (petCoins() < item.price) {
-                    alert("金幣不夠喔 🪙");
+                    toast("金幣不夠喔", "coins");
                     return;
                 }
-                if (!confirm(`要花 🪙${item.price} 買 ${item.emoji} ${item.name} 嗎？`)) return;
+                if (!(await askConfirm(`要花 ${item.price} 金幣買「${item.name}」嗎？`, { title: "衣櫃", okText: "買！" }))) return;
                 petData.spent += item.price;
                 petData.owned.push(item.id);
                 savePet();
@@ -2139,3 +2315,301 @@ document.querySelectorAll(".win > .win-bar").forEach(function (bar) {
         bar.insertAdjacentHTML("afterend", winHearts());
     }
 });
+
+
+// ===== 💬 App 自己做的提示、確認視窗、下拉選單、日曆 =====
+// （手機系統的 alert / confirm / prompt、下拉選單、選日期都會變成 iPhone 的樣子，所以自己做）
+
+// 小提示條：從上面冒出來，2.5 秒後自己消失
+function toast(message, iconName) {
+    const bar = document.createElement("div");
+    bar.className = "toast";
+    bar.innerHTML = (iconName ? icon(iconName) + " " : "") + "<span></span>";
+    bar.querySelector("span").textContent = message;
+    document.body.appendChild(bar);
+    setTimeout(function () {
+        bar.classList.add("toast-out");
+        setTimeout(function () { bar.remove(); }, 300);
+    }, 2500);
+}
+
+// 復古小視窗：要你決定的事情。回傳 Promise：按確定是 true，按取消是 false
+// withInput：要打字的話（例如二補金額），按確定會回傳打的字，取消是 null
+function askDialog(message, options) {
+    options = options || {};
+    return new Promise(function (resolve) {
+        const overlay = document.createElement("div");
+        overlay.className = "dialog-overlay";
+        overlay.innerHTML = `
+            <div class="dialog win" style="--c: ${options.danger ? "var(--accent)" : "var(--win-blue)"};">
+                <div class="win-bar">
+                    <span class="win-dots"><i></i><i></i><i></i></span>
+                    <span class="win-tab">${options.title || "提示"}</span>
+                </div>
+                <div class="win-body">
+                    <p class="dialog-text"></p>
+                    ${options.withInput ? `<input type="number" inputmode="numeric" class="dialog-input" placeholder="${options.placeholder || ""}">` : ""}
+                    <div class="row">
+                        <button type="button" class="btn-small btn-light dialog-cancel">${options.cancelText || "取消"}</button>
+                        <button type="button" class="btn-small dialog-ok ${options.danger ? "btn-danger" : ""}">${options.okText || "確定"}</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        overlay.querySelector(".dialog-text").textContent = message;   // 換行會照著顯示
+        document.body.appendChild(overlay);
+
+        const input = overlay.querySelector(".dialog-input");
+        if (input) input.focus();
+
+        function done(result) {
+            overlay.remove();
+            resolve(result);
+        }
+        overlay.querySelector(".dialog-ok").addEventListener("click", function () {
+            done(input ? input.value : true);
+        });
+        overlay.querySelector(".dialog-cancel").addEventListener("click", function () {
+            done(input ? null : false);
+        });
+    });
+}
+
+function askConfirm(message, options) {
+    return askDialog(message, options);
+}
+
+// ----- 下拉選單 → 一排像素按鈕（真正的 select 藏起來，選好就填回去） -----
+
+const chipIcons = { "空運": "cloud", "海運": "ship", "貨到付款": "money", "已付款": "credit-card", "已發貨": "truck", "完成": "check" };
+
+function chipSelect(select) {
+    const box = document.createElement("div");
+    box.className = "ev-types chip-select";
+    select.classList.add("visually-hidden");
+    select.after(box);
+
+    function draw() {
+        box.innerHTML = "";
+        Array.from(select.options).forEach(function (option) {
+            const name = option.value || "無";
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "type-chip" + (option.value === select.value ? " active" : "");
+            chip.innerHTML = (chipIcons[name] ? icon(chipIcons[name]) + " " : "") + name;
+            chip.addEventListener("click", function () {
+                select.value = option.value;
+                select.dispatchEvent(new Event("change"));   // 會自己重畫
+            });
+            box.appendChild(chip);
+        });
+    }
+    draw();
+
+    // 表單清空、或程式改了選項時，按鈕也跟著重畫
+    select.addEventListener("change", draw);
+    if (select.form) {
+        select.form.addEventListener("reset", function () {
+            setTimeout(draw);
+        });
+    }
+}
+
+document.querySelectorAll("#m-shipping, #m-status").forEach(chipSelect);
+
+// ----- 📅 像素日曆（在日期按鈕正下方展開；真正的日期框藏起來，選好就填回去） -----
+
+// 整個 App 共用一個日曆，點哪個日期按鈕，就搬到那個按鈕下面
+const calBox = document.createElement("div");
+calBox.className = "cal-box";
+calBox.innerHTML = `
+    <div class="cal-nav">
+        <button type="button" class="ev-btn cal-prev" aria-label="往前">${icon("chevron-left")}</button>
+        <button type="button" class="cal-title"></button>
+        <button type="button" class="ev-btn cal-next" aria-label="往後">${icon("chevron-right")}</button>
+    </div>
+    <div class="cal-grid"></div>
+    <div class="row">
+        <button type="button" class="btn-small cal-today">今天</button>
+        <button type="button" class="btn-small btn-light cal-clear">清除</button>
+    </div>
+`;
+
+let calInput = null;     // 現在在選哪一個日期框
+let calView = null;      // 現在看的是哪一個月（那個月的 1 號）
+let calMode = "day";     // 現在在選什麼："day" 日期、"month" 月份、"year" 年份
+let calYearStart = 0;    // 選年份時，第一格是哪一年（一次 12 年）
+
+function drawCalendar() {
+    const year = calView.getFullYear();
+    const month = calView.getMonth();
+    const title = calBox.querySelector(".cal-title");
+    const grid = calBox.querySelector(".cal-grid");
+    grid.innerHTML = "";
+    grid.className = "cal-grid cal-mode-" + calMode;   // 注意：不能叫 cal-day，會跟每一格日期撞名
+
+    if (calMode === "year") {
+        // 📅 選年份：一次 12 個
+        title.textContent = `${calYearStart}～${calYearStart + 11}`;
+        for (let y = calYearStart; y < calYearStart + 12; y++) {
+            addCalButton(grid, y, y === year, function () {
+                calView = new Date(y, month, 1);
+                calMode = "month";
+                drawCalendar();
+            });
+        }
+        return;
+    }
+
+    if (calMode === "month") {
+        // 📅 選月份：1～12 月
+        title.textContent = `${year} 年`;
+        for (let m = 0; m < 12; m++) {
+            addCalButton(grid, (m + 1) + " 月", m === month, function () {
+                calView = new Date(year, m, 1);
+                calMode = "day";
+                drawCalendar();
+            });
+        }
+        return;
+    }
+
+    // 📅 選日期
+    title.textContent = `${year} 年 ${month + 1} 月`;
+    ["日", "一", "二", "三", "四", "五", "六"].forEach(function (w) {
+        grid.insertAdjacentHTML("beforeend", `<span class="cal-week">${w}</span>`);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();      // 1 號是星期幾
+    const days = new Date(year, month + 1, 0).getDate();      // 這個月有幾天
+    for (let i = 0; i < firstDay; i++) {
+        grid.insertAdjacentHTML("beforeend", `<span></span>`);
+    }
+
+    const today = formatDate(getToday());
+    for (let d = 1; d <= days; d++) {
+        const value = formatDate(new Date(year, month, d));
+        const btn = addCalButton(grid, d, value === calInput.value, function () {
+            pickDate(value);
+        });
+        if (value === today) btn.classList.add("today");
+    }
+}
+
+// 做一格可以點的按鈕（日期、月份、年份都用這個）
+function addCalButton(grid, text, selected, onClick) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cal-day" + (selected ? " selected" : "");
+    btn.textContent = text;
+    btn.addEventListener("click", onClick);
+    grid.appendChild(btn);
+    return btn;
+}
+
+// 選好日期：填回原本的日期框，讓原本的程式知道有變動，日曆收起來
+function pickDate(value) {
+    calInput.value = value;
+    calInput.dispatchEvent(new Event("input"));
+    calInput.dispatchEvent(new Event("change"));
+    closeCalendar();
+}
+
+function closeCalendar() {
+    calBox.remove();
+    calInput = null;
+    // 記一筆的鍵盤放回來
+    document.querySelectorAll(".sheet-panel.cal-open").forEach(function (panel) {
+        panel.classList.remove("cal-open");
+    });
+}
+
+function openCalendar(input, btn) {
+    // 同一個按鈕再按一次：收起來
+    if (calInput === input && calBox.isConnected) {
+        closeCalendar();
+        return;
+    }
+    calInput = input;
+    const base = input.value ? new Date(input.value + "T00:00") : getToday();
+    calView = new Date(base.getFullYear(), base.getMonth(), 1);
+    calMode = "day";
+    btn.after(calBox);
+    drawCalendar();
+
+    // 在滑出畫面裡（例如記一筆）：先把下面的鍵盤藏起來，日曆才有空間
+    const panel = btn.closest(".sheet-panel");
+    if (panel) panel.classList.add("cal-open");
+    calBox.scrollIntoView({ block: "nearest" });
+}
+
+// 點標題：日期 → 選年份；月份 → 選年份
+calBox.querySelector(".cal-title").addEventListener("click", function () {
+    if (calMode === "year") return;
+    calMode = "year";
+    calYearStart = calView.getFullYear() - 5;   // 讓現在這一年在中間附近
+    drawCalendar();
+});
+
+// ◀ ▶：日期一次一個月、月份一次一年、年份一次 12 年
+calBox.querySelector(".cal-prev").addEventListener("click", function () {
+    if (calMode === "day") calView = new Date(calView.getFullYear(), calView.getMonth() - 1, 1);
+    if (calMode === "month") calView = new Date(calView.getFullYear() - 1, calView.getMonth(), 1);
+    if (calMode === "year") calYearStart -= 12;
+    drawCalendar();
+});
+calBox.querySelector(".cal-next").addEventListener("click", function () {
+    if (calMode === "day") calView = new Date(calView.getFullYear(), calView.getMonth() + 1, 1);
+    if (calMode === "month") calView = new Date(calView.getFullYear() + 1, calView.getMonth(), 1);
+    if (calMode === "year") calYearStart += 12;
+    drawCalendar();
+});
+calBox.querySelector(".cal-today").addEventListener("click", function () {
+    pickDate(formatDate(getToday()));
+});
+calBox.querySelector(".cal-clear").addEventListener("click", function () {
+    pickDate("");
+});
+
+// 把一個日期框換成像素按鈕
+function pixelDate(input) {
+    if (input.dataset.pixel) return;   // 已經換過了
+    input.dataset.pixel = "yes";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "date-btn";
+    input.before(btn);                  // 放在前面：點 label 的字也會打開日曆
+    input.classList.add("visually-hidden");
+    input.tabIndex = -1;
+
+    function update() {
+        btn.innerHTML = icon("calendar") + " " + (input.value ? input.value.replaceAll("-", "/") : "選擇日期");
+    }
+
+    // 程式改日期框的值時（例如自動填今天），按鈕上的字也跟著變
+    const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+    Object.defineProperty(input, "value", {
+        get: function () { return valueSetter.get.call(this); },
+        set: function (v) { valueSetter.set.call(this, v); update(); },
+    });
+    if (input.form) {
+        input.form.addEventListener("reset", function () {
+            setTimeout(update);
+        });
+    }
+
+    btn.addEventListener("click", function () {
+        openCalendar(input, btn);
+    });
+    update();
+}
+
+document.querySelectorAll('input[type="date"]').forEach(pixelDate);
+
+
+// ===== 📶 沒網路也能打開 =====
+// sw.js 會把 App 的檔案、字體、圖示存一份在手機裡（有網路時會先抓最新版）
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
