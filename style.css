@@ -2663,3 +2663,25 @@ main .page {
 .tama-ava .hc-img { width: 36px; height: 36px; }
 .tama-mood .hc-img { width: 24px; height: 24px; }
 .tab-bar .px-chick .hc-img { display: inline-block; width: 1.3em; height: 1.3em; }
+
+
+/* ===== 🏠 自己畫的房間（128×64）：房間跟圖一樣 2:1，整張放得下，窗戶和字母都不會被切掉 ===== */
+.tama .pet-room {
+  height: auto;
+  aspect-ratio: 2 / 1;
+  background: #fff6d2 url("room.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+}
+
+/* 手機房間比較小：黃春也小一點（48px＝原尺寸），才不會像巨人 */
+@media (max-width: 480px) {
+  .tama .pet-body {
+    font-size: 48px;
+  }
+
+  .tama .pet-hand {
+    width: 28px;
+    height: 28px;
+    margin-left: -14px;
+  }
+}
