@@ -2245,3 +2245,144 @@ svg.px {
 .stats-range-btn {
   white-space: nowrap;
 }
+
+
+/* ===== 🗂️ 瀏覽器分頁：最上面是分頁，每頁是瀏覽器視窗，裡面的小框是網頁區塊 ===== */
+body {
+  padding-top: 14px;
+}
+
+/* 分頁那一排：分頁貼在視窗上緣，⚙️ 靠右 */
+header {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  box-sizing: border-box;
+  max-width: 514px;   /* 跟視窗一樣寬（480＋內距 28＋框 6） */
+  padding: 0 6px;
+}
+
+header [hidden] {
+  display: none !important;
+}
+
+.top-tabs {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+/* 每一個分頁：粗黑框、沒有下邊，往下蓋住視窗的上框 */
+.top-tab,
+.top-tabs .sub-tab {
+  position: relative;
+  margin: 0 0 -3px;
+  border: 3px solid var(--ink);
+  border-bottom: none;
+  border-radius: 0;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.top-tab {
+  z-index: 1;
+  padding: 8px 12px 7px;
+  background-color: var(--paper);
+  font-size: 17px;
+}
+
+/* 沒選的分頁：暗一點；選中的：跟視窗同色、高一點 */
+.top-tabs .sub-tab {
+  flex: none;
+  padding: 6px 12px;
+  background-color: #efe4d6;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  font-size: 15px;
+}
+
+.top-tabs .sub-tab.active {
+  z-index: 1;
+  padding: 8px 14px 9px;
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+header .btn-settings {
+  position: static;
+  margin: 0 0 6px auto;
+}
+
+/* 每一頁＝瀏覽器視窗 */
+main .page {
+  padding: 12px 14px 24px;
+}
+
+/* 網址列 */
+.addr-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 -14px 14px;
+  padding: 0 14px 10px;
+  border-bottom: 2px solid var(--ink);
+  font-size: 12px;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  text-align: left;
+}
+
+.addr-url {
+  margin-left: 6px;
+  letter-spacing: 1px;
+}
+
+/* 頁面裡的小框：彩色標題條就好，不要陰影和標籤框 */
+.page .win {
+  box-shadow: none;
+}
+
+.page .win-bar .win-tab {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+/* 統計清單：每一行用虛線隔開 */
+.legend-row {
+  border: none;
+  border-bottom: 2px dashed color-mix(in srgb, var(--ink) 25%, transparent);
+  background: none;
+}
+
+.legend-row:last-child {
+  border-bottom: none;
+}
+
+
+/* ===== 🗑️ 刪除這一場：跟確認視窗一樣的紅色按鈕，下面多留空間，iPhone 才按得到 ===== */
+#t-delete {
+  margin-top: 10px;
+}
+
+/* 紅色按鈕（確認視窗的刪除也是）：要寫得比馬卡龍的 .btn-main / .btn-small 更明確才不會被蓋掉 */
+.btn-main.btn-danger,
+.btn-small.btn-danger {
+  background-color: var(--accent);
+}
+
+#ticket-sheet .sheet-scroll {
+  padding-bottom: 40px;
+}
+
+
+/* ===== ➕ 新增場次 / 新增心情：虛線框，比較輕，不搶內容 ===== */
+#btn-add-ticket,
+#btn-add-mood {
+  width: 100%;
+  margin: 4px 0 10px;
+  padding: 8px;
+  border: 2px dashed color-mix(in srgb, var(--ink) 45%, transparent);
+  box-shadow: none;
+  background: none;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  font-size: 14px;
+}

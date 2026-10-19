@@ -9,12 +9,22 @@
 </head>
 <body>
   <header>
-    <h1><span class="heart">♡</span> MOA Diary <span class="heart">♡</span></h1>
+    <!-- 🗂️ 最上面的瀏覽器分頁：記帳、記錄換成自己的小分頁，其他頁顯示 MOA Diary -->
+    <h1 class="top-tab" id="top-title"><span class="heart">♡</span> MOA Diary <span class="heart">♡</span></h1>
+    <div class="top-tabs" id="tabs-money" hidden>
+      <button type="button" class="sub-tab active" data-view="all"><i class="pxi pixelart-icons-font-wallet" aria-hidden="true"></i> 全部</button>
+      <button type="button" class="sub-tab" data-view="pending"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨</button>
+    </div>
+    <div class="top-tabs" id="tabs-diary" hidden>
+      <button type="button" class="sub-tab active" data-type="concert"><i class="pxi pixelart-icons-font-mic" aria-hidden="true"></i> 演唱會</button>
+      <button type="button" class="sub-tab" data-type="mood"><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i> 心情</button>
+    </div>
     <button type="button" class="btn-settings" id="btn-settings" aria-label="設定"><i class="pxi pixelart-icons-font-settings-cog" aria-hidden="true"></i></button>
   </header>
 
   <main>
         <section id="page-home" class="page active">
+      <div class="addr-bar"><i class="pxi pixelart-icons-font-chevron-left" aria-hidden="true"></i><i class="pxi pixelart-icons-font-chevron-right" aria-hidden="true"></i><i class="pxi pixelart-icons-font-reload" aria-hidden="true"></i><span class="addr-url">moa-diary://home</span></div>
       <div class="home-title">
         <h2><i class="pxi pixelart-icons-font-clock" aria-hidden="true"></i> 倒數日</h2>
         <button type="button" class="btn-mode" id="btn-home-edit">編輯</button>
@@ -25,19 +35,13 @@
     </section>
 
        <section id="page-money" class="page">
-      <h2><i class="pxi pixelart-icons-font-wallet" aria-hidden="true"></i> 記帳</h2>
-
-      <div class="sub-tabs">
-        <button type="button" class="sub-tab active" data-view="all"><i class="pxi pixelart-icons-font-wallet" aria-hidden="true"></i> 全部</button>
-        <button type="button" class="sub-tab" data-view="pending"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨</button>
-      </div>
+      <div class="addr-bar"><i class="pxi pixelart-icons-font-chevron-left" aria-hidden="true"></i><i class="pxi pixelart-icons-font-chevron-right" aria-hidden="true"></i><i class="pxi pixelart-icons-font-reload" aria-hidden="true"></i><span class="addr-url">moa-diary://記帳</span></div>
 
       <!-- 💰 全部 -->
       <div id="money-view-all">
         <div class="count-box win" style="--c: var(--win-blue);">
           <div class="win-bar">
-            <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab"><i class="pxi pixelart-icons-font-chart-bar-big" aria-hidden="true"></i> 統計.exe</span>
+            <span class="win-tab"><i class="pxi pixelart-icons-font-chart-bar-big" aria-hidden="true"></i> 統計</span>
           </div>
           <div class="win-body">
           <!-- 日期範圍：平常收成一行，點了才展開 -->
@@ -75,8 +79,7 @@
       <div id="money-view-pending" style="display: none;">
         <div class="count-box win" style="--c: var(--win-teal);">
           <div class="win-bar">
-            <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨.exe</span>
+            <span class="win-tab"><i class="pxi pixelart-icons-font-package" aria-hidden="true"></i> 待到貨</span>
           </div>
           <div class="win-body">
           <p>待到貨金額</p>
@@ -90,11 +93,7 @@
     </section>
 
         <section id="page-diary" class="page">
-      <h2><i class="pxi pixelart-icons-font-camera" aria-hidden="true"></i> 記錄</h2>
-      <div class="sub-tabs">
-        <button type="button" class="sub-tab active" data-type="concert"><i class="pxi pixelart-icons-font-mic" aria-hidden="true"></i> 演唱會</button>
-        <button type="button" class="sub-tab" data-type="mood"><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i> 心情</button>
-      </div>
+      <div class="addr-bar"><i class="pxi pixelart-icons-font-chevron-left" aria-hidden="true"></i><i class="pxi pixelart-icons-font-chevron-right" aria-hidden="true"></i><i class="pxi pixelart-icons-font-reload" aria-hidden="true"></i><span class="addr-url">moa-diary://記錄</span></div>
       <!-- 🎤 演唱會：票夾 -->
       <div id="concert-view">
         <div class="tk-head">
@@ -107,6 +106,10 @@
 
       <!-- 💭 心情 -->
       <div id="mood-view" hidden>
+        <div class="tk-head">
+          <span>我的心情</span>
+          <span class="tk-count" id="mood-count">0 篇</span>
+        </div>
         <button type="button" class="btn-small btn-light" id="btn-add-mood">＋ 新增</button>
         <div id="diary-list"></div>
       </div>
@@ -114,12 +117,12 @@
 
     <!-- 🐥 黃春：整塊獨立（要拿掉的話：刪掉這個 section、底部選單那格、style.css 和 app.js 裡標「🐥 黃春」的那段） -->
     <section id="page-pet" class="page">
+      <div class="addr-bar"><i class="pxi pixelart-icons-font-chevron-left" aria-hidden="true"></i><i class="pxi pixelart-icons-font-chevron-right" aria-hidden="true"></i><i class="pxi pixelart-icons-font-reload" aria-hidden="true"></i><span class="addr-url">moa-diary://黃春</span></div>
       <h2><span class="px-chick"></span> 黃春的房間</h2>
 
       <div class="count-box win" style="--c: var(--win-sage);">
           <div class="win-bar">
-            <span class="win-dots"><i></i><i></i><i></i></span>
-            <span class="win-tab"><span class="px-chick"></span> 黃春.exe</span>
+            <span class="win-tab"><span class="px-chick"></span> 黃春</span>
           </div>
           <div class="win-body">
       <!-- 金幣和飽足度 -->
@@ -336,7 +339,7 @@
         <div class="ev-types" id="t-stamps"></div>
 
         <button type="button" class="btn-main" id="t-save">儲存</button>
-        <button type="button" class="btn-delete" id="t-delete" hidden><i class="pxi pixelart-icons-font-trash" aria-hidden="true"></i> 刪除這一場</button>
+        <button type="button" class="btn-main btn-danger" id="t-delete" hidden><i class="pxi pixelart-icons-font-trash" aria-hidden="true"></i> 刪除這一場</button>
       </div>
     </div>
   </div>

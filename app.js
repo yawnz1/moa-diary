@@ -269,6 +269,11 @@ tabButtons.forEach(function (button) {
         // 4. 幫要去的那頁、被按的按鈕加上 active
         document.getElementById(pageId).classList.add("active");
         button.classList.add("active");
+
+        // 5. 最上面的瀏覽器分頁：記帳、記錄顯示自己的小分頁，其他頁顯示 MOA Diary
+        document.getElementById("tabs-money").hidden = pageId !== "page-money";
+        document.getElementById("tabs-diary").hidden = pageId !== "page-diary";
+        document.getElementById("top-title").hidden = pageId === "page-money" || pageId === "page-diary";
     });
 });
 // ===== 倒數日 =====
@@ -335,13 +340,12 @@ function saveEvents() {
     localStorage.setItem("events", JSON.stringify(events));
 }
 
-// 💾 小視窗：標題列（三個圓點＋標籤＋右邊的東西）；首頁卡片才有網址列和一排像素愛心
+// 💾 小視窗：標題列（標籤＋右邊的東西）；首頁卡片才有網址列和一排像素愛心
 const winColors = ["var(--win-blue)", "var(--win-pink)", "var(--win-teal)", "var(--win-sage)"];
 
 function winBar(title, right, withUrl) {
     return `
         <div class="win-bar">
-            <span class="win-dots"><i></i><i></i><i></i></span>
             <span class="win-tab">${title}</span>
             ${right ? `<span class="win-right">${right}</span>` : ""}
         </div>
@@ -759,6 +763,14 @@ function cardIcons(r) {
 
 // 做出一張記帳卡片（記帳頁、待到貨頁都會用到）
 // mode："all"（全部頁：可以編輯、刪除）或 "pending"（待到貨頁：只能更新到貨進度）
+// 記帳卡片的日期寫短一點：今年的只寫 10/12，其他年份寫 2025/10/12
+function shortDate(dateText) {
+    if (!dateText) return "";
+    const [y, m, d] = dateText.split("-");
+    const md = Number(m) + "/" + Number(d);
+    return Number(y) === new Date().getFullYear() ? md : y + "/" + md;
+}
+
 function makeCard(r, mode) {
     // 準備一個空籃子，有填的資料才放進去
     const tags = [];
@@ -806,7 +818,7 @@ function makeCard(r, mode) {
     card.className = "money-card win";
     card.style.setProperty("--c", categoryColors[firstCat] || "var(--win-blue)");
     card.innerHTML = `
-        ${winBar(`${cardIcons(r)} ${r.date}`, `<span class="status">${statusIcons[r.status] || r.status}</span>`)}
+        ${winBar(`${cardIcons(r)} ${shortDate(r.date)}`, `<span class="status">${statusIcons[r.status] || r.status}</span>`)}
         <div class="win-body">
             <div class="money-top">
                 <strong>${r.item}</strong>
@@ -1546,6 +1558,8 @@ function showMoods() {
         .filter(function (d) { return d.type === "mood"; })
         .sort(function (a, b) { return b.date.localeCompare(a.date); });
 
+    document.getElementById("mood-count").textContent = moods.length + " 篇";
+
     moods.forEach(function (d) {
         diaryList.appendChild(makeEntryCard(d, "var(--win-pink)"));
     });
@@ -1564,12 +1578,12 @@ function showDiary() {
 }
 
 // 點分頁按鈕
-document.querySelectorAll("#page-diary .sub-tab").forEach(function (tab) {
+document.querySelectorAll("#tabs-diary .sub-tab").forEach(function (tab) {
     tab.addEventListener("click", function () {
         currentType = tab.dataset.type;
 
         // 所有分頁按鈕先變灰，再讓被點的變亮
-        document.querySelectorAll("#page-diary .sub-tab").forEach(function (t) {
+        document.querySelectorAll("#tabs-diary .sub-tab").forEach(function (t) {
             t.classList.remove("active");
         });
         tab.classList.add("active");
@@ -1703,9 +1717,9 @@ document.getElementById("import-file").addEventListener("change", async function
 // ===== 🏗️ 新的版面 =====
 
 // 記帳頁的小分頁：全部 / 待到貨
-document.querySelectorAll("#page-money .sub-tab").forEach(function (tab) {
+document.querySelectorAll("#tabs-money .sub-tab").forEach(function (tab) {
     tab.addEventListener("click", function () {
-        document.querySelectorAll("#page-money .sub-tab").forEach(function (t) {
+        document.querySelectorAll("#tabs-money .sub-tab").forEach(function (t) {
             t.classList.remove("active");
         });
         tab.classList.add("active");
