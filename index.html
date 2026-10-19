@@ -118,50 +118,67 @@
     <!-- 🐥 黃春：整塊獨立（要拿掉的話：刪掉這個 section、底部選單那格、style.css 和 app.js 裡標「🐥 黃春」的那段） -->
     <section id="page-pet" class="page">
       <div class="addr-bar"><i class="pxi pixelart-icons-font-chevron-left" aria-hidden="true"></i><i class="pxi pixelart-icons-font-chevron-right" aria-hidden="true"></i><i class="pxi pixelart-icons-font-reload" aria-hidden="true"></i><span class="addr-url">moa-diary://黃春</span></div>
-      <h2><span class="px-chick"></span> 黃春的房間</h2>
+      <!-- 🐥 黃春：電子寵物的畫面（上面狀態、中間房間、下面三顆按鈕） -->
+      <div class="tama">
+        <!-- 愛心＝飽足度（每 20 一顆）、小黃春、電池（裝飾） -->
+        <div class="tama-top">
+          <div class="tama-hearts" id="tama-hearts"></div>
+          <span class="tama-top-chick px-chick"></span>
+          <span class="tama-batt"><span><i></i><i></i><i></i><i></i></span></span>
+        </div>
+        <div class="tama-sep"></div>
 
-      <div class="count-box win" style="--c: var(--win-sage);">
-          <div class="win-bar">
-            <span class="win-tab"><span class="px-chick"></span> 黃春</span>
-          </div>
-          <div class="win-body">
-      <!-- 金幣和飽足度 -->
-      <div class="pet-status">
-        <span class="pet-coins"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="pet-coins">0</span></span>
-        <span class="pet-full-label" data-px="rice"></span>
-        <div class="full-bar"><div class="full-fill" id="pet-full-fill"></div></div>
-        <span class="pet-full-num" id="pet-full-num">0</span>
-      </div>
+        <!-- 名字、現在的狀態、時間日期 -->
+        <div class="tama-prof">
+          <div class="tama-ava"><span class="px-chick"></span></div>
+          <div class="tama-name"><b>黃春 ♡</b><small id="tama-state"></small></div>
+          <div class="tama-time"><b id="tama-clock"></b><span id="tama-date"></span></div>
+        </div>
+        <div class="tama-sep"></div>
 
-      <div class="pet-room" id="pet-room">
-        <div class="pet-wall"></div>
-        <div class="pet-floor"></div>
-        <span class="pet-deco" style="left: 14%; top: 18%;" data-px="frame"></span>
-        <span class="pet-deco" style="right: 14%; top: 14%;" data-px="window"></span>
+        <div class="pet-room" id="pet-room">
+          <div class="pet-wall"></div>
+          <div class="pet-floor"></div>
+          <span class="pet-deco" style="left: 14%; top: 18%;" data-px="frame"></span>
+          <span class="pet-deco" style="right: 14%; top: 14%;" data-px="window"></span>
 
-        <!-- 可以點的：衣櫃、餐桌 -->
-        <button type="button" class="pet-spot" id="btn-wardrobe" style="left: 3%; bottom: 36%;"><span data-px="door"></span><small>衣櫃</small></button>
-        <button type="button" class="pet-spot" id="btn-food" style="right: 3%; bottom: 36%;"><span data-px="plate"></span><small>餵食</small></button>
-
-        <!-- 黃春：外層負責左右走，中間負責跳，裡面負責轉向 -->
-        <div class="pet" id="pet">
-          <span class="pet-thought" id="pet-thought" hidden><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i><span data-px="rice"></span></span>
-          <span class="pet-say" id="pet-say" hidden>嗝～</span>
-          <div class="pet-hop" id="pet-hop">
-            <span class="pet-body" id="pet-body">
-              <span class="pet-emoji" id="pet-emoji" data-px="chick"></span>
-              <span class="wear wear-hat"></span>
-              <span class="wear wear-eyes"></span>
-              <span class="wear wear-neck"></span>
-            </span>
+          <!-- 黃春：外層負責左右走，中間負責跳，裡面負責轉向 -->
+          <div class="pet" id="pet">
+            <span class="pet-thought" id="pet-thought" hidden><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i><span data-px="rice"></span></span>
+            <span class="pet-say" id="pet-say" hidden>嗝～</span>
+            <div class="pet-hop" id="pet-hop">
+              <span class="pet-body" id="pet-body">
+                <span class="pet-emoji" id="pet-emoji" data-px="chick"></span>
+                <span class="wear wear-hat"></span>
+                <span class="wear wear-eyes"></span>
+                <span class="wear wear-neck"></span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+        <div class="tama-sep"></div>
 
-          </div>
-      </div>
+        <!-- 心情、狀態 -->
+        <div class="tama-mood">
+          <span class="px-chick"></span>
+          <span>心情：<span id="tama-mood"></span></span>
+          <span>狀態：<span id="tama-status"></span></span>
+        </div>
+        <div class="tama-sep"></div>
 
-      <p class="rate-info">點點看黃春 <i class="pxi pixelart-icons-font-heart" aria-hidden="true"></i></p>
+        <!-- 飽足度格子、金幣 -->
+        <div class="tama-stats">
+          <span class="tama-stat"><span data-px="rice"></span> 飽足 <span class="tama-seg" id="pet-full-seg"></span> <span id="pet-full-num">0</span></span>
+          <span class="tama-coins"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="pet-coins">0</span></span>
+        </div>
+
+        <!-- 三顆按鈕 -->
+        <div class="tama-btns">
+          <button type="button" id="btn-food" style="--c: var(--win-blue);"><span data-px="rice"></span>餵食</button>
+          <button type="button" id="btn-wardrobe" style="--c: var(--win-sage);"><span data-px="door"></span>衣櫃</button>
+          <button type="button" id="btn-pat" style="--c: var(--win-pink);"><i class="pxi pixelart-icons-font-heart" aria-hidden="true"></i>摸摸</button>
+        </div>
+      </div>
     </section>
   </main>
 

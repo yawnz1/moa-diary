@@ -11,6 +11,7 @@ const pixelColors = {
     K: "#2d2a4a", Y: "#ffd23f", y: "#f0a800", O: "#ff8a3d", W: "#ffffff", R: "#e04848",
     P: "#f49ac2", B: "#2f6db5", b: "#9fd8ff", G: "#5cb85c", g: "#2e7d32", N: "#a0704c",
     n: "#6b4a2e", S: "#c9c3d6", s: "#8a8494", D: "#f2c14e", L: "#8b7cf6",
+    F: "#ffdcc2", f: "#f0b996",
 };
 
 // 每一張圖：一行字 = 一排格子
@@ -202,6 +203,21 @@ const pixelArt = {
         "...KKKKKK...",
         "............",
         "............",
+    ],
+    // 🤚 摸摸的小手（12×12，手指朝上；用的時候倒過來）
+    hand: [
+        "...K.K.K....",
+        "..KFKFKFK...",
+        "..KFKFKFK...",
+        "..KFKFKFK.K.",
+        "..KFFFFFKKFK",
+        "..KFFFFFFFFK",
+        "..KFFFFFFFK.",
+        "..KFFFFFFK..",
+        "..KfFFFFFK..",
+        "...KffffK...",
+        "...KFFFFK...",
+        "...KKKKKK...",
     ],
     // 🏷️ 分類：門票（12×12）
     ticket: [
@@ -2077,13 +2093,61 @@ function petFull() {
     return Math.max(0, Math.round(petData.full - hours * 50 / 24));
 }
 
-// 更新上面的金幣、飽足度，還有肚子餓的泡泡
+// 剛餵食或摸摸之後，心情會「超開心」一陣子（到這個時間為止）
+let petHappyUntil = 0;
+
+// 更新電子寵物畫面：愛心、金幣、飽足度格子、心情、狀態，還有肚子餓的泡泡
 function updatePetStatus() {
     const full = petFull();
     document.getElementById("pet-coins").textContent = petCoins().toLocaleString();
     document.getElementById("pet-full-num").textContent = full;
-    document.getElementById("pet-full-fill").style.width = full + "%";
     document.getElementById("pet-thought").hidden = full >= 30;
+
+    // ♥ 愛心：每 20 飽足度一顆，共 5 顆
+    const hearts = Math.ceil(full / 20);
+    let heartHtml = "";
+    for (let i = 0; i < 5; i++) {
+        heartHtml += i < hearts ? "<span>♥</span>" : `<span class="off">♡</span>`;
+    }
+    document.getElementById("tama-hearts").innerHTML = heartHtml;
+
+    // 飽足度格子：每 10 一格，共 10 格
+    let segHtml = "";
+    for (let i = 0; i < 10; i++) {
+        segHtml += i < Math.round(full / 10) ? `<i class="on"></i>` : "<i></i>";
+    }
+    document.getElementById("pet-full-seg").innerHTML = segHtml;
+
+    // 狀態跟著飽足度變；心情：剛被照顧＝超開心，餓了＝委屈
+    let state, status;
+    if (full >= 60) { state = "肚子好飽～"; status = "吃飽了"; }
+    else if (full >= 30) { state = "有點餓了…"; status = "有點餓"; }
+    else { state = "好餓喔…"; status = "好餓喔"; }
+    let mood = "開心 ♡";
+    if (Date.now() < petHappyUntil) mood = "超開心 ♡";
+    else if (full < 30) mood = "有點委屈";
+
+    document.getElementById("tama-state").textContent = state;
+    document.getElementById("tama-status").textContent = status;
+    document.getElementById("tama-mood").textContent = mood;
+}
+
+// 讓黃春「超開心」30 秒，時間到再更新一次畫面
+function petMakeHappy() {
+    petHappyUntil = Date.now() + 30 * 1000;
+    updatePetStatus();
+    setTimeout(updatePetStatus, 30 * 1000 + 100);
+}
+
+// 🕘 時間和日期
+function updatePetClock() {
+    const now = new Date();
+    const hour = now.getHours() % 12 || 12;
+    const minute = String(now.getMinutes()).padStart(2, "0");
+    const ampm = now.getHours() < 12 ? "AM" : "PM";
+    const week = "日一二三四五六"[now.getDay()];
+    document.getElementById("tama-clock").innerHTML = `${hour}:${minute}<small>${ampm}</small>`;
+    document.getElementById("tama-date").textContent = `${now.getMonth() + 1}/${now.getDate()}（${week}）`;
 }
 
 // 把正在穿的衣服放到某一只黃春身上（房間的、衣櫃預覽的）
@@ -2121,7 +2185,13 @@ function petHeart() {
 }
 
 // 決定下一步要做什麼：走、停、跳
+let petBusy = false;   // 正在被摸摸：先不要走
+
 function petNextMove() {
+    if (petBusy) {
+        setTimeout(petNextMove, 500);
+        return;
+    }
     const roomWidth = petRoom.clientWidth;
     if (roomWidth === 0) {
         // 不在黃春的頁面（看不到房間）：先休息，等一下再看
@@ -2156,6 +2226,32 @@ function petNextMove() {
 pet.addEventListener("click", function () {
     petHeart();
     petJump();
+});
+
+// 🤚 摸摸：黃春停下來，小手從上面摸摸頭，摸完跳一下、冒愛心、超開心
+document.getElementById("btn-pat").addEventListener("click", function () {
+    if (petBusy) return;
+    petBusy = true;
+
+    // 停在現在走到的位置（走路動畫做到一半也停住）
+    petX = new DOMMatrix(getComputedStyle(pet).transform).m41;
+    pet.style.transition = "none";
+    pet.style.transform = `translateX(${petX}px)`;
+
+    const hand = document.createElement("span");
+    hand.className = "pet-hand";
+    hand.innerHTML = px("hand");
+    pet.appendChild(hand);
+
+    setTimeout(function () {
+        hand.remove();
+        petJump();
+        petHeart();
+        setTimeout(petHeart, 200);
+        setTimeout(petHeart, 400);
+        petMakeHappy();
+        petBusy = false;
+    }, 1500);
 });
 
 
@@ -2201,7 +2297,7 @@ function feedPet(food) {
     petData.full = Math.min(100, full + food.full);
     petData.fullTime = Date.now();
     savePet();
-    updatePetStatus();
+    petMakeHappy();
     foodSheet.classList.remove("open");
 
     // 🍽️ 吃東西：食物出現在黃春旁邊，然後大肚子、打嗝、冒愛心
@@ -2332,8 +2428,10 @@ document.getElementById("wardrobe-backdrop").addEventListener("click", closeWard
 // 打開黃春的頁面時，更新金幣和飽足度；之後每分鐘也更新一次
 document.querySelector('[data-page="page-pet"]').addEventListener("click", updatePetStatus);
 setInterval(updatePetStatus, 60 * 1000);
+setInterval(updatePetClock, 10 * 1000);
 
 updatePetStatus();
+updatePetClock();
 showWearing(petBody, petData.wearing);
 petNextMove();
 

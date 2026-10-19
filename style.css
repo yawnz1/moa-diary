@@ -2386,3 +2386,244 @@ main .page {
   color: color-mix(in srgb, var(--ink) 70%, transparent);
   font-size: 14px;
 }
+
+
+/* ===== 🐥 黃春：電子寵物的畫面 ===== */
+.tama {
+  padding: 10px 12px 14px;
+  border: 3px solid var(--ink);
+  background-color: color-mix(in srgb, var(--win-pink) 30%, var(--paper));
+  box-shadow: 5px 5px 0 var(--win-pink);
+  text-align: left;
+}
+
+/* 每一區中間的虛線 */
+.tama-sep {
+  margin: 8px 0;
+  border-top: 2px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+/* 最上面：愛心、小黃春、電池 */
+.tama-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tama-hearts {
+  display: flex;
+  gap: 2px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.tama-hearts .off {
+  color: color-mix(in srgb, var(--ink) 25%, transparent);
+}
+
+.tama-top-chick svg.px {
+  width: 34px;
+  height: 34px;
+}
+
+.tama-batt {
+  display: flex;
+  align-items: center;
+}
+
+.tama-batt > span {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 2px solid var(--ink);
+  background-color: var(--paper);
+}
+
+.tama-batt i {
+  width: 5px;
+  height: 12px;
+  background-color: var(--win-teal);
+}
+
+.tama-batt::after {
+  content: "";
+  width: 3px;
+  height: 7px;
+  background-color: var(--ink);
+}
+
+/* 名字列 */
+.tama-prof {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tama-ava {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--ink);
+  background-color: var(--win-teal);
+}
+
+.tama-ava svg.px {
+  width: 30px;
+  height: 30px;
+}
+
+.tama-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.tama-name b {
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.tama-name small {
+  display: block;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
+}
+
+.tama-time {
+  text-align: right;
+  line-height: 1.2;
+}
+
+.tama-time b {
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+.tama-time b small {
+  margin-left: 3px;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.tama-time span {
+  display: block;
+  font-size: 12px;
+}
+
+/* 房間：矮一點，手機上一整頁不用滑 */
+.tama .pet-room {
+  height: 220px;
+  margin: 0;
+  border: 3px solid var(--ink);
+}
+
+/* 心情、狀態 */
+.tama-mood {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.tama-mood svg.px {
+  width: 24px;
+  height: 24px;
+}
+
+/* 飽足度格子、金幣 */
+.tama-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.tama-stat,
+.tama-coins {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tama-seg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 2px solid var(--ink);
+  background-color: var(--paper);
+}
+
+.tama-seg i {
+  width: 8px;
+  height: 10px;
+  background-color: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.tama-seg i.on {
+  background-color: var(--win-teal);
+}
+
+/* 三顆按鈕 */
+.tama-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tama-btns button {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0 6px;
+  border: 2px solid var(--ink);
+  background-color: var(--c);
+  box-shadow: 3px 3px 0 var(--ink);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tama-btns button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.tama-btns svg.px {
+  width: 28px;
+  height: 28px;
+}
+
+.tama-btns .pxi {
+  font-size: 28px;
+  line-height: 28px;
+}
+
+/* 🤚 摸摸的小手：倒過來從頭上左右摸 */
+.pet-hand {
+  position: absolute;
+  left: 50%;
+  bottom: calc(70% + 12px);   /* 手指剛好碰到頭頂，不會擋住眼睛 */
+  width: 36px;
+  height: 36px;
+  margin-left: -18px;
+  pointer-events: none;
+  animation: pet-pat 0.5s ease-in-out 3;
+}
+
+.pet-hand svg.px {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleY(-1);
+}
+
+@keyframes pet-pat {
+  0%, 100% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+}
