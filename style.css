@@ -2627,3 +2627,39 @@ main .page {
   0%, 100% { transform: translateX(-8px); }
   50% { transform: translateX(8px); }
 }
+
+
+/* ===== 🐥 自己畫的黃春（48×48 像素圖，放大不糊） ===== */
+.hc-img {
+  display: block;
+  width: 1em;
+  height: 1em;
+  image-rendering: pixelated;
+}
+
+/* 房間裡的黃春：72px（電腦螢幕剛好 3 倍，格子整齊） */
+.tama .pet-body {
+  font-size: 72px;
+}
+
+/* 正面走路：左右搖擺 */
+.pet-body.walking .pet-emoji {
+  animation: pet-sway 0.5s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+}
+
+@keyframes pet-sway {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+
+/* 摸摸的小手：摸在頭套上（兩隻耳朵中間） */
+.tama .pet-hand {
+  bottom: 69%;
+}
+
+/* 其他地方的小黃春 */
+.tama-top-chick .hc-img { width: 36px; height: 36px; }
+.tama-ava .hc-img { width: 36px; height: 36px; }
+.tama-mood .hc-img { width: 24px; height: 24px; }
+.tab-bar .px-chick .hc-img { display: inline-block; width: 1.3em; height: 1.3em; }

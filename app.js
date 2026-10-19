@@ -2039,6 +2039,12 @@ loadRates();
 // ===== 🐥 黃春 =====
 // （整塊獨立：要拿掉的話，刪掉這一段到最後）
 
+// 自己畫的黃春（48×48 像素圖，正面）
+const huangchunImg = `<img class="hc-img" src="huangchun.png" alt="" aria-hidden="true">`;
+
+// 👗 新衣服還沒畫好：先不顯示衣服、衣櫃先不開（畫好改成 true 就恢復）
+const clothesReady = false;
+
 const petRoom = document.getElementById("pet-room");
 const pet = document.getElementById("pet");
 const petHop = document.getElementById("pet-hop");
@@ -2206,8 +2212,11 @@ function petNextMove() {
         // 🚶 走到隨機的位置
         const targetX = randomBetween(0, maxX);
         const seconds = Math.abs(targetX - petX) / 40;   // 每秒走 40px
-        // 往右走就轉向右邊（emoji 本來面向左邊）
-        petBody.classList.toggle("face-right", targetX > petX);
+        // 黃春是正面的，不用轉身：走路的時候左右搖擺
+        petBody.classList.add("walking");
+        setTimeout(function () {
+            petBody.classList.remove("walking");
+        }, seconds * 1000);
         pet.style.transition = `transform ${seconds}s linear`;
         pet.style.transform = `translateX(${targetX}px)`;
         petX = targetX;
@@ -2403,6 +2412,10 @@ function showWardrobe() {
 }
 
 document.getElementById("btn-wardrobe").addEventListener("click", function () {
+    if (!clothesReady) {
+        toast("黃春的新衣服還在做喔～", "heart");
+        return;
+    }
     tryOn = Object.assign({}, petData.wearing);   // 從現在穿的開始試
     showWardrobe();
     wardrobeSheet.classList.add("open");
@@ -2432,7 +2445,7 @@ setInterval(updatePetClock, 10 * 1000);
 
 updatePetStatus();
 updatePetClock();
-showWearing(petBody, petData.wearing);
+if (clothesReady) showWearing(petBody, petData.wearing);
 petNextMove();
 
 
@@ -2441,7 +2454,7 @@ document.querySelectorAll("[data-px]").forEach(function (el) {
     el.innerHTML = px(el.dataset.px);
 });
 document.querySelectorAll(".px-chick").forEach(function (el) {
-    el.innerHTML = px("chick");
+    el.innerHTML = huangchunImg;
 });
 
 
