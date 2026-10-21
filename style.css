@@ -2776,7 +2776,7 @@ main .page {
 /* 星星吊燈：12×20 格，床上面的牆（從天花板垂下來） */
 .room-lamp {
   left: 88.28125%;   /* 113 / 128 */
-  top: 7.8125%;      /* 5 / 64 */
+  top: 0;            /* 電線接到天花板 */
   width: 9.375%;     /* 12 / 128 */
   height: 31.25%;    /* 20 / 64 */
   z-index: 6;        /* 在夜晚那層上面，關燈時還點得到 */
@@ -2834,4 +2834,16 @@ main .page {
   width: 0.5em;
   height: 0.5em;
   margin-left: -0.25em;
+}
+
+
+/* 🚶 黃春腳下不要有排版留的空白，才會真的踩在地板前面 */
+.tama .pet-body,
+.tama .pet-emoji {
+  display: block;
+}
+
+/* 🤚 新黃春：摸摸的小手放在頭套上（兩隻耳朵中間） */
+.tama .pet-hand {
+  bottom: 72%;
 }

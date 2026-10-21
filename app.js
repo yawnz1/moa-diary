@@ -2265,9 +2265,25 @@ document.getElementById("btn-pat").addEventListener("click", petPat);
 // 🧊🐻 會開門的家具：開門、關門（換圖）
 const roomFridge = document.getElementById("room-fridge");
 const roomWardrobe = document.getElementById("room-wardrobe");
+// 開門的圖先載好，換圖的時候才不會晃一下
+document.querySelectorAll(".room-door[data-open]").forEach(function (door) {
+    new Image().src = door.dataset.open;
+});
 function setDoor(door, open) {
-    door.classList.toggle("open", open);
-    door.querySelector("img").src = open ? door.dataset.open : door.dataset.closed;
+    // 等新的圖載好，再一起換圖和換寬度（不然舊圖會先被拉寬）
+    const src = open ? door.dataset.open : door.dataset.closed;
+    const next = new Image();
+    let done = false;
+    function apply() {
+        if (done) return;
+        done = true;
+        door.classList.toggle("open", open);
+        door.querySelector("img").src = src;
+    }
+    next.onload = apply;
+    next.onerror = apply;
+    next.src = src;
+    if (next.complete) apply();
 }
 
 // 💡 燈：點一下關燈（房間變暗），再點一下開燈
