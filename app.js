@@ -2205,7 +2205,8 @@ function petNextMove() {
         return;
     }
 
-    const maxX = roomWidth - pet.offsetWidth;
+    // 只在床左邊走（床從房間第 80 格開始，房間寬 128 格），不會走到床上
+    const maxX = Math.min(roomWidth - pet.offsetWidth, roomWidth * 80 / 128 - pet.offsetWidth);
     const dice = Math.random();
 
     if (dice < 0.55) {
@@ -2231,14 +2232,9 @@ function petNextMove() {
     }
 }
 
-// 點黃春：冒出 💜，也跳一下
-pet.addEventListener("click", function () {
-    petHeart();
-    petJump();
-});
-
 // 🤚 摸摸：黃春停下來，小手從上面摸摸頭，摸完跳一下、冒愛心、超開心
-document.getElementById("btn-pat").addEventListener("click", function () {
+// （點黃春或按「摸摸」都會摸摸）
+function petPat() {
     if (petBusy) return;
     petBusy = true;
 
@@ -2261,6 +2257,25 @@ document.getElementById("btn-pat").addEventListener("click", function () {
         petMakeHappy();
         petBusy = false;
     }, 1500);
+}
+pet.addEventListener("click", petPat);
+document.getElementById("btn-pat").addEventListener("click", petPat);
+
+
+// 🧊🐻 會開門的家具：開門、關門（換圖）
+const roomFridge = document.getElementById("room-fridge");
+const roomWardrobe = document.getElementById("room-wardrobe");
+function setDoor(door, open) {
+    door.classList.toggle("open", open);
+    door.querySelector("img").src = open ? door.dataset.open : door.dataset.closed;
+}
+
+// 💡 燈：點一下關燈（房間變暗），再點一下開燈
+const roomLamp = document.getElementById("room-lamp");
+roomLamp.addEventListener("click", function () {
+    const on = roomLamp.classList.toggle("on");
+    roomLamp.querySelector("img").src = on ? "lamp-on.png" : "lamp.png";
+    petRoom.classList.toggle("dark", !on);
 });
 
 
@@ -2308,6 +2323,9 @@ function feedPet(food) {
     savePet();
     petMakeHappy();
     foodSheet.classList.remove("open");
+    setTimeout(function () {
+        setDoor(roomFridge, false);
+    }, 2500);
 
     // 🍽️ 吃東西：食物出現在黃春旁邊，然後大肚子、打嗝、冒愛心
     const bite = document.createElement("span");
@@ -2336,12 +2354,18 @@ function feedPet(food) {
     }, 4000);
 }
 
-document.getElementById("btn-food").addEventListener("click", function () {
-    showFoodList();
-    foodSheet.classList.add("open");
-});
+function openFood() {
+    setDoor(roomFridge, true);
+    setTimeout(function () {
+        showFoodList();
+        foodSheet.classList.add("open");
+    }, 500);
+}
+document.getElementById("btn-food").addEventListener("click", openFood);
+roomFridge.addEventListener("click", openFood);
 function closeFood() {
     foodSheet.classList.remove("open");
+    setDoor(roomFridge, false);
 }
 document.getElementById("food-close").addEventListener("click", closeFood);
 document.getElementById("food-backdrop").addEventListener("click", closeFood);
@@ -2411,28 +2435,37 @@ function showWardrobe() {
     });
 }
 
-document.getElementById("btn-wardrobe").addEventListener("click", function () {
+function openWardrobe() {
+    setDoor(roomWardrobe, true);
     if (!clothesReady) {
         toast("黃春的新衣服還在做喔～", "heart");
+        setTimeout(function () {
+            setDoor(roomWardrobe, false);
+        }, 1800);
         return;
     }
     tryOn = Object.assign({}, petData.wearing);   // 從現在穿的開始試
     showWardrobe();
-    wardrobeSheet.classList.add("open");
-});
+    setTimeout(function () {
+        wardrobeSheet.classList.add("open");
+    }, 500);
+}
+document.getElementById("btn-wardrobe").addEventListener("click", openWardrobe);
+roomWardrobe.addEventListener("click", openWardrobe);
 
 // 儲存：試穿的變成真的穿上
 document.getElementById("wardrobe-save").addEventListener("click", function () {
     petData.wearing = Object.assign({}, tryOn);
     savePet();
     showWearing(petBody, petData.wearing);
-    wardrobeSheet.classList.remove("open");
+    closeWardrobe();
     petHeart();
 });
 
 // 沒按儲存就關掉：試穿的不算
 function closeWardrobe() {
     wardrobeSheet.classList.remove("open");
+    setDoor(roomWardrobe, false);
 }
 document.getElementById("wardrobe-close").addEventListener("click", closeWardrobe);
 document.getElementById("wardrobe-backdrop").addEventListener("click", closeWardrobe);

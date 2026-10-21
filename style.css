@@ -2685,3 +2685,153 @@ main .page {
     margin-left: -14px;
   }
 }
+
+
+/* ===== 🛏️ 家具：位置用房間格子（128×64）換算成 %，手機電腦都對得上 ===== */
+.room-item {
+  position: absolute;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* 地毯：29×13 格，鋪在電視前面的地板（HTML 放最前面＝最底層，床和黃春都在它上面） */
+.room-rug {
+  left: 40.625%;     /* 52 / 128 */
+  top: 75%;          /* 48 / 64 */
+  width: 22.65625%;  /* 29 / 128 */
+  height: 20.3125%;  /* 13 / 64 */
+}
+
+/* 電視（含電視櫃）：33×32 格，靠牆，右下角躲在床後面（HTML 裡放在床前面一行，床才會擋住它） */
+.room-tv {
+  left: 39.84375%;   /* 51 / 128 */
+  top: 23.4375%;     /* 15 / 64 */
+  width: 25.78125%;  /* 33 / 128 */
+  height: 50%;       /* 32 / 64 */
+}
+
+/* 小雞拖鞋：17×10 格，床尾右下角的地板（HTML 放在床後面一行，拖鞋在床尾前面） */
+.room-slippers {
+  left: 82.03125%;   /* 105 / 128 */
+  top: 82.8125%;     /* 53 / 64 */
+  width: 13.28125%;  /* 17 / 128 */
+  height: 15.625%;   /* 10 / 64 */
+}
+
+/* 床：48×41 格，貼房間右邊，底部在第 62 排 */
+.room-bed {
+  left: 62.5%;       /* 80 / 128 */
+  top: 32.8125%;     /* 21 / 64 */
+  width: 37.5%;      /* 48 / 128 */
+  height: 64.0625%;  /* 41 / 64 */
+}
+
+/* 冰箱：關著 19×43、打開 28×43 格，靠左邊的牆，左上角在 (3, 4) */
+.room-fridge {
+  left: 2.34375%;    /* 3 / 128 */
+  top: 6.25%;        /* 4 / 64 */
+  width: 14.84375%;  /* 19 / 128 */
+  height: 67.1875%;  /* 43 / 64 */
+}
+
+.room-fridge.open {
+  width: 21.875%;    /* 28 / 128 */
+}
+
+/* 熊衣櫃：關著 19×23、打開 27×24 格（門往左右各開 4 格），靠牆放在窗戶下面，左上角在 (28, 24) */
+.room-wardrobe {
+  left: 21.875%;     /* 28 / 128 */
+  top: 37.5%;        /* 24 / 64 */
+  width: 14.84375%;  /* 19 / 128 */
+  height: 35.9375%;  /* 23 / 64 */
+}
+
+.room-wardrobe.open {
+  left: 18.75%;      /* 24 / 128 */
+  width: 21.09375%;  /* 27 / 128 */
+  height: 37.5%;     /* 24 / 64 */
+}
+
+/* 會開門的家具：按鈕本身不要有樣式，只顯示圖 */
+.room-door {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.room-door img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+
+
+/* ===== 💡 燈和夜晚、🚶 黃春走路的位置和大小 ===== */
+
+/* 星星吊燈：12×20 格，床上面的牆（從天花板垂下來） */
+.room-lamp {
+  left: 88.28125%;   /* 113 / 128 */
+  top: 7.8125%;      /* 5 / 64 */
+  width: 9.375%;     /* 12 / 128 */
+  height: 31.25%;    /* 20 / 64 */
+  z-index: 6;        /* 在夜晚那層上面，關燈時還點得到 */
+}
+
+/* 開燈：星星周圍一圈暖黃色的光 */
+.room-lamp::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 82%;
+  width: 320%;
+  height: 160%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 228, 130, 0.5) 0%, rgba(255, 228, 130, 0) 65%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.room-lamp.on::after {
+  opacity: 1;
+}
+
+/* 關燈：整個房間蓋一層淡淡的深藍 */
+.room-night {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background-color: rgba(34, 30, 72, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+
+.pet-room.dark .room-night {
+  opacity: 1;
+}
+
+/* 黃春：踩在地板前面一點；大小跟著房間寬度（房間寬的 21%），手機電腦比例一樣 */
+.tama .pet-room {
+  container-type: inline-size;
+}
+
+.tama .pet {
+  bottom: 6%;
+  font-size: 21cqw;
+}
+
+.tama .pet-body {
+  font-size: 1em;
+}
+
+.tama .pet-hand {
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: -0.25em;
+}

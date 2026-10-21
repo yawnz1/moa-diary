@@ -137,7 +137,14 @@
         <div class="tama-sep"></div>
 
         <div class="pet-room" id="pet-room">
-          <!-- 房間背景是 room.png（style.css 設定） -->
+          <!-- 房間背景是 room.png（style.css 設定）；家具一件一張圖，疊在房間上面 -->
+          <img class="room-item room-rug" src="rug.png" alt="" aria-hidden="true">
+          <img class="room-item room-tv" src="tv.png" alt="" aria-hidden="true">
+          <img class="room-item room-bed" src="bed.png" alt="" aria-hidden="true">
+          <img class="room-item room-slippers" src="slippers.png" alt="" aria-hidden="true">
+          <button type="button" class="room-item room-door room-lamp on" id="room-lamp" aria-label="燈"><img src="lamp-on.png" alt=""></button>
+          <button type="button" class="room-item room-door room-fridge" id="room-fridge" aria-label="冰箱" data-closed="fridge.png" data-open="fridge-open.png"><img src="fridge.png" alt=""></button>
+          <button type="button" class="room-item room-door room-wardrobe" id="room-wardrobe" aria-label="衣櫃" data-closed="wardrobe.png" data-open="wardrobe-open.png"><img src="wardrobe.png" alt=""></button>
 
           <!-- 黃春：外層負責左右走，中間負責跳，裡面負責轉向 -->
           <div class="pet" id="pet">
@@ -152,6 +159,9 @@
               </span>
             </div>
           </div>
+
+          <!-- 🌙 關燈時蓋在整個房間上的夜晚 -->
+          <div class="room-night" aria-hidden="true"></div>
         </div>
         <div class="tama-sep"></div>
 
