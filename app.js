@@ -2042,8 +2042,8 @@ loadRates();
 // 自己畫的黃春（48×48 像素圖，正面）
 const huangchunImg = `<img class="hc-img" src="huangchun.png" alt="" aria-hidden="true">`;
 
-// 👗 新衣服還沒畫好：先不顯示衣服、衣櫃先不開（畫好改成 true 就恢復）
-const clothesReady = false;
+// 👗 衣服畫好了：顯示衣服、衣櫃可以開（改成 false 就先藏起來）
+const clothesReady = true;
 
 const petRoom = document.getElementById("pet-room");
 const pet = document.getElementById("pet");
@@ -2057,7 +2057,7 @@ let petData = JSON.parse(localStorage.getItem("petData")) || {
     full: 80,
     fullTime: Date.now(),
     owned: [],
-    wearing: { hat: "", eyes: "", neck: "" },
+    wearing: { hat: "", acc: "", body: "" },
 };
 
 function savePet() {
@@ -2072,17 +2072,21 @@ const petFoods = [
     { icon: "chicken", name: "炸雞", price: 500, full: 50 },
 ];
 
-// 👗 衣服：分三個部位
-const petSlots = { hat: "帽子", eyes: "眼鏡", neck: "脖子" };
+// 👗 衣服：分三類，同一類只能穿一件（圖是自己畫的 48×48，整張疊在站著的黃春上面）
+const petSlots = { hat: "帽子", acc: "飾品", body: "衣服" };
 const petClothes = [
-    { id: "bow", slot: "hat", icon: "bow", emoji: "🎀", name: "蝴蝶結", price: 300 },
-    { id: "cap", slot: "hat", icon: "cap", emoji: "🧢", name: "棒球帽", price: 500 },
-    { id: "crown", slot: "hat", icon: "crown", emoji: "👑", name: "皇冠", price: 1500 },
-    { id: "glasses", slot: "eyes", icon: "glasses", emoji: "👓", name: "眼鏡", price: 400 },
-    { id: "sunglasses", slot: "eyes", icon: "sunglasses", emoji: "🕶️", name: "墨鏡", price: 600 },
-    { id: "scarf", slot: "neck", icon: "scarf", emoji: "🧣", name: "圍巾", price: 400 },
-    { id: "necklace", slot: "neck", icon: "necklace", emoji: "📿", name: "項鏈", price: 800 },
+    { id: "wear-1", slot: "hat", name: "水手帽", price: 300 },
+    { id: "wear-2", slot: "body", name: "水手服", price: 500 },
+    { id: "wear-3", slot: "hat", name: "草莓頭套", price: 600 },
+    { id: "wear-4", slot: "hat", name: "麥當勞帽", price: 400 },
+    { id: "wear-5", slot: "hat", name: "怪貓頭套", price: 800 },
+    { id: "wear-6", slot: "hat", name: "YJ帽", price: 1000 },
 ];
+
+// 衣服的圖
+function wearImg(item) {
+    return `<img class="hc-img" src="${item.id}.png" alt="" aria-hidden="true" draggable="false">`;
+}
 
 // 🪙 金幣＝記帳總額（商品＋二補）－ 在商店花掉的
 function petCoins() {
@@ -2131,12 +2135,11 @@ function refreshPetLook() {
     }
 }
 
-// 更新電子寵物畫面：愛心、金幣、飽足度格子、心情、狀態，還有肚子餓的泡泡
+// 更新電子寵物畫面：愛心、金幣、飽足度格子、心情、狀態
 function updatePetStatus() {
     const full = petFull();
     document.getElementById("pet-coins").textContent = petCoins().toLocaleString();
     document.getElementById("pet-full-num").textContent = full;
-    document.getElementById("pet-thought").hidden = full >= 30;
 
     // ♥ 愛心：每 20 飽足度一顆，共 5 顆
     const hearts = Math.ceil(full / 20);
@@ -2170,7 +2173,6 @@ function updatePetStatus() {
         state = "呼嚕呼嚕…";
         status = "睡覺中";
         mood = "睡得好香～";
-        document.getElementById("pet-thought").hidden = true;
     }
     refreshPetLook();
 
@@ -2203,7 +2205,7 @@ function showWearing(body, wearing) {
         const item = petClothes.find(function (c) {
             return c.id === wearing[slot];
         });
-        body.querySelector(".wear-" + slot).innerHTML = item ? px(item.icon) : "";
+        body.querySelector(".wear-" + slot).innerHTML = item ? wearImg(item) : "";
     });
 }
 
@@ -2541,33 +2543,16 @@ document.getElementById("food-backdrop").addEventListener("click", closeFood);
 // ----- 👗 衣櫃 -----
 
 const wardrobeSheet = document.getElementById("wardrobe-sheet");
-let wardrobeSlot = "hat";   // 現在看哪個部位
 let tryOn = {};             // 試穿中（還沒按儲存）
 
 function showWardrobe() {
     document.getElementById("wardrobe-coins").textContent = petCoins().toLocaleString();
     showWearing(document.getElementById("preview-body"), tryOn);
 
-    // 部位的小分頁
-    const tabs = document.getElementById("wardrobe-tabs");
-    tabs.innerHTML = "";
-    Object.keys(petSlots).forEach(function (slot) {
-        const tab = document.createElement("button");
-        tab.type = "button";
-        tab.className = "sub-tab" + (slot === wardrobeSlot ? " active" : "");
-        tab.textContent = petSlots[slot];
-        tab.addEventListener("click", function () {
-            wardrobeSlot = slot;
-            showWardrobe();
-        });
-        tabs.appendChild(tab);
-    });
-
-    // 這個部位的衣服
+    // 全部的衣服放在一起（不分頁）；穿另一件同一類的，會換掉原本那件
     const list = document.getElementById("wardrobe-items");
     list.innerHTML = "";
     petClothes.forEach(function (item) {
-        if (item.slot !== wardrobeSlot) return;
         const owned = petData.owned.includes(item.id);
         const wearing = tryOn[item.slot] === item.id;
 
@@ -2575,7 +2560,7 @@ function showWardrobe() {
         btn.type = "button";
         btn.className = "wardrobe-item" + (wearing ? " wearing" : "");
         btn.innerHTML = `
-            <span class="wear-mini">${px("chick")}<span class="wear">${px(item.icon)}</span></span>
+            <span class="wear-mini">${huangchunImg}<span class="wear">${wearImg(item)}</span></span>
             <span>${item.name}</span>
             <small>${wearing ? "穿著中" : owned ? "已擁有" : icon("coins") + " " + item.price}</small>
         `;
@@ -2667,7 +2652,7 @@ let petJustDragged = false;
 pet.addEventListener("pointerdown", function (e) {
     e.preventDefault();   // 不要讓瀏覽器自己的「拖圖片」把動作搶走（電腦用滑鼠時會跳出半透明的圖）
     if (petSleeping || petEating || (petBusy && !petHeld)) return;
-    petDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, started: false };
+    petDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, started: false, touch: e.pointerType !== "mouse" };
     pet.setPointerCapture(e.pointerId);
 });
 pet.addEventListener("dragstart", function (e) {
@@ -2692,20 +2677,24 @@ pet.addEventListener("pointermove", function (e) {
         pet.classList.add("held");
         refreshPetLook();
     }
-    // 讓手指捏在黃春的頭上
+    // 滑鼠：捏在黃春的頭上；手指：黃春飄在手指上面一點，才不會被手指擋住
     const w = pet.offsetWidth, h = pet.offsetHeight;
     const floor = room.height * 0.94;   // 平常腳踩的地方（離底部 6%）
     let x = e.clientX - room.left - w / 2;
-    let bottom = e.clientY - room.top + h * 0.8;
+    let bottom = petDrag.touch ? e.clientY - room.top - 10 : e.clientY - room.top + h * 0.8;
     x = Math.max(0, Math.min(room.width - w, x));
     bottom = Math.max(h * 0.6, Math.min(room.height, bottom));
     petX = x;
     petPlace(x, bottom - floor);
+    // 記住黃春頭的位置（放開時用它判斷放在床上還是電視前面）
+    petDrag.headX = x + w / 2;
+    petDrag.headY = bottom - h * 0.8;
 });
 
 function petDrop(e) {
     if (!petDrag || e.pointerId !== petDrag.id) return;
     const dragged = petDrag.started;
+    const headX = petDrag.headX, headY = petDrag.headY;
     petDrag = null;
     if (!dragged) return;   // 沒拖：等一下的 click 會變成摸摸
 
@@ -2716,10 +2705,10 @@ function petDrop(e) {
     petHeld = false;
     pet.classList.remove("held");
 
-    // 放開的地方在不在床上（床：房間第 80～128 格、第 21～62 排）
+    // 黃春的頭在不在床上（床：房間第 80～128 格、第 21～62 排）
     const room = petRoom.getBoundingClientRect();
-    const gx = (e.clientX - room.left) / room.width * 128;
-    const gy = (e.clientY - room.top) / room.height * 64;
+    const gx = headX / room.width * 128;
+    const gy = headY / room.height * 64;
     if (gx >= 82 && gy >= 22 && gy <= 62) {
         // 😴 放在床上：關燈，直接睡
         lampOff();

@@ -2990,3 +2990,20 @@ main .page {
   20% { opacity: 1; }
   100% { opacity: 0; transform: translate(14px, -26px) rotate(12deg); }
 }
+
+
+/* ===== 👗 自己畫的衣服（48×48，整張疊在站著的黃春上面） ===== */
+.wear-body,
+.wear-hat,
+.wear-acc {
+  top: 0;
+  font-size: inherit;
+}
+
+/* 翻肚、餓扁、被拎著、唱歌的時候：衣服先藏起來，站起來再穿上 */
+.pet-emoji[data-mode="full"] ~ .wear,
+.pet-emoji[data-mode="hungry"] ~ .wear,
+.pet-emoji[data-mode="hold"] ~ .wear,
+.pet-emoji[data-mode="sing"] ~ .wear {
+  display: none;
+}
