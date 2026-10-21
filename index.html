@@ -120,24 +120,25 @@
       <div class="addr-bar"><i class="pxi pixelart-icons-font-chevron-left" aria-hidden="true"></i><i class="pxi pixelart-icons-font-chevron-right" aria-hidden="true"></i><i class="pxi pixelart-icons-font-reload" aria-hidden="true"></i><span class="addr-url">moa-diary://黃春</span></div>
       <!-- 🐥 黃春：電子寵物的畫面（上面狀態、中間房間、下面三顆按鈕） -->
       <div class="tama">
-        <!-- 愛心＝飽足度（每 20 一顆）、小黃春、電池（裝飾） -->
+        <!-- 愛心＝飽足度（每 20 一顆）、金幣、電池（裝飾） -->
         <div class="tama-top">
           <div class="tama-hearts" id="tama-hearts"></div>
-          <span class="tama-top-chick px-chick"></span>
+          <span class="tama-coins"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="pet-coins">0</span></span>
           <span class="tama-batt"><span><i></i><i></i><i></i><i></i></span></span>
         </div>
         <div class="tama-sep"></div>
 
-        <!-- 名字、現在的狀態、時間日期 -->
+        <!-- 名字、心情・狀態、時間日期 -->
         <div class="tama-prof">
           <div class="tama-ava"><span class="px-chick"></span></div>
-          <div class="tama-name"><b>黃春 ♡</b><small id="tama-state"></small></div>
+          <div class="tama-name"><b>黃春 ♡</b><small><span id="tama-mood"></span>・<span id="tama-status"></span></small></div>
           <div class="tama-time"><b id="tama-clock"></b><span id="tama-date"></span></div>
         </div>
         <div class="tama-sep"></div>
 
         <div class="pet-room" id="pet-room">
-          <!-- 房間背景是 room.png（style.css 設定）；家具一件一張圖，疊在房間上面 -->
+          <!-- 房間背景是 room-tall.png（style.css 設定）；家具一件一張圖，放在上面 128×64 那一塊，下面多的是地板 -->
+          <div class="room-stage">
           <img class="room-item room-rug" src="rug.png" alt="" aria-hidden="true">
           <!-- 📺 電視：影片放在電視圖的後面，電視的框剛好框住影片（電視圖的螢幕挖空了） -->
           <div class="room-item room-tv-screen" aria-hidden="true">
@@ -149,6 +150,13 @@
           <button type="button" class="room-item room-door room-lamp on" id="room-lamp" aria-label="燈"><img src="lamp-on.png" alt=""></button>
           <button type="button" class="room-item room-door room-fridge" id="room-fridge" aria-label="冰箱" data-closed="fridge.png" data-open="fridge-open.png"><img src="fridge.png" alt=""></button>
           <button type="button" class="room-item room-door room-wardrobe" id="room-wardrobe" aria-label="衣櫃" data-closed="wardrobe.png" data-open="wardrobe-open.png"><img src="wardrobe.png" alt=""></button>
+
+          <!-- 😴 關燈時：黃春縮成一團睡在床上 -->
+          <button type="button" class="pet-sleep" id="pet-sleep" aria-label="睡覺中的黃春" hidden>
+            <img class="hc-img" src="huangchun-sleep.png" alt="">
+            <span class="pet-zzz" aria-hidden="true"><b>Z</b><b>z</b><b>z</b></span>
+          </button>
+          </div>
 
           <!-- 黃春：外層負責左右走，中間負責跳，裡面負責轉向 -->
           <div class="pet" id="pet">
@@ -164,29 +172,15 @@
             </div>
           </div>
 
-          <!-- 😴 關燈時：黃春縮成一團睡在床上 -->
-          <button type="button" class="pet-sleep" id="pet-sleep" aria-label="睡覺中的黃春" hidden>
-            <img class="hc-img" src="huangchun-sleep.png" alt="">
-            <span class="pet-zzz" aria-hidden="true"><b>Z</b><b>z</b><b>z</b></span>
-          </button>
-
           <!-- 🌙 關燈時蓋在整個房間上的夜晚 -->
           <div class="room-night" aria-hidden="true"></div>
         </div>
         <div class="tama-sep"></div>
 
-        <!-- 心情、狀態 -->
-        <div class="tama-mood">
-          <span class="px-chick"></span>
-          <span>心情：<span id="tama-mood"></span></span>
-          <span>狀態：<span id="tama-status"></span></span>
-        </div>
-        <div class="tama-sep"></div>
 
-        <!-- 飽足度格子、金幣 -->
+        <!-- 飽足度格子 -->
         <div class="tama-stats">
           <span class="tama-stat"><span data-px="rice"></span> 飽足 <span class="tama-seg" id="pet-full-seg"></span> <span id="pet-full-num">0</span></span>
-          <span class="tama-coins"><i class="pxi pixelart-icons-font-coins" aria-hidden="true"></i> <span id="pet-coins">0</span></span>
         </div>
 
         <!-- 三顆按鈕 -->

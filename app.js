@@ -290,6 +290,9 @@ tabButtons.forEach(function (button) {
         document.getElementById("tabs-money").hidden = pageId !== "page-money";
         document.getElementById("tabs-diary").hidden = pageId !== "page-diary";
         document.getElementById("top-title").hidden = pageId === "page-money" || pageId === "page-diary";
+        document.getElementById("top-title").innerHTML = pageId === "page-pet"
+            ? '<span class="heart">♡</span> 黃春的房間 <span class="heart">♡</span>'
+            : '<span class="heart">♡</span> MOA Diary <span class="heart">♡</span>';
     });
 });
 // ===== 倒數日 =====
@@ -2157,26 +2160,22 @@ function updatePetStatus() {
     document.getElementById("pet-full-seg").innerHTML = segHtml;
 
     // 狀態跟著飽足度變；心情：剛被照顧＝超開心，餓了＝委屈
-    let state, status;
-    if (full >= 60) { state = "肚子好飽～"; status = "吃飽了"; }
-    else if (full >= 30) { state = "有點餓了…"; status = "有點餓"; }
-    else { state = "好餓喔…"; status = "好餓喔"; }
+    let status = "吃飽了";
+    if (full < 30) status = "好餓喔";
+    else if (full < 60) status = "有點餓";
     let mood = "開心 ♡";
     if (Date.now() < petHappyUntil) mood = "超開心 ♡";
     else if (full < 30) mood = "有點委屈";
     if (petSinging) {
-        state = "♪ 啦啦啦～";
         status = "唱歌中";
         mood = "跟然竣一起唱～";
     }
     if (petSleeping) {
-        state = "呼嚕呼嚕…";
         status = "睡覺中";
         mood = "睡得好香～";
     }
     refreshPetLook();
 
-    document.getElementById("tama-state").textContent = state;
     document.getElementById("tama-status").textContent = status;
     document.getElementById("tama-mood").textContent = mood;
 }
@@ -2708,7 +2707,7 @@ function petDrop(e) {
     // 黃春的頭在不在床上（床：房間第 80～128 格、第 21～62 排）
     const room = petRoom.getBoundingClientRect();
     const gx = headX / room.width * 128;
-    const gy = headY / room.height * 64;
+    const gy = headY / room.width * 128;   // 格子是正方形：用寬度換算（房間下面多了地板也對得上）
     if (gx >= 82 && gy >= 22 && gy <= 62) {
         // 😴 放在床上：關燈，直接睡
         lampOff();

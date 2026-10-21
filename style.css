@@ -3007,3 +3007,36 @@ main .page {
 .pet-emoji[data-mode="sing"] ~ .wear {
   display: none;
 }
+
+
+/* ===== 🏠 房間變大：往下多 16 排地板（128×80），黃春走在前面 ===== */
+.tama .pet-room {
+  aspect-ratio: 128 / 80;
+  background-image: url("room-tall.png");
+}
+
+/* 家具放在上面 128×64 那一塊（原本房間的大小），位置的 % 都不用改 */
+.room-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+}
+
+/* 手機：黃春頁兩邊的留白縮小，房間大一點 */
+#page-pet {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#page-pet .tama {
+  padding: 8px 6px 10px;
+}
+
+@media (max-width: 480px) {
+  #page-pet {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
