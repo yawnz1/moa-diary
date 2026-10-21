@@ -1673,6 +1673,7 @@ document.getElementById("btn-export").addEventListener("click", function () {
         moneyRecords: records,
         diaryEntries: diaryEntries,
         concertTickets: tickets,
+        petData: JSON.parse(localStorage.getItem("petData") || "null"),   // 黃春：衣服、飽足度、花掉的金幣
     };
 
     // 變成文字，再包成一個檔案
@@ -1724,6 +1725,8 @@ document.getElementById("import-file").addEventListener("change", async function
         await localforage.setItem("diaryEntries", backup.diaryEntries);
         // 舊的備份沒有票夾：打開時會自動把演唱會記錄變成票根
         await localforage.setItem("concertTickets", backup.concertTickets || []);
+        // 黃春的資料（舊的備份沒有：黃春就不動）
+        if (backup.petData) localStorage.setItem("petData", JSON.stringify(backup.petData));
 
         toast("匯入完成！", "check");
         setTimeout(function () { location.reload(); }, 1000);   // 讓提示條顯示一下再重新載入  // 重新載入頁面，顯示匯入的資料
