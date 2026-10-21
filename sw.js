@@ -2,7 +2,7 @@
 // 這個檔案會在背景幫 App 把需要的檔案存一份在手機裡。
 // 有網路：先抓最新版（順便更新手機裡那份）；沒網路：用手機裡存的那份。
 
-const CACHE_NAME = "moa-diary-v14";
+const CACHE_NAME = "moa-diary-v16";
 
 // 打開 App 一定要有的檔案（包括從網路載入的字體、圖示、存資料的工具）
 const FILES = [
@@ -26,6 +26,7 @@ const FILES = [
     "./huangchun-full.png",
     "./huangchun-hungry.png",
     "./huangchun-hold.png",
+    "./huangchun-sing.png",
     "https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js",
     "https://cdn.jsdelivr.net/npm/pixelarticons@2.4.2/fonts/pixelart-icons-font.css",
     "https://cdn.jsdelivr.net/npm/pixelarticons@2.4.2/fonts/pixelart-icons-font.woff2?t=1786889958069",
@@ -61,6 +62,7 @@ self.addEventListener("fetch", function (event) {
     const request = event.request;
     if (request.method !== "GET") return;
     if (request.url.includes("currency-api")) return;   // 匯率：一定要抓最新的，沒網路就讓 App 用上次存的
+    if (request.url.includes(".mp4")) return;           // 電視影片：讓瀏覽器自己抓（影片是一段一段下載的，不要存）
 
     const sameSite = new URL(request.url).origin === self.location.origin;
 

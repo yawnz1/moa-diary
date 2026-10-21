@@ -2102,6 +2102,7 @@ function petFull() {
 // 剛餵食或摸摸之後，心情會「超開心」一陣子（到這個時間為止）
 let petHappyUntil = 0;
 let petSleeping = false;   // 關燈了：在床上睡覺
+let petSinging = false;    // 在電視前面拿麥克風唱歌
 let petEating = false;     // 剛吃完：翻肚子躺著
 
 // 黃春的樣子：平常站著、吃飽翻肚、餓扁趴著
@@ -2110,6 +2111,7 @@ const petImgs = {
     full: "huangchun-full.png",
     hungry: "huangchun-hungry.png",
     hold: "huangchun-hold.png",
+    sing: "huangchun-sing.png",
 };
 Object.values(petImgs).concat(["huangchun-sleep.png"]).forEach(function (src) {
     new Image().src = src;   // 先載好，換樣子時才不會閃
@@ -2121,6 +2123,7 @@ function refreshPetLook() {
     let mode = "normal";
     if (petHeld) mode = "hold";
     else if (petEating) mode = "full";
+    else if (petSinging) mode = "sing";
     else if (petFull() < 30) mode = "hungry";
     if (emoji.dataset.mode !== mode) {
         emoji.dataset.mode = mode;
@@ -2158,6 +2161,11 @@ function updatePetStatus() {
     let mood = "開心 ♡";
     if (Date.now() < petHappyUntil) mood = "超開心 ♡";
     else if (full < 30) mood = "有點委屈";
+    if (petSinging) {
+        state = "♪ 啦啦啦～";
+        status = "唱歌中";
+        mood = "跟然竣一起唱～";
+    }
     if (petSleeping) {
         state = "呼嚕呼嚕…";
         status = "睡覺中";
@@ -2247,7 +2255,7 @@ function petBedEdge() {
 
 function petNextMove() {
     // 被摸、睡覺、吃飽翻肚、餓扁趴著：都先不走
-    if (petBusy || petSleeping || petEating || petFull() < 30) {
+    if (petBusy || petSleeping || petEating || petSinging || petFull() < 30) {
         setTimeout(petNextMove, 800);
         return;
     }
@@ -2316,6 +2324,10 @@ function petPat() {
 }
 pet.addEventListener("click", function () {
     if (petJustDragged) return;   // 剛剛是在拖，不算點一下
+    if (petSinging) {
+        petStopSing();   // 唱歌時點一下：放下麥克風
+        return;
+    }
     petPat();
 });
 document.getElementById("btn-pat").addEventListener("click", petPat);
@@ -2357,7 +2369,31 @@ roomLamp.addEventListener("click", function () {
 
 // 😴 關燈：黃春先走到床邊，到了才縮成一團睡在床上
 let petBedTimer = null;
+// 🎤 在電視前面拿麥克風，跟電視裡的然竣一起唱（唱 10 秒自動放下麥克風）
+const PET_SING_SECONDS = 10;
+let petSingTimer = null;
+function petStartSing() {
+    petSinging = true;
+    document.getElementById("pet-notes").hidden = false;
+    updatePetStatus();
+    clearTimeout(petSingTimer);
+    petSingTimer = setTimeout(petStopSing, PET_SING_SECONDS * 1000);
+}
+
+function petStopSing() {
+    clearTimeout(petSingTimer);
+    if (!petSinging) return;
+    petSinging = false;
+    document.getElementById("pet-notes").hidden = true;
+    updatePetStatus();
+    petJump();
+}
+
 function petGoSleep() {
+    if (petSinging) {
+        petSinging = false;
+        document.getElementById("pet-notes").hidden = true;
+    }
     petSleeping = true;
     updatePetStatus();
     petStop();
@@ -2614,6 +2650,15 @@ if (clothesReady) showWearing(petBody, petData.wearing);
 petNextMove();
 
 
+// ===== 📺 電視：靜音、一直重播（有些手機要用程式再叫它播一次） =====
+const tvVideo = document.getElementById("tv-video");
+tvVideo.muted = true;
+tvVideo.play().catch(function () {});
+document.querySelector('[data-page="page-pet"]').addEventListener("click", function () {
+    tvVideo.play().catch(function () {});
+});
+
+
 // ===== ✋ 拖拉黃春 =====
 // 按住黃春拖著走 → 變成被拎起來的樣子；放在床上 → 關燈睡覺；放在別的地方 → 掉回地板
 let petDrag = null;
@@ -2636,6 +2681,11 @@ pet.addEventListener("pointermove", function (e) {
         // 手指移動超過 6px 才算在拖（不然就是點一下＝摸摸）
         if (Math.hypot(e.clientX - petDrag.x, e.clientY - petDrag.y) < 6) return;
         petDrag.started = true;
+        if (petSinging) {
+            petSinging = false;   // 拖走：放下麥克風
+            document.getElementById("pet-notes").hidden = true;
+            updatePetStatus();
+        }
         petBusy = true;
         petHeld = true;
         petStop();
@@ -2680,6 +2730,18 @@ function petDrop(e) {
         petPlace(petX);
         petIntoBed();
         updatePetStatus();
+        return;
+    }
+
+    // 🎤 放在電視前面（電視和地毯那一塊：房間第 46～86 格、第 15 排以下）：站到電視正前方唱歌
+    if (gx >= 46 && gx <= 86 && gy >= 15) {
+        petX = Math.min(petBedEdge(), Math.max(0, room.width * 67 / 128 - pet.offsetWidth / 2));
+        petPlace(petX, 0, 0.25, "ease-in");
+        setTimeout(function () {
+            petBusy = false;
+            petStartSing();
+            petJump();
+        }, 260);
         return;
     }
 

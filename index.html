@@ -139,6 +139,10 @@
         <div class="pet-room" id="pet-room">
           <!-- 房間背景是 room.png（style.css 設定）；家具一件一張圖，疊在房間上面 -->
           <img class="room-item room-rug" src="rug.png" alt="" aria-hidden="true">
+          <!-- 📺 電視：影片放在電視圖的後面，電視的框剛好框住影片（電視圖的螢幕挖空了） -->
+          <div class="room-item room-tv-screen" aria-hidden="true">
+            <video id="tv-video" src="tv.mp4" autoplay muted loop playsinline preload="auto"></video>
+          </div>
           <img class="room-item room-tv" src="tv.png" alt="" aria-hidden="true">
           <img class="room-item room-bed" src="bed.png" alt="" aria-hidden="true">
           <img class="room-item room-slippers" src="slippers.png" alt="" aria-hidden="true">
@@ -150,6 +154,7 @@
           <div class="pet" id="pet">
             <span class="pet-thought" id="pet-thought" hidden><i class="pxi pixelart-icons-font-message" aria-hidden="true"></i><span data-px="rice"></span></span>
             <span class="pet-say" id="pet-say" hidden>嗝～</span>
+            <span class="pet-notes" id="pet-notes" hidden aria-hidden="true"><b>♪</b><b>♫</b><b>♪</b></span>
             <div class="pet-hop" id="pet-hop">
               <span class="pet-body" id="pet-body">
                 <span class="pet-emoji" id="pet-emoji"><img class="hc-img" src="huangchun.png" alt="" aria-hidden="true" draggable="false"></span>
