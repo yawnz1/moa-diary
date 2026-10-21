@@ -2,7 +2,7 @@
 // 這個檔案會在背景幫 App 把需要的檔案存一份在手機裡。
 // 有網路：先抓最新版（順便更新手機裡那份）；沒網路：用手機裡存的那份。
 
-const CACHE_NAME = "moa-diary-v11";
+const CACHE_NAME = "moa-diary-v14";
 
 // 打開 App 一定要有的檔案（包括從網路載入的字體、圖示、存資料的工具）
 const FILES = [
@@ -22,6 +22,10 @@ const FILES = [
     "./slippers.png",
     "./lamp.png",
     "./lamp-on.png",
+    "./huangchun-sleep.png",
+    "./huangchun-full.png",
+    "./huangchun-hungry.png",
+    "./huangchun-hold.png",
     "https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js",
     "https://cdn.jsdelivr.net/npm/pixelarticons@2.4.2/fonts/pixelart-icons-font.css",
     "https://cdn.jsdelivr.net/npm/pixelarticons@2.4.2/fonts/pixelart-icons-font.woff2?t=1786889958069",

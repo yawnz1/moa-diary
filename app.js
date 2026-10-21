@@ -2101,6 +2101,32 @@ function petFull() {
 
 // 剛餵食或摸摸之後，心情會「超開心」一陣子（到這個時間為止）
 let petHappyUntil = 0;
+let petSleeping = false;   // 關燈了：在床上睡覺
+let petEating = false;     // 剛吃完：翻肚子躺著
+
+// 黃春的樣子：平常站著、吃飽翻肚、餓扁趴著
+const petImgs = {
+    normal: "huangchun.png",
+    full: "huangchun-full.png",
+    hungry: "huangchun-hungry.png",
+    hold: "huangchun-hold.png",
+};
+Object.values(petImgs).concat(["huangchun-sleep.png"]).forEach(function (src) {
+    new Image().src = src;   // 先載好，換樣子時才不會閃
+});
+
+// 照現在的狀態換黃春的樣子
+function refreshPetLook() {
+    const emoji = document.getElementById("pet-emoji");
+    let mode = "normal";
+    if (petHeld) mode = "hold";
+    else if (petEating) mode = "full";
+    else if (petFull() < 30) mode = "hungry";
+    if (emoji.dataset.mode !== mode) {
+        emoji.dataset.mode = mode;
+        emoji.querySelector("img").src = petImgs[mode];
+    }
+}
 
 // 更新電子寵物畫面：愛心、金幣、飽足度格子、心情、狀態，還有肚子餓的泡泡
 function updatePetStatus() {
@@ -2132,6 +2158,13 @@ function updatePetStatus() {
     let mood = "開心 ♡";
     if (Date.now() < petHappyUntil) mood = "超開心 ♡";
     else if (full < 30) mood = "有點委屈";
+    if (petSleeping) {
+        state = "呼嚕呼嚕…";
+        status = "睡覺中";
+        mood = "睡得好香～";
+        document.getElementById("pet-thought").hidden = true;
+    }
+    refreshPetLook();
 
     document.getElementById("tama-state").textContent = state;
     document.getElementById("tama-status").textContent = status;
@@ -2191,11 +2224,31 @@ function petHeart() {
 }
 
 // 決定下一步要做什麼：走、停、跳
-let petBusy = false;   // 正在被摸摸：先不要走
+let petBusy = false;   // 正在被摸摸、吃東西、被拎著：先不要走
+let petHeld = false;   // 正在被手指拎著
+
+// 把黃春放到房間的某個位置（x：離左邊幾 px；y：往上幾 px 是負的），seconds 是走過去要幾秒
+function petPlace(x, y, seconds, easing) {
+    pet.style.transition = seconds ? `transform ${seconds}s ${easing || "linear"}` : "none";
+    pet.style.transform = `translate(${x}px, ${y || 0}px)`;
+}
+
+// 停在現在走到的位置（走路走到一半也停住）
+function petStop() {
+    petX = new DOMMatrix(getComputedStyle(pet).transform).m41;
+    petBody.classList.remove("walking");
+    petPlace(petX);
+}
+
+// 床的左邊（床從房間第 80 格開始，房間寬 128 格）
+function petBedEdge() {
+    return Math.max(0, petRoom.clientWidth * 80 / 128 - pet.offsetWidth);
+}
 
 function petNextMove() {
-    if (petBusy) {
-        setTimeout(petNextMove, 500);
+    // 被摸、睡覺、吃飽翻肚、餓扁趴著：都先不走
+    if (petBusy || petSleeping || petEating || petFull() < 30) {
+        setTimeout(petNextMove, 800);
         return;
     }
     const roomWidth = petRoom.clientWidth;
@@ -2218,8 +2271,7 @@ function petNextMove() {
         setTimeout(function () {
             petBody.classList.remove("walking");
         }, seconds * 1000);
-        pet.style.transition = `transform ${seconds}s linear`;
-        pet.style.transform = `translateX(${targetX}px)`;
+        petPlace(targetX, 0, seconds);
         petX = targetX;
         setTimeout(petNextMove, seconds * 1000 + randomBetween(300, 800));
     } else if (dice < 0.85) {
@@ -2234,14 +2286,18 @@ function petNextMove() {
 
 // 🤚 摸摸：黃春停下來，小手從上面摸摸頭，摸完跳一下、冒愛心、超開心
 // （點黃春或按「摸摸」都會摸摸）
-function petPat() {
-    if (petBusy) return;
-    petBusy = true;
+// 睡覺的時候不要吵牠
+function petIsSleeping() {
+    if (!petSleeping) return false;
+    toast("噓～黃春在睡覺，開燈再陪牠玩吧", "moon");
+    return true;
+}
 
-    // 停在現在走到的位置（走路動畫做到一半也停住）
-    petX = new DOMMatrix(getComputedStyle(pet).transform).m41;
-    pet.style.transition = "none";
-    pet.style.transform = `translateX(${petX}px)`;
+function petPat() {
+    if (petIsSleeping() || petBusy) return;
+    if (petFull() < 30) return;   // 餓扁了，沒力氣理你
+    petBusy = true;
+    petStop();
 
     const hand = document.createElement("span");
     hand.className = "pet-hand";
@@ -2258,7 +2314,10 @@ function petPat() {
         petBusy = false;
     }, 1500);
 }
-pet.addEventListener("click", petPat);
+pet.addEventListener("click", function () {
+    if (petJustDragged) return;   // 剛剛是在拖，不算點一下
+    petPat();
+});
 document.getElementById("btn-pat").addEventListener("click", petPat);
 
 
@@ -2292,7 +2351,57 @@ roomLamp.addEventListener("click", function () {
     const on = roomLamp.classList.toggle("on");
     roomLamp.querySelector("img").src = on ? "lamp-on.png" : "lamp.png";
     petRoom.classList.toggle("dark", !on);
+    if (on) petWakeUp();
+    else petGoSleep();
 });
+
+// 😴 關燈：黃春先走到床邊，到了才縮成一團睡在床上
+let petBedTimer = null;
+function petGoSleep() {
+    petSleeping = true;
+    updatePetStatus();
+    petStop();
+    const bedX = petBedEdge();
+    const seconds = Math.min(2, Math.abs(bedX - petX) / 120);   // 走快一點，最多 2 秒
+    petBody.classList.add("walking");
+    petPlace(bedX, 0, seconds);
+    petX = bedX;
+    clearTimeout(petBedTimer);
+    petBedTimer = setTimeout(petIntoBed, seconds * 1000 + 100);
+}
+
+// 爬上床：地板上的黃春消失，床上的黃春出現
+function petIntoBed() {
+    if (!petSleeping) return;
+    petBody.classList.remove("walking");
+    pet.hidden = true;
+    document.getElementById("pet-sleep").hidden = false;
+}
+
+// 關燈（不用按燈，例如把黃春拖到床上）
+function lampOff() {
+    roomLamp.classList.remove("on");
+    roomLamp.querySelector("img").src = "lamp.png";
+    petRoom.classList.add("dark");
+}
+
+// ☀️ 開燈：醒來，出現在床邊跳一下（走到一半就開燈：停下來，不睡了）
+function petWakeUp() {
+    clearTimeout(petBedTimer);
+    petSleeping = false;
+    const sleepEl = document.getElementById("pet-sleep");
+    if (!sleepEl.hidden) {
+        sleepEl.hidden = true;
+        pet.hidden = false;
+        petX = petBedEdge();
+        petPlace(petX);
+        petJump();
+    } else {
+        petStop();
+    }
+    updatePetStatus();
+}
+document.getElementById("pet-sleep").addEventListener("click", petIsSleeping);
 
 
 // ----- 🍽️ 餵食 -----
@@ -2353,24 +2462,30 @@ function feedPet(food) {
         bite.remove();
     }, 800);
 
-    const emoji = document.getElementById("pet-emoji");
+    // 吃完：馬上停在原地，翻肚子躺著、打嗝，4 秒後站起來（中間都不走）
+    petBusy = true;
+    petStop();
     setTimeout(function () {
-        emoji.classList.add("big-belly");
+        petEating = true;
+        refreshPetLook();
     }, 700);
     setTimeout(function () {
         document.getElementById("pet-say").hidden = false;   // 嗝～
-        petJump();
         petHeart();
         setTimeout(petHeart, 200);
         setTimeout(petHeart, 400);
     }, 1500);
     setTimeout(function () {
         document.getElementById("pet-say").hidden = true;
-        emoji.classList.remove("big-belly");
-    }, 4000);
+        petEating = false;
+        petBusy = false;
+        refreshPetLook();
+        petJump();
+    }, 4700);
 }
 
 function openFood() {
+    if (petIsSleeping()) return;
     setDoor(roomFridge, true);
     setTimeout(function () {
         showFoodList();
@@ -2452,6 +2567,7 @@ function showWardrobe() {
 }
 
 function openWardrobe() {
+    if (petIsSleeping()) return;
     setDoor(roomWardrobe, true);
     if (!clothesReady) {
         toast("黃春的新衣服還在做喔～", "heart");
@@ -2496,6 +2612,88 @@ updatePetStatus();
 updatePetClock();
 if (clothesReady) showWearing(petBody, petData.wearing);
 petNextMove();
+
+
+// ===== ✋ 拖拉黃春 =====
+// 按住黃春拖著走 → 變成被拎起來的樣子；放在床上 → 關燈睡覺；放在別的地方 → 掉回地板
+let petDrag = null;
+let petJustDragged = false;
+
+pet.addEventListener("pointerdown", function (e) {
+    e.preventDefault();   // 不要讓瀏覽器自己的「拖圖片」把動作搶走（電腦用滑鼠時會跳出半透明的圖）
+    if (petSleeping || petEating || (petBusy && !petHeld)) return;
+    petDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, started: false };
+    pet.setPointerCapture(e.pointerId);
+});
+pet.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+pet.addEventListener("pointermove", function (e) {
+    if (!petDrag || e.pointerId !== petDrag.id) return;
+    const room = petRoom.getBoundingClientRect();
+    if (!petDrag.started) {
+        // 手指移動超過 6px 才算在拖（不然就是點一下＝摸摸）
+        if (Math.hypot(e.clientX - petDrag.x, e.clientY - petDrag.y) < 6) return;
+        petDrag.started = true;
+        petBusy = true;
+        petHeld = true;
+        petStop();
+        pet.classList.add("held");
+        refreshPetLook();
+    }
+    // 讓手指捏在黃春的頭上
+    const w = pet.offsetWidth, h = pet.offsetHeight;
+    const floor = room.height * 0.94;   // 平常腳踩的地方（離底部 6%）
+    let x = e.clientX - room.left - w / 2;
+    let bottom = e.clientY - room.top + h * 0.8;
+    x = Math.max(0, Math.min(room.width - w, x));
+    bottom = Math.max(h * 0.6, Math.min(room.height, bottom));
+    petX = x;
+    petPlace(x, bottom - floor);
+});
+
+function petDrop(e) {
+    if (!petDrag || e.pointerId !== petDrag.id) return;
+    const dragged = petDrag.started;
+    petDrag = null;
+    if (!dragged) return;   // 沒拖：等一下的 click 會變成摸摸
+
+    petJustDragged = true;
+    setTimeout(function () {
+        petJustDragged = false;
+    }, 50);
+    petHeld = false;
+    pet.classList.remove("held");
+
+    // 放開的地方在不在床上（床：房間第 80～128 格、第 21～62 排）
+    const room = petRoom.getBoundingClientRect();
+    const gx = (e.clientX - room.left) / room.width * 128;
+    const gy = (e.clientY - room.top) / room.height * 64;
+    if (gx >= 82 && gy >= 22 && gy <= 62) {
+        // 😴 放在床上：關燈，直接睡
+        lampOff();
+        petSleeping = true;
+        petBusy = false;
+        refreshPetLook();
+        petX = petBedEdge();
+        petPlace(petX);
+        petIntoBed();
+        updatePetStatus();
+        return;
+    }
+
+    // 放在其他地方：掉回地板，彈一下
+    petX = Math.min(petX, petBedEdge());
+    refreshPetLook();
+    petPlace(petX, 0, 0.25, "ease-in");
+    setTimeout(function () {
+        petJump();
+        petBusy = false;
+    }, 260);
+}
+pet.addEventListener("pointerup", petDrop);
+pet.addEventListener("pointercancel", petDrop);
 
 
 // ===== 👾 把畫面上預留的像素圖位置畫出來 =====

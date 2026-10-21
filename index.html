@@ -152,13 +152,19 @@
             <span class="pet-say" id="pet-say" hidden>嗝～</span>
             <div class="pet-hop" id="pet-hop">
               <span class="pet-body" id="pet-body">
-                <span class="pet-emoji" id="pet-emoji"><img class="hc-img" src="huangchun.png" alt="" aria-hidden="true"></span>
+                <span class="pet-emoji" id="pet-emoji"><img class="hc-img" src="huangchun.png" alt="" aria-hidden="true" draggable="false"></span>
                 <span class="wear wear-hat"></span>
                 <span class="wear wear-eyes"></span>
                 <span class="wear wear-neck"></span>
               </span>
             </div>
           </div>
+
+          <!-- 😴 關燈時：黃春縮成一團睡在床上 -->
+          <button type="button" class="pet-sleep" id="pet-sleep" aria-label="睡覺中的黃春" hidden>
+            <img class="hc-img" src="huangchun-sleep.png" alt="">
+            <span class="pet-zzz" aria-hidden="true"><b>Z</b><b>z</b><b>z</b></span>
+          </button>
 
           <!-- 🌙 關燈時蓋在整個房間上的夜晚 -->
           <div class="room-night" aria-hidden="true"></div>

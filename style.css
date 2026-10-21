@@ -2847,3 +2847,96 @@ main .page {
 .tama .pet-hand {
   bottom: 72%;
 }
+
+
+/* ===== 😴🍗😢 黃春的不同樣子 ===== */
+
+/* 躺著的圖下面有空白：往下移一點，才會貼在地板上 */
+.tama .pet-emoji[data-mode="full"] .hc-img {
+  transform: translateY(19%);
+}
+
+.tama .pet-emoji[data-mode="hungry"] .hc-img {
+  transform: translateY(14%);
+}
+
+/* 睡在床上：縮成一團，在枕頭和棉被中間 */
+.pet-sleep {
+  position: absolute;
+  left: 70%;
+  top: 30%;
+  width: 21cqw;
+  height: 21cqw;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pet-sleep .hc-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* Z z z：一個一個往上飄 */
+.pet-zzz {
+  position: absolute;
+  right: -10%;
+  top: -25%;
+  z-index: 6;          /* 關燈的夜晚那層上面，才看得清楚 */
+  pointer-events: none;
+}
+
+.pet-zzz b {
+  position: absolute;
+  color: #fff6d2;
+  font-size: 14px;
+  text-shadow: 1px 1px 0 #181425;
+  opacity: 0;
+  animation: pet-zzz 2.4s linear infinite;
+}
+
+.pet-zzz b:nth-child(2) { animation-delay: 0.8s; font-size: 11px; }
+.pet-zzz b:nth-child(3) { animation-delay: 1.6s; font-size: 9px; }
+
+@keyframes pet-zzz {
+  0% { opacity: 0; transform: translate(0, 0); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(12px, -22px); }
+}
+
+
+/* ===== ✋ 拖拉黃春、🍗 吃飽放大 ===== */
+
+/* 手機上拖黃春的時候，畫面不要跟著捲動 */
+.tama .pet {
+  touch-action: none;
+  cursor: grab;
+}
+
+/* 被拎著：在最上面（夜晚那層也蓋不到），跟著手指不要有動畫延遲 */
+.tama .pet.held {
+  z-index: 7;
+  cursor: grabbing;
+}
+
+/* 拎起來的圖比較長（48×64） */
+.tama .pet-emoji[data-mode="hold"] .hc-img {
+  height: 1.3333em;
+}
+
+/* 吃飽翻肚：放大 20%，貼著地板 */
+.tama .pet-emoji[data-mode="full"] .hc-img {
+  transform: translateY(19%) scale(1.2);
+  transform-origin: 50% 100%;
+}
+
+
+/* 黃春的圖不能被瀏覽器當成檔案拖走、也不要被反白 */
+.tama .pet,
+.tama .pet img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
