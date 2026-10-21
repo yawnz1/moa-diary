@@ -2387,7 +2387,41 @@ function petStopSing() {
     petSinging = false;
     document.getElementById("pet-notes").hidden = true;
     updatePetStatus();
-    petJump();
+    petPlace(petX, 0, 0.3, "ease-in");   // 從地毯走回前面的地板
+    setTimeout(petJump, 300);
+}
+
+// 唱歌站的地方：電視前面的地毯上（腳踩在房間第 63 排，放大 1.1 倍後耳朵剛好在螢幕下面）
+function petSingY() {
+    return Math.min(0, petRoom.clientWidth * 63 / 128 - petRoom.clientHeight * 0.94);
+}
+
+// 🦘 跳一個弧線到 (x, y)（跳上床、跳下床用），ms 毫秒跳完
+function petArcTo(x, y, ms) {
+    const from = new DOMMatrix(getComputedStyle(pet).transform);
+    const top = Math.min(from.m42, y) - pet.offsetHeight * 0.4;   // 最高點：比起點和終點都高一點
+    pet.style.transition = "none";
+    pet.style.transform = `translate(${x}px, ${y}px)`;
+    pet.animate([
+        { transform: `translate(${from.m41}px, ${from.m42}px)` },
+        { transform: `translate(${(from.m41 + x) / 2}px, ${top}px)`, offset: 0.5 },
+        { transform: `translate(${x}px, ${y}px)` },
+    ], { duration: ms, easing: "ease-in-out" });
+}
+
+// 床上睡覺的位置（跟 .pet-sleep 一樣：房間寬的 70%、上面那塊高的 30%）
+function petBedSpot() {
+    const w = petRoom.clientWidth;
+    return { x: w * 0.7, y: w * 0.15 - (petRoom.clientHeight * 0.94 - pet.offsetHeight) };
+}
+
+// 跳上床之前站的地方：床的左邊、靠床（黃春中間在第 74 格，腳踩在第 52 排）
+function petBedSide() {
+    const w = petRoom.clientWidth;
+    return {
+        x: w * 74 / 128 - pet.offsetWidth / 2,
+        y: Math.min(0, w * 52 / 128 - petRoom.clientHeight * 0.94),
+    };
 }
 
 function petGoSleep() {
@@ -2398,16 +2432,26 @@ function petGoSleep() {
     petSleeping = true;
     updatePetStatus();
     petStop();
-    const bedX = petBedEdge();
-    const seconds = Math.min(2, Math.abs(bedX - petX) / 120);   // 走快一點，最多 2 秒
+    const side = petBedSide();
+    const seconds = Math.min(2, Math.hypot(side.x - petX, side.y) / 120);   // 斜斜走過去，走快一點，最多 2 秒
     petBody.classList.add("walking");
-    petPlace(bedX, 0, seconds);
-    petX = bedX;
+    petPlace(side.x, side.y, seconds);
+    petX = side.x;
     clearTimeout(petBedTimer);
-    petBedTimer = setTimeout(petIntoBed, seconds * 1000 + 100);
+    petBedTimer = setTimeout(petHopOnBed, seconds * 1000 + 100);
 }
 
-// 爬上床：地板上的黃春消失，床上的黃春出現
+// 走到床邊了：跳上床，落下來才縮成一團
+function petHopOnBed() {
+    if (!petSleeping) return;
+    petBody.classList.remove("walking");
+    const bed = petBedSpot();
+    petArcTo(bed.x, bed.y, 500);
+    petX = bed.x;
+    petBedTimer = setTimeout(petIntoBed, 520);
+}
+
+// 睡進被窩：地板上的黃春消失，床上縮成一團的黃春出現
 function petIntoBed() {
     if (!petSleeping) return;
     petBody.classList.remove("walking");
@@ -2422,7 +2466,7 @@ function lampOff() {
     petRoom.classList.add("dark");
 }
 
-// ☀️ 開燈：醒來，出現在床邊跳一下（走到一半就開燈：停下來，不睡了）
+// ☀️ 開燈：醒來，從床上往前跳到床前面的地板，落地彈一下（走到一半就開燈：停下來，不睡了）
 function petWakeUp() {
     clearTimeout(petBedTimer);
     petSleeping = false;
@@ -2430,9 +2474,15 @@ function petWakeUp() {
     if (!sleepEl.hidden) {
         sleepEl.hidden = true;
         pet.hidden = false;
-        petX = petBedEdge();
-        petPlace(petX);
-        petJump();
+        const bed = petBedSpot();
+        petPlace(bed.x, bed.y);
+        petBusy = true;   // 跳下來的時候先不要亂走
+        petX = petRoom.clientWidth * 0.6;   // 床前面的地板
+        petArcTo(petX, 0, 600);
+        setTimeout(function () {
+            petJump();
+            petBusy = false;
+        }, 620);
     } else {
         petStop();
     }
@@ -2724,7 +2774,7 @@ function petDrop(e) {
     // 🎤 放在電視前面（電視和地毯那一塊：房間第 46～86 格、第 15 排以下）：站到電視正前方唱歌
     if (gx >= 46 && gx <= 86 && gy >= 15) {
         petX = Math.min(petBedEdge(), Math.max(0, room.width * 67 / 128 - pet.offsetWidth / 2));
-        petPlace(petX, 0, 0.25, "ease-in");
+        petPlace(petX, petSingY(), 0.25, "ease-in");
         setTimeout(function () {
             petBusy = false;
             petStartSing();
