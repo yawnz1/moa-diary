@@ -873,10 +873,17 @@ function makeCard(r, mode) {
 }
 
 // 把所有記帳顯示成卡片
+// 照日期排：新的在最上面；同一天的，後記的在上面
+function recordsNewestFirst() {
+    return records.slice().sort(function (a, b) {
+        return b.date.localeCompare(a.date) || b.id - a.id;
+    });
+}
+
 function showRecords() {
     moneyList.innerHTML = "";  // 先清空
 
-    records.forEach(function (r) {
+    recordsNewestFirst().forEach(function (r) {
         moneyList.appendChild(makeCard(r, "all"));
     });
 
@@ -893,7 +900,7 @@ function showPending() {
     pendingList.innerHTML = "";
 
     // 挑出「狀態不是已到貨」的
-    const pending = records.filter(function (r) {
+    const pending = recordsNewestFirst().filter(function (r) {
         return r.status !== "完成";
     });
 
