@@ -982,6 +982,13 @@ function setThisMonth() {
     updateStats();
 }
 
+// 設定成「全部」：不限日期
+function setAllTime() {
+    document.getElementById("stats-from").value = "";
+    document.getElementById("stats-to").value = "";
+    updateStats();
+}
+
 // 計算這段日期花了多少
 function updateStats() {
     const from = document.getElementById("stats-from").value;
@@ -1059,7 +1066,8 @@ function updateStatsRange() {
     // 同一年的話，後面那個日期只寫月日，比較短
     const toText = from && to && from.slice(0, 4) === to.slice(0, 4) ? to.slice(5).replace("-", "/") : show(to);
     const open = !document.getElementById("stats-range-panel").hidden;
-    statsRangeBtn.innerHTML = `${icon("calendar")} ${show(from)}～${toText} ${open ? "▲" : "▼"}`;
+    const rangeText = !from && !to ? "全部" : `${show(from)}～${toText}`;   // 兩個都沒選＝全部
+    statsRangeBtn.innerHTML = `${icon("calendar")} ${rangeText} ${open ? "▲" : "▼"}`;
 }
 statsRangeBtn.addEventListener("click", function () {
     const panel = document.getElementById("stats-range-panel");
@@ -1070,16 +1078,20 @@ statsRangeBtn.addEventListener("click", function () {
 document.getElementById("stats-from").addEventListener("input", updateStatsRange);
 document.getElementById("stats-to").addEventListener("input", updateStatsRange);
 
-// 改日期時重新計算；按「這個月」跳回本月
+// 改日期時重新計算；按「全部」看全部、按「這個月」跳回本月
 document.getElementById("stats-from").addEventListener("input", updateStats);
 document.getElementById("stats-to").addEventListener("input", updateStats);
+document.getElementById("stats-all").addEventListener("click", function () {
+    setAllTime();
+    updateStatsRange();
+});
 document.getElementById("stats-this-month").addEventListener("click", function () {
     setThisMonth();
     updateStatsRange();
 });
 
-// 打開網頁時，預設顯示這個月
-setThisMonth();
+// 打開網頁時，預設顯示全部
+setAllTime();
 updateStatsRange();
 
 
